@@ -5,7 +5,7 @@
 > [!IMPORTANT]
 > 本仓库不构成投资、法律、税务、会计或监管建议。所有技能只用于辅助起草分析材料、模型、备忘录、研究笔记、核对表、报告包和演示材料，输出必须由具备资质的专业人员复核。技能不会作出投资建议、执行交易、绑定风险、入账、批准客户准入或对外分发材料。
 
-## 安装到 Codex
+## Getting Started（安装到 Codex）
 
 复制下面整段命令执行，即可安装到 Codex：
 
@@ -29,7 +29,7 @@ mkdir -p "$HOME/plugins" "$HOME/.agents/plugins" && ln -sfn "$PWD" "$HOME/plugin
 
 上面两条都是一键命令；不需要用户手写 marketplace JSON。
 
-## 仓库里有什么
+## What's in the repo（仓库里有什么）
 
 - **一个 Codex 插件**：根级 `.codex-plugin/plugin.json` 声明 `financial-services-cn`。
 - **66 个扁平技能**：所有 source skills 直接位于 `skills` 目录，每个技能目录包含 `SKILL.md`。
@@ -39,7 +39,7 @@ mkdir -p "$HOME/plugins" "$HOME/.agents/plugins" && ln -sfn "$PWD" "$HOME/plugin
 
 本仓库不内置旧式多插件包装层、独立代理包、显式动作入口或托管代理模板。安装、使用和维护都围绕 `financial-services-cn` 进行。
 
-## 仓库结构
+## Repository Layout（仓库结构）
 
 ```text
 .codex-plugin/plugin.json      Codex 插件 manifest
@@ -69,7 +69,7 @@ THIRD_PARTY_NOTICES.md         第三方许可说明
 - DOCX、PPTX、XLSX、Markdown、表格、图表、脚注和最终摘要必须使用中文金融语境。
 - DCF、LBO、WACC、EV/EBITDA、IRR、MOIC、NAV、KYC、AML、MCP、CLI 等专业缩写保留。
 
-## 它们如何配合
+## How It Fits Together（它们如何配合）
 
 | 组成 | 作用 | 位置 |
 |---|---|---|
@@ -80,7 +80,7 @@ THIRD_PARTY_NOTICES.md         第三方许可说明
 | 中文产物规则 | 约束中文字体、日期、币种、单位、表格、图表、免责声明和摘要 | `CN_OUTPUT_FORMATTING.md` |
 | 校验脚本 | 防止旧架构残留、英文模板残留、manifest 错误和中文产物样例退化 | `scripts` |
 
-## 技能领域
+## Vertical Plugins（技能领域）
 
 | 领域 | 能力摘要 |
 |---|---|
@@ -93,6 +93,48 @@ THIRD_PARTY_NOTICES.md         第三方许可说明
 | KYC 与运营 | KYC 文件解析、KYC/AML 规则评估、缺失项和升级事项标记 |
 | LSEG 数据工作流 | 债券相对价值、期货基差、掉期曲线、外汇套息、期权波动率、固收组合、宏观利率监控 |
 | S&P Global 数据工作流 | 公司速览、融资摘要、业绩预览和 Capital IQ 相关材料 |
+
+## MCP Integrations（MCP 集成）
+
+`.mcp.json` 当前声明以下 MCP 入口。实际可用性取决于用户本地环境、账号、token、订阅和数据授权；无法确认时，技能必须写“需确认”。
+
+| 名称 | 类型 | 入口 |
+|---|---|---|
+| `daloopa` | 机构数据源 | `https://mcp.daloopa.com/server/mcp` |
+| `morningstar` | 机构数据源 | `https://mcp.morningstar.com/mcp` |
+| `sp-global` | S&P Global / Kensho | `https://kfinance.kensho.com/integrations/mcp` |
+| `factset` | 机构数据源 | `https://mcp.factset.com/mcp` |
+| `moodys` | Moody's 数据源 | `https://api.moodys.com/genai-ready-data/m1/mcp` |
+| `mtnewswire` | 新闻数据源 | `https://vast-mcp.blueskyapi.com/mtnewswires` |
+| `aiera` | 会议和文字稿数据源 | `https://mcp-pub.aiera.com` |
+| `lseg` | LSEG 分析入口 | `https://api.analytics.lseg.com/lfa/mcp` |
+| `lseg-server-cl` | LSEG server-cl 入口 | `https://api.analytics.lseg.com/lfa/mcp/server-cl` |
+| `pitchbook` | PitchBook 数据源 | `https://premium.mcp.pitchbook.com/mcp` |
+| `chronograph` | Chronograph 数据源 | `https://ai.chronograph.pe/mcp` |
+| `egnyte` | 文档数据源 | `https://mcp-server.egnyte.com/mcp` |
+| `openbb-cn-market` | 本地中国市场工具 | `http://127.0.0.1:8001/mcp` |
+| `tushare-pro` | 本地 Tushare Pro 工具 | `python -m tushare_mcp_server.main`，通过 `TUSHARE_TOKEN` 读取 token |
+| `akshare-one` | 本地 AKShare 工具 | `uvx akshare-one-mcp` |
+
+机构数据源通常需要订阅或 API key。OpenBB、Tushare 和 AKShare 相关入口只在用户确认本地服务、依赖和授权可用后使用。
+
+## 中国大陆投资者优化
+
+- **A 股优先**：未指定市场时，默认按 A 股公司、人民币、A 股交易日、交易所公告和中国会计语境处理。
+- **跨市场可比**：涉及港股、美股或 ADR 时，必须标注交易所、币种、会计准则、数据日期、汇率来源和是否统一口径。
+- **中文产物格式**：中文标题、表头、脚注、图例、来源说明和免责声明不得沿用英文默认版式。
+- **来源可追溯**：每个关键结论应能追溯到用户文件、官方披露、MCP/数据库名称、公告日期、数据日期或页码。
+- **谨慎边界**：缺少官方材料、用户政策或授权数据支持的监管、会计、KYC、税务、基金运营和客户适当性判断，一律写“需确认”。
+
+## Making It Yours（按机构定制）
+
+这些技能是中文金融工作流模板。落地到具体机构时，建议按以下方式调整：
+
+- **替换数据源**：将 `.mcp.json` 指向你有授权的数据平台、内部数据库或本地市场数据服务。
+- **加入机构语境**：把公司术语、投资标准、KYC 政策、审批流程和材料规范写进相关技能。
+- **带入模板**：用用户提供的 PPT、Excel、DOCX 模板约束版式，但保留中文来源脚注、币种、单位和免责声明。
+- **调整技能边界**：只扩展真实需要的工作流，不引入与本仓库单插件形态冲突的旧架构入口。
+- **保留审计链**：模型、报告和演示材料必须说明数据来源、口径限制和待人工复核事项。
 
 ## Skill & Command Reference（技能与命令参考）
 
@@ -209,48 +251,6 @@ THIRD_PARTY_NOTICES.md         第三方许可说明
 | `tear-sheet` | 无 | 使用 S&P Capital IQ 相关数据生成公司速览。 |
 | `funding-digest` | 无 | 汇总融资轮次和资本市场活动为简报材料。 |
 
-## MCP 集成
-
-`.mcp.json` 当前声明以下 MCP 入口。实际可用性取决于用户本地环境、账号、token、订阅和数据授权；无法确认时，技能必须写“需确认”。
-
-| 名称 | 类型 | 入口 |
-|---|---|---|
-| `daloopa` | 机构数据源 | `https://mcp.daloopa.com/server/mcp` |
-| `morningstar` | 机构数据源 | `https://mcp.morningstar.com/mcp` |
-| `sp-global` | S&P Global / Kensho | `https://kfinance.kensho.com/integrations/mcp` |
-| `factset` | 机构数据源 | `https://mcp.factset.com/mcp` |
-| `moodys` | Moody's 数据源 | `https://api.moodys.com/genai-ready-data/m1/mcp` |
-| `mtnewswire` | 新闻数据源 | `https://vast-mcp.blueskyapi.com/mtnewswires` |
-| `aiera` | 会议和文字稿数据源 | `https://mcp-pub.aiera.com` |
-| `lseg` | LSEG 分析入口 | `https://api.analytics.lseg.com/lfa/mcp` |
-| `lseg-server-cl` | LSEG server-cl 入口 | `https://api.analytics.lseg.com/lfa/mcp/server-cl` |
-| `pitchbook` | PitchBook 数据源 | `https://premium.mcp.pitchbook.com/mcp` |
-| `chronograph` | Chronograph 数据源 | `https://ai.chronograph.pe/mcp` |
-| `egnyte` | 文档数据源 | `https://mcp-server.egnyte.com/mcp` |
-| `openbb-cn-market` | 本地中国市场工具 | `http://127.0.0.1:8001/mcp` |
-| `tushare-pro` | 本地 Tushare Pro 工具 | `python -m tushare_mcp_server.main`，通过 `TUSHARE_TOKEN` 读取 token |
-| `akshare-one` | 本地 AKShare 工具 | `uvx akshare-one-mcp` |
-
-机构数据源通常需要订阅或 API key。OpenBB、Tushare 和 AKShare 相关入口只在用户确认本地服务、依赖和授权可用后使用。
-
-## 中国大陆投资者优化
-
-- **A 股优先**：未指定市场时，默认按 A 股公司、人民币、A 股交易日、交易所公告和中国会计语境处理。
-- **跨市场可比**：涉及港股、美股或 ADR 时，必须标注交易所、币种、会计准则、数据日期、汇率来源和是否统一口径。
-- **中文产物格式**：中文标题、表头、脚注、图例、来源说明和免责声明不得沿用英文默认版式。
-- **来源可追溯**：每个关键结论应能追溯到用户文件、官方披露、MCP/数据库名称、公告日期、数据日期或页码。
-- **谨慎边界**：缺少官方材料、用户政策或授权数据支持的监管、会计、KYC、税务、基金运营和客户适当性判断，一律写“需确认”。
-
-## Making It Yours
-
-这些技能是中文金融工作流模板。落地到具体机构时，建议按以下方式调整：
-
-- **替换数据源**：将 `.mcp.json` 指向你有授权的数据平台、内部数据库或本地市场数据服务。
-- **加入机构语境**：把公司术语、投资标准、KYC 政策、审批流程和材料规范写进相关技能。
-- **带入模板**：用用户提供的 PPT、Excel、DOCX 模板约束版式，但保留中文来源脚注、币种、单位和免责声明。
-- **调整技能边界**：只扩展真实需要的工作流，不引入与本仓库单插件形态冲突的旧架构入口。
-- **保留审计链**：模型、报告和演示材料必须说明数据来源、口径限制和待人工复核事项。
-
 ## 本地开发与校验
 
 修改本仓库后，至少运行：
@@ -272,7 +272,7 @@ python3 /Users/lesterbot/.codex/skills/.system/plugin-creator/scripts/validate_p
 
 如果 `python3 scripts/check_cn_artifact_samples.py` 因本机缺少 `python-pptx` 或 `openpyxl` 失败，可以在临时 venv 中安装这两个包后重跑该脚本；不要为了跑样例检查而把临时依赖写进仓库。
 
-## 贡献规则
+## Contributing（贡献规则）
 
 - 新增或改写技能时，必须包含“中文版执行契约”，并引用 `DATA_SOURCES_CN.md` 和 `CN_OUTPUT_FORMATTING.md`。
 - 不修改技能目录名、schema key、环境变量名、MCP server 名称或既有 URL，除非同时说明迁移方案。
@@ -281,6 +281,6 @@ python3 /Users/lesterbot/.codex/skills/.system/plugin-creator/scripts/validate_p
 - 不引入旧多插件包装层、独立代理包、显式动作入口或托管代理模板。
 - 改完必须运行结构检查、中文化门禁、中文产物样例检查和 Codex manifest 校验。
 
-## 许可证
+## License（许可证）
 
 仓库根目录遵守 [`LICENSE`](./LICENSE)。部分 S&P Global/Kensho 技能保留原 Apache 2.0 许可文件，详见 [`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md)。
