@@ -6,8 +6,9 @@ description: 创建专业股票研究业绩更新报告（8-12 页，3,000-5,000
 ## 中文版执行契约
 
 - 默认使用中国大陆金融语境：A股优先，港股和美股兼容；如用户指定市场、币种、会计准则或模板，以用户输入为准。
-- 数据来源必须遵守根目录 `DATA_SOURCES_CN.md`：官方披露、用户文件、已授权 MCP/数据库优先；免费源只作辅助；监管、会计、KYC、基金文件和月结判断无依据时写“需确认”。
-- 所有产物必须遵守根目录 `CN_OUTPUT_FORMATTING.md`：中文字体栈、中文日期、币种/单位、图表标题、表格表头、来源脚注、风险提示和免责声明都要按中文机构材料处理。
+- 数据来源必须遵守插件根目录 `../../DATA_SOURCES_CN.md`：官方披露、用户文件、已授权 MCP/数据库优先；免费源只作辅助；监管、会计、KYC、基金文件和月结判断无依据时写“需确认”。
+- 所有产物必须遵守插件根目录 `../../CN_OUTPUT_FORMATTING.md`：中文字体栈、中文日期、币种/单位、图表标题、表格表头、来源脚注、风险提示和免责声明都要按中文机构材料处理。
+- DOCX 主交付物必须遵守插件根目录 `../../CN_DOCX_OUTPUT_CONTRACT.md`，使用 `cn_institutional_research_brief` 中文机构投研 preset，并完成结构校验与可用的 render QA。
 - 用户模板和品牌规范优先，但不得突破中文可读性、来源脚注、币种/单位/日期/口径说明这些底线。
 - 保留 DCF、LBO、WACC、EV/EBITDA、IRR、MOIC、NAV、KYC、AML、MCP、CLI 等专业缩写和代码标识。
 
@@ -26,6 +27,74 @@ description: 创建专业股票研究业绩更新报告（8-12 页，3,000-5,000
 - **重点**：新增信息，即超预期/低于预期、更新预测、投资逻辑影响
 - **字体**：除非用户另有指定，中文输出按 `CN_OUTPUT_FORMATTING.md` 使用中文字体栈
 
+## 交付物硬门槛
+
+除非用户明确要求“只要摘要”“只要文字”“不用文件”“不要 DOCX”，否则本 skill 的默认主交付物必须是 DOCX 业绩更新报告。聊天摘要只能作为交付说明，不能替代 DOCX 主交付物。
+
+最终回复前必须确认：
+- DOCX 文件已生成
+- DOCX 文件路径存在且可访问
+- DOCX 可被打开或结构校验通过
+- 最终回复必须包含 DOCX 文件路径
+
+未生成 DOCX 时，不得声称任务完成。若只能提供临时纯文本摘要，必须明确写“DOCX 主交付物未完成”，并说明缺少的依赖、数据或 QA 步骤。
+
+## 默认意图解析
+
+当用户使用本 skill，并提出以下请求时，默认输出必须是 DOCX 业绩更新报告加简短交付摘要：
+- “分析最新财报”
+- “业绩分析”
+- “季度更新”
+- “财报更新”
+- “最新一期报告”
+- “快评”
+- “快速观点”
+- “[公司] 最新财报”
+
+仅当用户明确说“只要摘要”“只要文字”“不用文件”“不要 DOCX”时，才允许降级为纯文本。降级为纯文本时，最终回复必须说明这是用户明确选择的非 DOCX 输出。
+
+## DOCX 生成前必须读取
+
+生成正式 DOCX 前必须读取：
+- 插件根目录 `../../DATA_SOURCES_CN.md`
+- 插件根目录 `../../CN_OUTPUT_FORMATTING.md`
+- 插件根目录 `../../CN_DOCX_OUTPUT_CONTRACT.md`
+- `references/workflow.md`
+- `references/report-structure.md`
+- `references/best-practices.md`
+- Documents skill 的 `SKILL.md`
+- Documents skill 的 `references/design_presets.md`
+
+未读取上述规则时，不得生成正式 DOCX。若 Documents skill 或 `references/design_presets.md` 在当前环境不可读取，只允许输出临时纯文本摘要，并必须标记“DOCX 主交付物未完成”，不得声称任务完成。
+
+## DOCX 输出合同
+
+生成 DOCX 时必须使用 `CN_DOCX_OUTPUT_CONTRACT.md` 中的 `cn_institutional_research_brief` preset。必须落实以下 Word 结构要求：
+- 中文字体栈写入 Word OOXML，关键样式和 run 必须包含 `w:rFonts@w:eastAsia`、`w:rFonts@w:ascii`、`w:rFonts@w:hAnsi`
+- 表格必须使用固定宽度，包含 `tblGrid`、`tcW` 和 cell margin
+- 列表必须使用真实 Word numbering definitions，禁止 fake bullets
+- 来源必须使用可点击 hyperlink，禁止裸 URL
+- 图表标题、轴标签、图例、来源和注释必须中文化
+- 如 LibreOffice/`soffice` 可用，必须执行 DOCX -> PNG render QA；如不可用，最终回复必须说明未完成视觉渲染 QA
+
+## 最终回复前检查
+
+最终回复前必须通过以下检查：
+
+- [ ] DOCX 文件存在
+- [ ] DOCX 可打开或结构校验通过
+- [ ] DOCX 包含 8-12 张图表
+- [ ] DOCX 包含 1-3 张摘要表
+- [ ] DOCX 包含“数据来源与口径说明”或“来源与参考资料”章节
+- [ ] DOCX 包含可点击超链接
+- [ ] DOCX 无裸 URL
+- [ ] DOCX 使用中文字体栈
+- [ ] 表格使用固定宽度、`tblGrid`、`tcW` 和 cell margin
+- [ ] 列表使用真实 Word numbering definitions
+- [ ] 图表中文字体可显示
+- [ ] 已完成 render QA；如未完成，最终回复必须说明原因
+- [ ] 最终回复包含 DOCX 文件路径
+
 ## 何时使用
 
 当用户提出以下请求时使用：
@@ -36,7 +105,6 @@ description: 创建专业股票研究业绩更新报告（8-12 页，3,000-5,000
 
 **不要在以下情况使用：**
 - 用户要求“首次覆盖报告” → 使用其他 skill
-- 用户要求“快评”或“快速观点” → 使用其他格式
 - 公司尚未覆盖 → 需要先做首次覆盖
 
 ## 关键要求

@@ -14,6 +14,7 @@ SKILLS = ROOT / "skills"
 REQUIRED_DOCS = [
     "DATA_SOURCES_CN.md",
     "CN_OUTPUT_FORMATTING.md",
+    "CN_DOCX_OUTPUT_CONTRACT.md",
     "OPTIONAL_MCP_TEMPLATES.md",
     "ACCEPTANCE_SAMPLES_CN.md",
     "THIRD_PARTY_NOTICES.md",
@@ -28,8 +29,22 @@ REQUIRED_SKILL_NEEDLES = [
 ARTIFACT_RULE_FILES = [
     "skills/xlsx-author/SKILL.md",
     "skills/pptx-author/SKILL.md",
+    "skills/earnings-analysis/SKILL.md",
+    "skills/earnings-analysis/references/report-structure.md",
+    "skills/earnings-analysis/references/best-practices.md",
     "skills/pitch-deck/reference/formatting-standards.md",
     "skills/3-statement-model/references/formatting.md",
+]
+
+EARNINGS_ANALYSIS_NEEDLES = [
+    "交付物硬门槛",
+    "默认意图解析",
+    "DOCX 生成前必须读取",
+    "CN_DOCX_OUTPUT_CONTRACT.md",
+    "未生成 DOCX 时，不得声称任务完成",
+    "最终回复必须包含 DOCX 文件路径",
+    "cn_institutional_research_brief",
+    "DOCX 主交付物未完成",
 ]
 
 FORBIDDEN_LEGACY_WORDING = [
@@ -213,6 +228,14 @@ def check_artifact_rules() -> None:
             err(f"产物格式文件缺少中文格式规则：{item}")
 
 
+def check_earnings_analysis_contract() -> None:
+    skill = ROOT / "skills" / "earnings-analysis" / "SKILL.md"
+    text = skill.read_text(encoding="utf-8")
+    for needle in EARNINGS_ANALYSIS_NEEDLES:
+        if needle not in text:
+            err(f"earnings-analysis 缺少硬门槛文本：{needle}")
+
+
 def check_forbidden_and_residual_text() -> None:
     for path in iter_text_files():
         text = path.read_text(encoding="utf-8", errors="ignore")
@@ -230,6 +253,7 @@ def main() -> int:
     check_manifest()
     check_skills()
     check_artifact_rules()
+    check_earnings_analysis_contract()
     check_forbidden_and_residual_text()
 
     if errors:

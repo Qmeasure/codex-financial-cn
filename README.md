@@ -5,36 +5,50 @@
 > [!IMPORTANT]
 > 本仓库不构成投资、法律、税务、会计或监管建议。所有技能只用于辅助起草分析材料、模型、备忘录、研究笔记、核对表、报告包和演示材料，输出必须由具备资质的专业人员复核。技能不会作出投资建议、执行交易、绑定风险、入账、批准客户准入或对外分发材料。
 
-## Getting Started（安装到 Codex）
+## Getting Started（安装或更新到 Codex）
 
-复制下面整段命令执行，即可安装到 Codex：
+安装命令按操作系统区分：macOS/Linux 使用 bash 或 zsh，Windows 使用 PowerShell。两条命令做同一件事：把插件源码放到用户目录下的 `plugins/financial-services-cn`，写入个人 marketplace，然后执行 `codex plugin add financial-services-cn@personal`。
+
+### macOS / Linux
+
+复制下面整段命令执行，即可安装或更新到 Codex：
 
 ```bash
 mkdir -p "$HOME/plugins" "$HOME/.agents/plugins" && (git clone https://github.com/Qmeasure/codex-financial-cn.git "$HOME/plugins/financial-services-cn" 2>/dev/null || git -C "$HOME/plugins/financial-services-cn" pull --ff-only) && python3 -c 'import json,pathlib;p=pathlib.Path.home()/".agents/plugins/marketplace.json";data=json.loads(p.read_text()) if p.exists() else {"name":"personal","interface":{"displayName":"Personal"},"plugins":[]};entry={"name":"financial-services-cn","source":{"source":"local","path":"./plugins/financial-services-cn"},"policy":{"installation":"AVAILABLE","authentication":"ON_INSTALL"},"category":"Finance"};plugins=data.setdefault("plugins",[]);plugins[:]=[x for x in plugins if not (isinstance(x,dict) and x.get("name")=="financial-services-cn")]+[entry];data.setdefault("name","personal");data.setdefault("interface",{"displayName":"Personal"});p.write_text(json.dumps(data,ensure_ascii=False,indent=2)+"\n")' && codex plugin add financial-services-cn@personal
 ```
 
-这条命令会自动完成：
+### Windows PowerShell
+
+复制下面整段命令到 PowerShell 执行，即可安装或更新到 Codex：
+
+```powershell
+$repo='https://github.com/Qmeasure/codex-financial-cn.git'; $plugin=Join-Path $HOME 'plugins\financial-services-cn'; $market=Join-Path $HOME '.agents\plugins\marketplace.json'; New-Item -ItemType Directory -Force -Path (Split-Path $plugin),(Split-Path $market) | Out-Null; if (Test-Path $plugin) { git -C $plugin pull --ff-only } else { git clone $repo $plugin }; py -3 -c "import json,pathlib; p=pathlib.Path.home()/'.agents/plugins/marketplace.json'; data=json.loads(p.read_text(encoding='utf-8')) if p.exists() else {'name':'personal','interface':{'displayName':'Personal'},'plugins':[]}; entry={'name':'financial-services-cn','source':{'source':'local','path':'./plugins/financial-services-cn'},'policy':{'installation':'AVAILABLE','authentication':'ON_INSTALL'},'category':'Finance'}; plugins=data.setdefault('plugins',[]); plugins[:]=[x for x in plugins if not (isinstance(x,dict) and x.get('name')=='financial-services-cn')]+[entry]; data.setdefault('name','personal'); data.setdefault('interface',{'displayName':'Personal'}); p.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')" ; codex plugin add financial-services-cn@personal
+```
+
+Windows 命令默认使用 `py -3`。电脑上只有 `python` 命令时，把上面命令里的 `py -3` 替换为 `python`。
+
+上述安装或更新命令会自动完成：
 
 1. 将本仓库 clone 或更新到 `~/plugins/financial-services-cn`。
 2. 新建或合并个人 marketplace entry。
 3. 执行 `codex plugin add financial-services-cn@personal`。
 
-安装完成后，开启一个新的 Codex 线程，让 Codex 重新加载插件技能。默认安装不会自动登录或启动任何机构 MCP、本地 MCP 或付费数据源。
+已经安装过本插件的用户，后续更新时重新运行对应系统的同一条安装命令即可。命令会先拉取 GitHub 最新代码，再让 Codex 安装当前插件版本快照。安装或更新完成后，开启一个新的 Codex 线程，让 Codex 重新加载插件技能。默认安装不会自动登录或启动任何机构 MCP、本地 MCP 或付费数据源。
 
-本地开发时，在本仓库根目录执行下面这条命令，即可把当前 checkout 安装到 Codex：
+本地开发时，在本仓库根目录执行下面这条 macOS/Linux 命令，即可把当前 checkout 安装到 Codex：
 
 ```bash
 mkdir -p "$HOME/plugins" "$HOME/.agents/plugins" && ln -sfn "$PWD" "$HOME/plugins/financial-services-cn" && python3 -c 'import json,pathlib;p=pathlib.Path.home()/".agents/plugins/marketplace.json";data=json.loads(p.read_text()) if p.exists() else {"name":"personal","interface":{"displayName":"Personal"},"plugins":[]};entry={"name":"financial-services-cn","source":{"source":"local","path":"./plugins/financial-services-cn"},"policy":{"installation":"AVAILABLE","authentication":"ON_INSTALL"},"category":"Finance"};plugins=data.setdefault("plugins",[]);plugins[:]=[x for x in plugins if not (isinstance(x,dict) and x.get("name")=="financial-services-cn")]+[entry];data.setdefault("name","personal");data.setdefault("interface",{"displayName":"Personal"});p.write_text(json.dumps(data,ensure_ascii=False,indent=2)+"\n")' && codex plugin add financial-services-cn@personal
 ```
 
-上面两条都是一键命令；不需要用户手写 marketplace JSON。
+Windows 本地开发建议直接把 checkout 放在 `$HOME\plugins\financial-services-cn`，然后运行上面的 Windows PowerShell 安装或更新命令。所有命令都是一键命令；不需要用户手写 marketplace JSON。
 
 ## What's in the repo（仓库里有什么）
 
 - **一个 Codex 插件**：根级 `.codex-plugin/plugin.json` 声明 `financial-services-cn`。
 - **66 个扁平技能**：所有 source skills 直接位于 `skills` 目录，每个技能目录包含 `SKILL.md`。
 - **可选 MCP 模板**：`OPTIONAL_MCP_SERVERS.json` 集中记录机构数据源和中国市场相关入口；根目录不放 `.mcp.json`，避免 Codex 自动加载。
-- **中文金融规则文档**：`DATA_SOURCES_CN.md` 规定数据来源优先级，`CN_OUTPUT_FORMATTING.md` 规定中文金融产物格式。
+- **中文金融规则文档**：`DATA_SOURCES_CN.md` 规定数据来源优先级，`CN_OUTPUT_FORMATTING.md` 规定中文金融产物格式，`CN_DOCX_OUTPUT_CONTRACT.md` 规定中文 Word 交付契约。
 - **校验脚本**：`scripts` 目录提供结构检查、中文化门禁、中文产物样例检查和版本辅助脚本。
 
 本仓库不内置旧式多插件包装层、独立代理包、显式动作入口或托管代理模板。安装、使用和维护都围绕 `financial-services-cn` 进行。
@@ -54,6 +68,7 @@ skills                         66 个中文金融技能
 scripts                        结构校验、中文化门禁和产物样例校验
 DATA_SOURCES_CN.md             中国市场数据来源规则
 CN_OUTPUT_FORMATTING.md        中文金融产物格式规则
+CN_DOCX_OUTPUT_CONTRACT.md     中文 DOCX/Word 交付契约
 OPTIONAL_MCP_TEMPLATES.md      可选 MCP 接入说明
 ACCEPTANCE_SAMPLES_CN.md       中文产物验收样例
 THIRD_PARTY_NOTICES.md         第三方许可说明
@@ -85,6 +100,7 @@ THIRD_PARTY_NOTICES.md         第三方许可说明
 | MCP servers | 可选数据源模板；用户确认授权、登录和本地服务可用后再按需配置 | `OPTIONAL_MCP_SERVERS.json` |
 | 数据来源规则 | 约束来源优先级、授权判断、缺失依据时的“需确认”表达 | `DATA_SOURCES_CN.md` |
 | 中文产物规则 | 约束中文字体、日期、币种、单位、表格、图表、免责声明和摘要 | `CN_OUTPUT_FORMATTING.md` |
+| DOCX 交付契约 | 约束中文 Word 的 preset、OOXML 字体、表格几何、真实编号、超链接和 render QA 降级说明 | `CN_DOCX_OUTPUT_CONTRACT.md` |
 | 校验脚本 | 防止旧架构残留、英文模板残留、manifest 错误和中文产物样例退化 | `scripts` |
 
 ## Vertical Plugins（技能领域）
@@ -274,14 +290,14 @@ python3 /Users/lesterbot/.codex/skills/.system/plugin-creator/scripts/validate_p
 - 根级 Codex manifest、可选 MCP 模板和技能目录结构。
 - 禁止的旧架构目录或文本残留。
 - 中文化门禁、中文金融规则引用和英文模板残留。
-- XLSX、PPTX、Markdown 中文产物样例。
+- XLSX、PPTX、DOCX、Markdown 中文产物样例。
 - Codex 插件 manifest schema。
 
 如果 `python3 scripts/check_cn_artifact_samples.py` 因本机缺少 `python-pptx` 或 `openpyxl` 失败，可以在临时 venv 中安装这两个包后重跑该脚本；不要为了跑样例检查而把临时依赖写进仓库。
 
 ## Contributing（贡献规则）
 
-- 新增或改写技能时，必须包含“中文版执行契约”，并引用 `DATA_SOURCES_CN.md` 和 `CN_OUTPUT_FORMATTING.md`。
+- 新增或改写技能时，必须包含“中文版执行契约”，并引用 `DATA_SOURCES_CN.md` 和 `CN_OUTPUT_FORMATTING.md`；生成 DOCX 的技能还必须引用 `CN_DOCX_OUTPUT_CONTRACT.md`。
 - 不修改技能目录名、schema key、环境变量名、MCP server 名称或既有 URL，除非同时说明迁移方案。
 - 不默认启用付费源、机构源或本地 MCP；需要用户确认授权和可用性。
 - 不使用 LiteLLM 或外部翻译 API 做本仓库中文化。
