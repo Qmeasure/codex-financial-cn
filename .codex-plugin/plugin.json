@@ -1,0 +1,44 @@
+{
+  "name": "financial-services-cn",
+  "version": "0.2.0",
+  "description": "面向中国大陆投资者和机构金融工作流的中文 Codex 金融服务插件，A 股优先，兼容港股和美股，覆盖建模、估值、投行、权益研究、私募股权、财富管理、基金运营、KYC、LSEG 和 S&P Global 数据工作流。",
+  "author": {
+    "name": "Financial Services CN"
+  },
+  "homepage": "https://github.com/anthropics/financial-services",
+  "repository": "https://github.com/anthropics/financial-services",
+  "license": "MIT",
+  "keywords": [
+    "finance",
+    "financial-services",
+    "china-market",
+    "a-shares",
+    "hong-kong",
+    "us-stocks",
+    "valuation",
+    "investment-banking",
+    "equity-research",
+    "private-equity",
+    "wealth-management",
+    "mcp"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "中文金融服务",
+    "shortDescription": "A 股优先、港股和美股兼容的中文金融分析技能集合",
+    "longDescription": "将金融建模、估值、投行材料、权益研究、私募股权、财富管理、基金运营、KYC、LSEG 与 S&P Global 数据工作流收敛为一个 Superpowers 风格的 Codex 单插件。所有输出默认遵守中文金融产物格式、来源脚注、币种单位、日期口径和免责声明要求。",
+    "developerName": "Financial Services CN",
+    "category": "Finance",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "按 A 股优先口径分析这家公司，并标注港股和美股可比口径。",
+      "把这些披露材料整理成中文投研或投行交付物，补充来源脚注和风险提示。",
+      "使用已授权数据源生成中文金融模型、表格或演示材料，并说明币种、单位、日期和口径。"
+    ]
+  }
+}

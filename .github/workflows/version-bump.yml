@@ -1,8 +1,4 @@
-name: version-bump
-
-# Backstop for contributors without the local pre-commit hook: every PR that
-# modifies a plugin must bump that plugin's .claude-plugin/plugin.json version,
-# otherwise already-installed users won't receive the change.
+name: 版本递增
 
 on:
   pull_request:
@@ -17,7 +13,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Check plugin version bumps
+      - name: 检查 Codex 插件版本递增
         env:
           BASE_REF: ${{ github.base_ref }}
         run: |

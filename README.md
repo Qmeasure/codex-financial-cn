@@ -1,259 +1,91 @@
-# Claude for Financial Services
+# Financial Services CN
 
-Reference agents, skills, and data connectors for the financial-services workflows we see most — investment banking, equity research, private equity, and wealth management.
-
-Everything here is available **two ways from one source**: install it as a [Claude Cowork](https://claude.com/product/cowork) plugin, or deploy it through the [Claude Managed Agents API](https://docs.claude.com/en/api/managed-agents) behind your own workflow engine. Same system prompt, same skills — you choose where it runs.
+这是一个 Superpowers 风格的单一 Codex 插件，基于 `anthropics/financial-services` 重建为中文金融服务技能集合。仓库根目录本身就是插件源，默认面向中国大陆投资者和机构金融工作流，A 股优先，兼容港股和美股。
 
 > [!IMPORTANT]
-> Nothing in this repository constitutes investment, legal, tax, or accounting advice. These agents draft analyst work product — models, memos, research notes, reconciliations — for review by a qualified professional. They do not make investment recommendations, execute transactions, bind risk, post to a ledger, or approve onboarding; every output is staged for human sign-off. You are responsible for verifying outputs and for compliance with the laws and regulations that apply to your firm.
+> 本仓库不构成投资、法律、税务、会计或监管建议。所有技能只用于起草分析材料、模型、备忘录、研究笔记、核对表和报告包，输出必须由具备资质的专业人员复核。技能不会作出投资建议、执行交易、绑定风险、入账、批准客户准入或对外分发材料。
 
-What's in the repo:
+## 中国大陆投资者优化
 
-- **[Agents](#agents)** — named, end-to-end workflow agents (Pitch Agent, Market Researcher, GL Reconciler, …). Each ships as a Cowork plugin **and** as a [Claude Managed Agent template](./managed-agent-cookbooks) you deploy via `/v1/agents`.
-- **[Vertical plugins](#vertical-plugins)** — the underlying skills, slash commands, and data connectors, bundled by FSI vertical. Install these on their own if you just want `/comps`, `/dcf`, `/earnings` and the connectors without a full agent.
+- **A 股优先，港股和美股兼容**：未指定市场时默认按 A 股语境处理；跨市场比较必须标注交易所、币种、会计准则、数据日期和来源。
+- **中文产物格式**：所有 XLSX、PPTX、DOCX、Markdown、表格、图表、脚注和最终摘要必须遵守 [`CN_OUTPUT_FORMATTING.md`](./CN_OUTPUT_FORMATTING.md)。
+- **数据来源分层**：官方披露、用户文件、已授权 MCP/数据库优先；免费源只作辅助；监管、会计、KYC、基金文件和月结判断无依据时写“需确认”。详见 [`DATA_SOURCES_CN.md`](./DATA_SOURCES_CN.md)。
+- **国内市场 MCP 适配**：根级 [` .mcp.json`](./.mcp.json) 保留机构数据源入口，并加入 OpenBB、Tushare、AKShare 等 A 股/港股相关 MCP 配置。实际调用取决于用户本地安装、token 和授权。详见 [`OPTIONAL_MCP_TEMPLATES.md`](./OPTIONAL_MCP_TEMPLATES.md)。
+- **专业缩写保留**：DCF、LBO、WACC、EV/EBITDA、IRR、MOIC、NAV、KYC、AML、MCP、CLI 等保留原缩写并用中文解释。
 
-## Agents
+## 仓库结构
 
-Each agent is named for the workflow it runs. They're starting points: install the ones that match your work, then tune the prompts, skills, and connectors to how your firm does it.
-
-Each agent plugin is **self-contained** — it bundles the skills it uses, so installing the agent is all you need.
-
-| Function | Agent | What it does |
-|---|---|---|
-| **Coverage & advisory** | **[Pitch Agent](./plugins/agent-plugins/pitch-agent)** | Comps, precedents, LBO → branded pitch deck, end to end |
-| | **[Meeting Prep Agent](./plugins/agent-plugins/meeting-prep-agent)** | Briefing pack before every client meeting |
-| **Research & modeling** | **[Market Researcher](./plugins/agent-plugins/market-researcher)** | Sector or theme → industry overview, competitive landscape, peer comps, ideas shortlist |
-| | **[Earnings Reviewer](./plugins/agent-plugins/earnings-reviewer)** | Earnings call + filings → model update → note draft |
-| | **[Model Builder](./plugins/agent-plugins/model-builder)** | DCF, LBO, 3-statement, comps — live in Excel |
-| **Fund admin & finance ops** | **[Valuation Reviewer](./plugins/agent-plugins/valuation-reviewer)** | Ingests GP packages, runs valuation template, stages LP reporting |
-| | **[GL Reconciler](./plugins/agent-plugins/gl-reconciler)** | Finds breaks, traces root cause, routes for sign-off |
-| | **[Month-End Closer](./plugins/agent-plugins/month-end-closer)** | Accruals, roll-forwards, variance commentary |
-| | **[Statement Auditor](./plugins/agent-plugins/statement-auditor)** | Audits LP statements before distribution |
-| **Operations & onboarding** | **[KYC Screener](./plugins/agent-plugins/kyc-screener)** | Parses onboarding docs, runs the rules engine, flags gaps |
-
-For Managed Agent deployment — `agent.yaml`, leaf-worker subagents, steering-event examples, and per-agent security notes — see **[managed-agent-cookbooks/](./managed-agent-cookbooks)**.
-
-## Repository Layout
-
-```
-plugins/
-  agent-plugins/               # Named agents — one self-contained plugin each
-  vertical-plugins/            # Skill + command bundles by FSI vertical, plus MCP connectors
-  partner-built/               # Partner-authored plugins (LSEG, S&P Global)
-managed-agent-cookbooks/       # Claude Managed Agent cookbooks — one dir per agent
-claude-for-msft-365-install/   # Admin tooling to provision the Claude Microsoft 365 add-in
-scripts/                       # deploy-managed-agent.sh · check.py · validate.py · orchestrate.py · sync-agent-skills.py
+```text
+.codex-plugin/plugin.json   # Codex 插件 manifest
+.mcp.json                   # 根级 MCP 配置入口
+skills/                     # 66 个扁平化金融技能
+scripts/                    # 结构校验、中文化门禁和产物样例校验
 ```
 
-## Getting Started
+本仓库不再内置多插件市场包装。发布或本地安装时，由外部 Codex marketplace 指向本仓库根目录；仓库内只保留单插件结构。
 
-### Cowork
+## 安装与开发
 
-In Cowork, open **Settings → Plugins → Add plugin** and either:
-
-- **Paste this repo URL** — `https://github.com/anthropics/financial-services` — then pick the agents and verticals you want from the marketplace list, or
-- **Upload a zip** — zip any directory under `plugins/` (e.g. `plugins/agent-plugins/pitch-agent/`) and drop it in.
-
-### Claude Code
+如果本仓库已经由外部 marketplace 发布或登记，安装方式为：
 
 ```bash
-# Add the marketplace
-claude plugin marketplace add anthropics/financial-services
-
-# Core skills + connectors (install first)
-claude plugin install financial-analysis@claude-for-financial-services
-
-# Named agents — pick the ones you want
-claude plugin install pitch-agent@claude-for-financial-services
-claude plugin install gl-reconciler@claude-for-financial-services
-claude plugin install market-researcher@claude-for-financial-services
-
-# Vertical skill bundles
-claude plugin install investment-banking@claude-for-financial-services
-claude plugin install equity-research@claude-for-financial-services
+codex plugin add financial-services-cn@<marketplace-name>
 ```
 
-Once installed, agents appear in Cowork dispatch, skills fire automatically when relevant, and slash commands are available in your session (`/comps`, `/dcf`, `/earnings`, `/ic-memo`, …).
-
-### Claude Managed Agents
+本地开发时先校验根插件：
 
 ```bash
-export ANTHROPIC_API_KEY=sk-ant-...
-scripts/deploy-managed-agent.sh gl-reconciler
+python3 scripts/check.py
+python3 scripts/check_cn_localization.py
+python3 scripts/check_cn_artifact_samples.py
+python3 /Users/lesterbot/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py .
 ```
 
-Each template under [`managed-agent-cookbooks/`](./managed-agent-cookbooks) references the same system prompt and skills as its plugin counterpart. The deploy script resolves file references, uploads skills, creates leaf-worker subagents, and POSTs the orchestrator to `/v1/agents`. See [`scripts/orchestrate.py`](./scripts/orchestrate.py) for a reference event loop that routes `handoff_request` events between agents via your own orchestration layer.
+如需本地 marketplace 包装，应在仓库外创建 marketplace 配置指向本仓库根目录，不要把包装层放回本仓库。
 
-> **Research Preview:** subagent delegation (`callable_agents`) is a preview capability. See per-agent READMEs for security and handoff guidance.
+## 技能范围
 
-## How It Fits Together
-
-| | What it is | Where it lives |
-|---|---|---|
-| **Agents** | Self-contained plugins that own a workflow end to end — system prompt plus the skills it uses. Cowork and the Managed Agent wrapper both reference the same directory. | `plugins/agent-plugins/<slug>/` |
-| **Skills** | Domain expertise, conventions, and step-by-step methods Claude draws on automatically when relevant. Authored once in the verticals; each agent bundles a synced copy of the ones it needs. | `plugins/vertical-plugins/<vertical>/skills/` (source) · `plugins/agent-plugins/<slug>/skills/` (bundled) |
-| **Commands** | Slash actions you trigger explicitly (`/comps`, `/earnings`, `/ic-memo`). | `plugins/vertical-plugins/<vertical>/commands/` |
-| **Connectors** | [MCP servers](https://modelcontextprotocol.io/) that wire Claude to your data — terminals, research platforms, document stores. | `plugins/vertical-plugins/financial-analysis/.mcp.json` |
-| **Managed-agent wrappers** | `agent.yaml` + depth-1 subagents + steering examples for headless deployment. | `managed-agent-cookbooks/<slug>/` |
-
-Everything is file-based — markdown and JSON, no build step.
-
-## Vertical Plugins
-
-Start with **financial-analysis** — it carries the shared modeling skills and all data connectors. Add verticals for the workflows you need.
-
-| Plugin | What it adds |
+| 领域 | 能力 |
 |---|---|
-| **[financial-analysis](./plugins/vertical-plugins/financial-analysis)** *(core)* | Comps, DCF, LBO, 3-statement, deck QC, Excel audit. All 11 data connectors. |
-| **[investment-banking](./plugins/vertical-plugins/investment-banking)** | CIMs, teasers, process letters, buyer lists, merger models, deal tracking. |
-| **[equity-research](./plugins/vertical-plugins/equity-research)** | Earnings notes, initiations, model updates, thesis and catalyst tracking. |
-| **[private-equity](./plugins/vertical-plugins/private-equity)** | Sourcing, screening, diligence checklists, IC memos, portfolio monitoring. |
-| **[wealth-management](./plugins/vertical-plugins/wealth-management)** | Client reviews, financial plans, rebalancing, reporting, TLH. |
-| **[fund-admin](./plugins/vertical-plugins/fund-admin)** | GL recon, break tracing, accruals, roll-forwards, variance commentary, NAV tie-out. |
-| **[operations](./plugins/vertical-plugins/operations)** | KYC document parsing and rules-grid evaluation. |
-| **[lseg](./plugins/partner-built/lseg)** *(partner)* | Bond RV, swap curves, FX carry, options vol, macro-rates monitoring on LSEG data. |
-| **[sp-global](./plugins/partner-built/spglobal)** *(partner)* | Tear sheets, earnings previews, funding digests on S&P Capital IQ. |
+| 金融分析 | DCF、LBO、三表、可比公司、Excel 审计、PPT 质检 |
+| 投资银行 | CIM、teaser、买方名单、并购模型、流程信函、交易跟踪 |
+| 权益研究 | 业绩分析、首次覆盖、模型更新、晨会、行业报告和催化剂跟踪 |
+| 私募股权 | 项目来源、筛选、尽调、投委会备忘录、组合监控和价值创造计划 |
+| 财富管理 | 客户回顾、财富规划、投资建议书、再平衡和客户报告 |
+| 基金运营 | 总账核对、差异追踪、应计、滚动表、NAV 勾稽和差异说明 |
+| 金融运营 | KYC 文件解析和规则网格评估 |
+| LSEG | 债券、外汇、掉期、期权、固定收益组合和宏观利率分析 |
+| S&P Global | 公司速览、融资摘要和业绩预览 |
 
-## MCP Integrations
+## 使用原则
 
-All connectors are centralized in the **financial-analysis** core plugin and shared across the rest.
+- 用自然语言调用技能，不使用旧平台命令入口。
+- 用户模板优先，但不得覆盖中文可读性、字体 fallback、来源脚注、币种/单位/日期/口径说明。
+- 跨市场材料必须显式标注币种、汇率、会计准则、交易所、披露来源和数据日期。
+- A 股默认使用人民币、万元/亿元；港股默认使用港元；美股默认使用美元；除非用户要求，不默认强制折算。
+- 没有官方披露、用户文件或授权数据来源支撑的判断必须写“需确认”。
 
-| Provider | URL |
-|---|---|
-| [Daloopa](https://www.daloopa.com/) | `https://mcp.daloopa.com/server/mcp` |
-| [Morningstar](https://www.morningstar.com/) | `https://mcp.morningstar.com/mcp` |
-| [S&P Global](https://www.spglobal.com/) | `https://kfinance.kensho.com/integrations/mcp` |
-| [FactSet](https://www.factset.com/) | `https://mcp.factset.com/mcp` |
-| [Moody's](https://www.moodys.com/) | `https://api.moodys.com/genai-ready-data/m1/mcp` |
-| [MT Newswires](https://www.mtnewswires.com/) | `https://vast-mcp.blueskyapi.com/mtnewswires` |
-| [Aiera](https://www.aiera.com/) | `https://mcp-pub.aiera.com` |
-| [LSEG](https://www.lseg.com/) | `https://api.analytics.lseg.com/lfa/mcp` |
-| [PitchBook](https://pitchbook.com/) | `https://premium.mcp.pitchbook.com/mcp` |
-| [Chronograph](https://www.chronograph.pe/) | `https://ai.chronograph.pe/mcp` |
-| [Egnyte](https://www.egnyte.com/) | `https://mcp-server.egnyte.com/mcp` |
+## 数据与授权
 
-> MCP access may require a subscription or API key from the provider.
+- 机构数据源包括 Daloopa、Morningstar、S&P Global、FactSet、Moody's、MT Newswires、Aiera、LSEG、PitchBook、Chronograph 和 Egnyte。
+- 国内市场入口包括 `openbb-cn-market`、`tushare-pro` 和 `akshare-one`。
+- LSEG 工作流需要用户拥有有效 LSEG 数据授权。
+- S&P Global 工作流需要用户拥有 Capital IQ Pro、S&P Global LLM-ready API 或其他相应授权。
+- 免费或第三方公开源只作辅助；监管、会计、KYC、基金文件和月结判断不得只依赖免费源。
 
-## Claude for Microsoft 365 — Install Tooling
+## 校验
 
-If your firm runs Claude inside Excel, PowerPoint, Word, and Outlook via the Microsoft 365 add-in, [`claude-for-msft-365-install/`](./claude-for-msft-365-install) is the admin tooling to provision it against **your own cloud** — Vertex AI, Bedrock, or an internal LLM gateway — instead of Anthropic's API.
-
-It's a Claude Code plugin (not a Cowork plugin) that walks an IT admin through generating the customized add-in manifest, granting Azure admin consent, and writing per-user routing config via Microsoft Graph. Install with:
+本仓库应通过：
 
 ```bash
-claude plugin install claude-for-msft-365-install@claude-for-financial-services
-/claude-for-msft-365-install:setup
+python3 scripts/check.py
+python3 scripts/check_cn_localization.py
+python3 scripts/check_cn_artifact_samples.py
+python3 /Users/lesterbot/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py .
 ```
 
-This is separate from the agents and vertical plugins above — it's the on-ramp that gets the add-in deployed in a tenant, after which the agents and skills here are what runs inside it.
+`scripts/check.py` 会校验根级 Codex manifest、根级 MCP、技能目录、禁止的旧架构残留和关键文档引用。
 
-## Making It Yours
+## 许可证
 
-These are reference templates — they get better when you tune them to how your firm works.
-
-- **Swap connectors** — point `.mcp.json` at your data providers and internal systems.
-- **Add firm context** — drop your terminology, processes, and formatting standards into skill files.
-- **Bring your templates** — `/ppt-template` teaches Claude your branded PowerPoint layouts.
-- **Adjust agent scope** — edit `agents/<slug>.md` to match how your team actually runs the workflow.
-- **Add your own** — copy the structure for workflows we haven't covered.
-
-## Skill & Command Reference
-
-<details>
-<summary><b>financial-analysis</b> — core modeling, Excel, deck QC</summary>
-
-| Skill | Command | Description |
-|---|---|---|
-| comps-analysis | `/comps` | Comparable company analysis with trading multiples |
-| dcf-model | `/dcf` | DCF valuation with WACC and sensitivity analysis |
-| lbo-model | `/lbo` | Leveraged buyout model |
-| 3-statement-model | `/3-statement-model` | Populate 3-statement financial model templates |
-| audit-xls | `/debug-model` | Excel model audit — formula tracing, hardcode detection, balance checks |
-| clean-data-xls | — | Normalize and clean tabular data in Excel |
-| deck-refresh | — | Re-link and refresh embedded charts/tables across a deck |
-| competitive-analysis | `/competitive-analysis` | Competitive landscape and market positioning |
-| ib-check-deck | — | QC presentations for errors and consistency |
-| pptx-author | — | Produce a `.pptx` file headlessly (Managed Agent mode) |
-| xlsx-author | — | Produce a `.xlsx` file headlessly (Managed Agent mode) |
-| ppt-template-creator | `/ppt-template` | Create reusable PPT template skills |
-| skill-creator | — | Guide for creating new skills |
-
-</details>
-
-<details>
-<summary><b>investment-banking</b> — deal materials and execution</summary>
-
-| Skill | Command | Description |
-|---|---|---|
-| strip-profile | `/one-pager` | One-page company profiles for pitch books |
-| pitch-deck | — | Populate pitch deck templates with data |
-| datapack-builder | — | Build data packs from CIMs and filings |
-| cim-builder | `/cim` | Draft Confidential Information Memorandums |
-| teaser | `/teaser` | Anonymous one-page company teasers |
-| buyer-list | `/buyer-list` | Strategic and financial buyer universe |
-| merger-model | `/merger-model` | Accretion/dilution M&A analysis |
-| process-letter | `/process-letter` | Bid instructions and process correspondence |
-| deal-tracker | `/deal-tracker` | Track live deals, milestones, and action items |
-
-</details>
-
-<details>
-<summary><b>equity-research</b> — coverage and publishing</summary>
-
-| Skill | Command | Description |
-|---|---|---|
-| earnings-analysis | `/earnings` | Post-earnings quarterly update reports |
-| earnings-preview | `/earnings-preview` | Pre-earnings scenario analysis and key metrics |
-| initiating-coverage | `/initiate` | Institutional-quality initiation reports |
-| model-update | `/model-update` | Update financial models with new data |
-| morning-note | `/morning-note` | Morning meeting notes and trade ideas |
-| sector-overview | `/sector` | Industry landscape and thematic reports |
-| thesis-tracker | `/thesis` | Maintain and update investment theses |
-| catalyst-calendar | `/catalysts` | Track upcoming catalysts across coverage |
-| idea-generation | `/screen` | Stock screening and idea sourcing |
-
-</details>
-
-<details>
-<summary><b>private-equity</b> — sourcing through portfolio ops</summary>
-
-| Skill | Command | Description |
-|---|---|---|
-| deal-sourcing | `/source` | Discover companies, check CRM, draft founder outreach |
-| deal-screening | `/screen-deal` | Quick pass/fail on inbound CIMs and teasers |
-| dd-checklist | `/dd-checklist` | Diligence checklists by workstream |
-| dd-meeting-prep | `/dd-prep` | Prep for management presentations and expert calls |
-| unit-economics | `/unit-economics` | ARR cohorts, LTV/CAC, net retention, revenue quality |
-| returns-analysis | `/returns` | IRR/MOIC sensitivity tables |
-| ic-memo | `/ic-memo` | Investment committee memo drafting |
-| portfolio-monitoring | `/portfolio` | Track portfolio company KPIs and variances |
-| value-creation-plan | `/value-creation` | Post-close 100-day plans and EBITDA bridges |
-| ai-readiness | `/ai-readiness` | Assess a portfolio company's AI readiness |
-
-</details>
-
-<details>
-<summary><b>wealth-management</b> — advisor workflows</summary>
-
-| Skill | Command | Description |
-|---|---|---|
-| client-review | `/client-review` | Prep for client meetings with performance and talking points |
-| financial-plan | `/financial-plan` | Retirement, education, estate, and cash-flow projections |
-| portfolio-rebalance | `/rebalance` | Allocation drift analysis and tax-aware rebalancing |
-| client-report | `/client-report` | Client-facing performance reports |
-| investment-proposal | `/proposal` | Proposals for prospective clients |
-| tax-loss-harvesting | `/tlh` | Identify TLH opportunities and manage wash sales |
-
-</details>
-
-## Contributing
-
-Everything here is markdown and YAML. Fork, edit, PR. For new content:
-
-- New skill → add it under `plugins/vertical-plugins/<vertical>/skills/`, then run `python3 scripts/sync-agent-skills.py` to propagate to any agent that bundles it.
-- New agent → `plugins/agent-plugins/<slug>/` (with `agents/<slug>.md` + `skills/`) and a matching `managed-agent-cookbooks/<slug>/`.
-- Run `python3 scripts/check.py` before pushing — it lints every manifest, verifies all cross-file references resolve, and fails if any bundled skill has drifted from its vertical source.
-
-## License
-
-[Apache License 2.0](./LICENSE)
+仓库根目录遵守 [`LICENSE`](./LICENSE)。部分 S&P Global/Kensho 技能保留原 Apache 2.0 许可文件，详见 [`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md)。

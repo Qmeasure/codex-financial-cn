@@ -1,17 +1,16 @@
 #!/usr/bin/env bash
-# Auto patch-bump any plugin with staged changes so it ends up exactly one
-# patch ahead of main — bumped once per branch, not once per commit.
+# 对已暂存变更自动执行 Codex 插件 patch 版本递增，保持相对 main 至少领先一个 patch。
+# 每个分支只需要递增一次，不按每个 commit 重复递增。
 #
-# Install (one-time per clone):  git config core.hooksPath .githooks
-# (scripts/check.py self-installs this for you on first run.)
+# 单次安装：git config core.hooksPath .githooks
 #
-# Bypass for a single commit:    git commit --no-verify
+# 单次跳过：git commit --no-verify
 set -euo pipefail
 
 REPO_ROOT="$(git rev-parse --show-toplevel)"
 
 if ! command -v python3 >/dev/null 2>&1; then
-  echo "[pre-commit] python3 not found; skipping version-bump." >&2
+  echo "[pre-commit] 未找到 python3，跳过 version-bump。" >&2
   exit 0
 fi
 

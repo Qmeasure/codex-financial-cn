@@ -1,0 +1,59 @@
+{
+  "mcpServers": {
+    "daloopa": {
+      "url": "https://mcp.daloopa.com/server/mcp"
+    },
+    "morningstar": {
+      "url": "https://mcp.morningstar.com/mcp"
+    },
+    "sp-global": {
+      "url": "https://kfinance.kensho.com/integrations/mcp"
+    },
+    "factset": {
+      "url": "https://mcp.factset.com/mcp"
+    },
+    "moodys": {
+      "url": "https://api.moodys.com/genai-ready-data/m1/mcp"
+    },
+    "mtnewswire": {
+      "url": "https://vast-mcp.blueskyapi.com/mtnewswires"
+    },
+    "aiera": {
+      "url": "https://mcp-pub.aiera.com"
+    },
+    "lseg": {
+      "url": "https://api.analytics.lseg.com/lfa/mcp"
+    },
+    "lseg-server-cl": {
+      "url": "https://api.analytics.lseg.com/lfa/mcp/server-cl"
+    },
+    "pitchbook": {
+      "url": "https://premium.mcp.pitchbook.com/mcp"
+    },
+    "chronograph": {
+      "url": "https://ai.chronograph.pe/mcp"
+    },
+    "egnyte": {
+      "url": "https://mcp-server.egnyte.com/mcp"
+    },
+    "openbb-cn-market": {
+      "url": "http://127.0.0.1:8001/mcp"
+    },
+    "tushare-pro": {
+      "command": "python",
+      "args": [
+        "-m",
+        "tushare_mcp_server.main"
+      ],
+      "env": {
+        "TUSHARE_TOKEN": "${TUSHARE_TOKEN}"
+      }
+    },
+    "akshare-one": {
+      "command": "uvx",
+      "args": [
+        "akshare-one-mcp"
+      ]
+    }
+  }
+}

@@ -1,194 +1,279 @@
 #!/usr/bin/env python3
-"""
-Lint all plugin + managed-agent manifests and verify cross-file references.
+"""校验 Financial Services CN 的根级 Codex 插件结构。"""
+from __future__ import annotations
 
-Checks:
-  1. Every *.yaml under managed-agents/ parses.
-  2. Every plugin.json / marketplace.json / steering-examples.json parses.
-  3. Every <vertical>/agents/*.md has valid YAML frontmatter with name + description.
-  4. Every system.file, skills[].path, callable_agents[].manifest in agent.yaml
-     and subagent yamls resolves to an existing file/dir.
-  5. Every managed-agents/<slug>/ has agent.yaml, README.md, steering-examples.json.
-
-Exit 0 if clean, 1 otherwise. Requires: pyyaml.
-"""
 import json
-import subprocess
+import re
 import sys
 from pathlib import Path
+from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
-PLUGINS = ROOT / "plugins"
-MANAGED = ROOT / "managed-agent-cookbooks"
-errors: list[str] = []
-checked = 0
+MANIFEST = ROOT / ".codex-plugin" / "plugin.json"
+MCP = ROOT / ".mcp.json"
+SKILLS = ROOT / "skills"
 
+PLUGIN_NAME = "financial-services-cn"
+EXPECTED_SKILL_COUNT = 66
+EXPECTED_MCP_SERVERS = {
+    "daloopa",
+    "morningstar",
+    "sp-global",
+    "factset",
+    "moodys",
+    "mtnewswire",
+    "aiera",
+    "lseg",
+    "lseg-server-cl",
+    "pitchbook",
+    "chronograph",
+    "egnyte",
+    "openbb-cn-market",
+    "tushare-pro",
+    "akshare-one",
+}
 
-def ensure_hooks_installed() -> None:
-    """Point git at .githooks so the version-bump pre-commit runs.
-
-    Native equivalent of Husky's `prepare`, piggybacked on the script
-    everyone already runs before committing. Best-effort: never fatal.
-    """
-    want = ".githooks"
-    try:
-        cur = subprocess.run(
-            ["git", "-C", str(ROOT), "config", "--get", "core.hooksPath"],
-            capture_output=True, text=True,
-        ).stdout.strip()
-        if cur != want:
-            subprocess.run(
-                ["git", "-C", str(ROOT), "config", "core.hooksPath", want],
-                check=True, capture_output=True,
-            )
-            print(f"[check.py] installed git hooks (core.hooksPath -> {want})")
-    except (subprocess.SubprocessError, OSError):
-        pass  # not a git checkout / git unavailable — ignore
-
-
-# Install hooks before anything that can exit early (e.g. missing pyyaml),
-# so a fresh checkout still gets the version-bump hook wired up.
-ensure_hooks_installed()
-
-try:
-    import yaml
-except ImportError:
-    print("ERROR: requires pyyaml (pip install pyyaml)", file=sys.stderr)
-    sys.exit(2)
-
-
-def err(msg: str) -> None:
-    errors.append(msg)
-
-
-def rel(p: Path) -> str:
-    return str(p.relative_to(ROOT))
-
-
-# --- 1. YAML parse ----------------------------------------------------------
-for yml in sorted(MANAGED.rglob("*.yaml")):
-    checked += 1
-    try:
-        with open(yml) as f:
-            yaml.safe_load(f)
-    except yaml.YAMLError as e:
-        err(f"YAML parse: {rel(yml)}: {e}")
-
-# --- 2. JSON parse ----------------------------------------------------------
-json_globs = [
-    ".claude-plugin/marketplace.json",
-    "plugins/**/.claude-plugin/plugin.json",
-    "managed-agent-cookbooks/*/steering-examples.json",
+REQUIRED_ROOT_DOCS = [
+    "README.md",
+    "AGENTS.md",
+    "DATA_SOURCES_CN.md",
+    "CN_OUTPUT_FORMATTING.md",
+    "OPTIONAL_MCP_TEMPLATES.md",
+    "ACCEPTANCE_SAMPLES_CN.md",
+    "THIRD_PARTY_NOTICES.md",
 ]
-for pat in json_globs:
-    for jf in sorted(ROOT.glob(pat)):
-        checked += 1
-        try:
-            json.loads(jf.read_text())
-        except json.JSONDecodeError as e:
-            err(f"JSON parse: {rel(jf)}: {e}")
 
-# --- 3. agent.md frontmatter -----------------------------------------------
-for md in sorted(PLUGINS.glob("agent-plugins/*/agents/*.md")):
-    checked += 1
-    text = md.read_text()
-    if not text.startswith("---"):
-        err(f"frontmatter: {rel(md)}: missing leading ---")
-        continue
+FORBIDDEN_DIR_NAMES = {
+    ".agents",
+    ".claude",
+    ".claude-plugin",
+    "agent-plugins",
+    "claude-for-msft-365-install",
+    "commands",
+    "managed-agent-cookbooks",
+    "plugins",
+}
+
+FORBIDDEN_TEXT_PATTERNS = [
+    r"\.agents/plugins",
+    r"\.claude-plugin",
+    r"\bclaude plugin\b",
+    r"\bClaude Code\b",
+    r"\bCowork\b",
+    r"\bCMA\b",
+    r"\bmanaged-agent\b",
+    r"\bManaged Agents\b",
+    r"\bcallable_agents\b",
+    r"\bagent-plugins\b",
+    r"\bmanaged-agent-cookbooks\b",
+    r"POST /v1/agents",
+    r"\bcommands/",
+    r"\bplugins/",
+    r"\bslash command\b",
+    r"斜杠命令",
+]
+
+TEXT_SUFFIXES = {
+    ".md",
+    ".json",
+    ".py",
+    ".sh",
+    ".yaml",
+    ".yml",
+    ".toml",
+}
+
+SKIP_PARTS = {
+    ".git",
+    "venv",
+    "out",
+    "__pycache__",
+}
+
+SKIP_TEXT_FILES = {
+    ROOT / "scripts" / "check.py",
+    ROOT / "scripts" / "check_cn_localization.py",
+}
+
+errors: list[str] = []
+checked_json = 0
+
+
+def err(message: str) -> None:
+    errors.append(message)
+
+
+def rel(path: Path) -> str:
+    return str(path.relative_to(ROOT))
+
+
+def load_json(path: Path) -> Any:
+    global checked_json
+    checked_json += 1
     try:
-        _, fm, _ = text.split("---", 2)
-        meta = yaml.safe_load(fm)
-        for k in ("name", "description"):
-            if k not in meta:
-                err(f"frontmatter: {rel(md)}: missing '{k}'")
-    except (ValueError, yaml.YAMLError) as e:
-        err(f"frontmatter: {rel(md)}: {e}")
+        return json.loads(path.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        err(f"缺少 JSON 文件：{rel(path)}")
+    except json.JSONDecodeError as exc:
+        err(f"JSON 解析失败：{rel(path)}: {exc}")
+    return None
 
 
-# --- 4. reference resolution -----------------------------------------------
-def check_refs(yml: Path) -> None:
-    try:
-        data = yaml.safe_load(yml.read_text()) or {}
-    except yaml.YAMLError:
-        return  # already reported above
-    base = yml.parent
-
-    sys_spec = data.get("system")
-    if isinstance(sys_spec, dict) and "file" in sys_spec:
-        p = (base / sys_spec["file"]).resolve()
-        if not p.is_file():
-            err(f"ref: {rel(yml)}: system.file -> {sys_spec['file']} (not found)")
-
-    for s in data.get("skills") or []:
-        if isinstance(s, dict) and "path" in s:
-            p = (base / s["path"]).resolve()
-            if not p.exists():
-                err(f"ref: {rel(yml)}: skills.path -> {s['path']} (not found)")
-        if isinstance(s, dict) and "from_plugin" in s:
-            p = (base / s["from_plugin"]).resolve()
-            if not (p / "skills").is_dir():
-                err(f"ref: {rel(yml)}: skills.from_plugin -> {s['from_plugin']} (no skills/ dir)")
-
-    for c in data.get("callable_agents") or []:
-        if isinstance(c, dict) and "manifest" in c:
-            p = (base / c["manifest"]).resolve()
-            if not p.is_file():
-                err(f"ref: {rel(yml)}: callable_agents.manifest -> {c['manifest']} (not found)")
+def has_cjk(value: str) -> bool:
+    return bool(re.search(r"[\u4e00-\u9fff]", value or ""))
 
 
-for yml in sorted(MANAGED.rglob("*.yaml")):
-    check_refs(yml)
+def is_semver(value: object) -> bool:
+    return isinstance(value, str) and re.fullmatch(r"\d+\.\d+\.\d+", value) is not None
 
-# --- 4b. agent-plugin bundled skills match vertical source -----------------
-import filecmp  # noqa: E402
-import re  # noqa: E402
 
-src_by_name = {p.name: p for p in PLUGINS.glob("vertical-plugins/*/skills/*") if p.is_dir()}
-for bundled in sorted(PLUGINS.glob("agent-plugins/*/skills/*")):
-    if not bundled.is_dir():
-        continue
-    src = src_by_name.get(bundled.name)
-    if not src:
-        err(f"bundled-skill: {rel(bundled)}: no vertical-plugins source named '{bundled.name}'")
-        continue
-    cmp = filecmp.dircmp(src, bundled)
-    if cmp.diff_files or cmp.left_only or cmp.right_only:
-        err(
-            f"bundled-skill: {rel(bundled)}: drifted from {rel(src)} "
-            f"(run scripts/sync-agent-skills.py)"
-        )
+def validate_root_docs() -> None:
+    for doc in REQUIRED_ROOT_DOCS:
+        if not (ROOT / doc).is_file():
+            err(f"缺少根文档：{doc}")
 
-# --- 4b2. agent.md skill references exist in the agent's own bundle --------
-for md in sorted(PLUGINS.glob("agent-plugins/*/agents/*.md")):
-    slug = md.parents[1].name
-    sk_dir = PLUGINS / "agent-plugins" / slug / "skills"
-    bundle = {p.name for p in sk_dir.iterdir() if p.is_dir()} if sk_dir.is_dir() else set()
-    for ref in set(re.findall(r"`([a-z0-9]+(?:-[a-z0-9]+)+)`", md.read_text())):
-        if ref in src_by_name and ref not in bundle:
-            err(
-                f"agent-prose: {rel(md)}: references `{ref}` but "
-                f"plugins/agent-plugins/{slug}/skills/{ref}/ is not bundled"
-            )
 
-# --- 4c. marketplace source paths resolve ----------------------------------
-mp = ROOT / ".claude-plugin" / "marketplace.json"
-for p in json.loads(mp.read_text()).get("plugins", []):
-    src = (ROOT / p["source"]).resolve()
-    if not (src / ".claude-plugin" / "plugin.json").is_file():
-        err(f"marketplace: {p['name']} source -> {p['source']} (no plugin.json)")
+def validate_forbidden_paths() -> None:
+    for path in ROOT.rglob("*"):
+        if any(part in SKIP_PARTS for part in path.parts):
+            continue
+        if path.is_dir() and path.name in FORBIDDEN_DIR_NAMES:
+            err(f"发现旧架构目录：{rel(path)}")
 
-# --- 5. required files per managed-agent -----------------------------------
-for d in sorted(MANAGED.iterdir()):
-    if not d.is_dir():
-        continue
-    for req in ("agent.yaml", "README.md", "steering-examples.json"):
-        if not (d / req).is_file():
-            err(f"missing: {rel(d)}/{req}")
 
-# --- report ----------------------------------------------------------------
-if errors:
-    print(f"FAIL — {len(errors)} issue(s) across {checked} file(s):\n", file=sys.stderr)
-    for e in errors:
-        print(f"  ✗ {e}", file=sys.stderr)
-    sys.exit(1)
-print(f"OK — {checked} file(s) checked, 0 issues.")
+def validate_manifest() -> None:
+    data = load_json(MANIFEST)
+    if not isinstance(data, dict):
+        return
+
+    if data.get("name") != PLUGIN_NAME:
+        err(f"plugin.json name 必须是 {PLUGIN_NAME}")
+    if not is_semver(data.get("version")):
+        err("plugin.json version 必须是 x.y.z")
+    if not has_cjk(str(data.get("description", ""))):
+        err("plugin.json description 必须是中文")
+    if data.get("skills") != "./skills/":
+        err("plugin.json skills 必须是 ./skills/")
+    if data.get("mcpServers") != "./.mcp.json":
+        err("plugin.json mcpServers 必须是 ./.mcp.json")
+    if "hooks" in data:
+        err("plugin.json 不得声明 hooks")
+    if "apps" in data and not (ROOT / ".app.json").is_file():
+        err("没有 .app.json 时不得声明 apps")
+
+    interface = data.get("interface")
+    if not isinstance(interface, dict):
+        err("plugin.json 缺少 interface")
+        return
+
+    for key in ("displayName", "shortDescription", "longDescription", "developerName", "category"):
+        if not interface.get(key):
+            err(f"interface.{key} 不能为空")
+    for key in ("displayName", "shortDescription", "longDescription"):
+        if not has_cjk(str(interface.get(key, ""))):
+            err(f"interface.{key} 必须是中文")
+    if interface.get("capabilities") != ["Interactive", "Read", "Write"]:
+        err("interface.capabilities 必须是 Interactive/Read/Write")
+    prompts = interface.get("defaultPrompt")
+    if not isinstance(prompts, list) or len(prompts) != 3:
+        err("interface.defaultPrompt 必须是 3 条中文 prompt")
+    else:
+        for prompt in prompts:
+            if not has_cjk(str(prompt)):
+                err("defaultPrompt 必须使用中文")
+
+
+def validate_mcp_config() -> None:
+    data = load_json(MCP)
+    if not isinstance(data, dict):
+        return
+    servers = data.get("mcpServers")
+    if not isinstance(servers, dict) or not servers:
+        err(".mcp.json 必须包含非空 mcpServers 对象")
+        return
+
+    names = set(servers)
+    if names != EXPECTED_MCP_SERVERS:
+        missing = sorted(EXPECTED_MCP_SERVERS - names)
+        extra = sorted(names - EXPECTED_MCP_SERVERS)
+        err(f".mcp.json MCP 清单不正确，缺少 {missing}，多出 {extra}")
+    if "spglobal" in names:
+        err("S&P Global MCP 必须统一命名为 sp-global")
+
+    for server_name, config in servers.items():
+        if not isinstance(config, dict):
+            err(f"MCP {server_name} 配置必须是对象")
+            continue
+        has_url = isinstance(config.get("url"), str) and bool(config.get("url"))
+        has_command = isinstance(config.get("command"), str) and bool(config.get("command"))
+        if has_url == has_command:
+            err(f"MCP {server_name} 必须且只能声明 url 或 command")
+        if has_url and not str(config["url"]).startswith(("http://", "https://")):
+            err(f"MCP {server_name} 的 url 必须是 HTTP(S) 地址")
+        if has_command:
+            args = config.get("args", [])
+            if not isinstance(args, list) or not all(isinstance(item, str) for item in args):
+                err(f"MCP {server_name} 的 args 必须是字符串数组")
+            env = config.get("env", {})
+            if env and (not isinstance(env, dict) or not all(isinstance(k, str) and isinstance(v, str) for k, v in env.items())):
+                err(f"MCP {server_name} 的 env 必须是字符串字典")
+    tushare = servers.get("tushare-pro", {})
+    if tushare.get("env", {}).get("TUSHARE_TOKEN") != "${TUSHARE_TOKEN}":
+        err("tushare-pro 必须通过 ${TUSHARE_TOKEN} 读取 token")
+
+
+def validate_skills() -> None:
+    if not SKILLS.is_dir():
+        err("缺少 skills/ 目录")
+        return
+    skill_files = sorted(SKILLS.glob("*/SKILL.md"))
+    if len(skill_files) != EXPECTED_SKILL_COUNT:
+        err(f"SKILL.md 数量必须是 {EXPECTED_SKILL_COUNT}，当前为 {len(skill_files)}")
+
+    for skill in skill_files:
+        text = skill.read_text(encoding="utf-8", errors="ignore")
+        if not text.startswith("---\n"):
+            err(f"skill 缺少 YAML frontmatter：{rel(skill)}")
+        if not has_cjk(text):
+            err(f"skill 缺少中文内容：{rel(skill)}")
+
+
+def iter_text_files() -> list[Path]:
+    files: list[Path] = []
+    for path in ROOT.rglob("*"):
+        if any(part in SKIP_PARTS for part in path.parts):
+            continue
+        if path in SKIP_TEXT_FILES:
+            continue
+        if path.is_file() and path.suffix in TEXT_SUFFIXES:
+            files.append(path)
+    return files
+
+
+def validate_forbidden_text() -> None:
+    for path in iter_text_files():
+        text = path.read_text(encoding="utf-8", errors="ignore")
+        for pattern in FORBIDDEN_TEXT_PATTERNS:
+            if re.search(pattern, text, flags=re.IGNORECASE):
+                err(f"发现旧架构文本 `{pattern}`：{rel(path)}")
+
+
+def main() -> int:
+    validate_root_docs()
+    validate_forbidden_paths()
+    validate_manifest()
+    validate_mcp_config()
+    validate_skills()
+    validate_forbidden_text()
+
+    if errors:
+        print(f"FAIL — {len(errors)} 个结构问题：", file=sys.stderr)
+        for message in errors:
+            print(f"  ✗ {message}", file=sys.stderr)
+        return 1
+    print(f"OK — 根级 Codex 插件结构检查通过，解析 {checked_json} 个 JSON 文件。")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
