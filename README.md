@@ -39,6 +39,12 @@ mkdir -p "$HOME/plugins" "$HOME/.agents/plugins" && ln -sfn "$PWD" "$HOME/plugin
 
 本仓库不内置旧式多插件包装层、独立代理包、显式动作入口或托管代理模板。安装、使用和维护都围绕 `financial-services-cn` 进行。
 
+## Agents（工作流入口）
+
+上游 README 的 `Agents` 段用于介绍独立端到端工作流入口。本仓库的对应事实是：不发布独立代理包，不提供托管代理模板，也不需要用户选择多个工作流包。安装 `financial-services-cn` 后，用户直接在 Codex 中用中文自然语言描述任务，Codex 会根据 `skills` 目录中的技能自动匹配金融建模、投行、权益研究、私募股权、财富管理、基金运营、KYC、LSEG 或 S&P Global 工作流。
+
+如果机构要固定自己的端到端流程，应改写相关技能的中文版执行契约、数据来源规则和产物格式规则，而不是新增旧架构目录。
+
 ## Repository Layout（仓库结构）
 
 ```text
@@ -75,6 +81,7 @@ THIRD_PARTY_NOTICES.md         第三方许可说明
 |---|---|---|
 | 插件 manifest | 声明插件名称、版本、展示信息、技能目录和 MCP 配置入口 | `.codex-plugin/plugin.json` |
 | 技能 | 写入金融领域方法、执行步骤、产物要求和中文执行契约 | `skills` |
+| 命令入口 | 不提供显式命令入口；自然语言任务由 Codex 自动匹配技能 | 无 |
 | MCP servers | 将 Codex 连接到机构数据源、中国市场工具或本地数据服务 | `.mcp.json` |
 | 数据来源规则 | 约束来源优先级、授权判断、缺失依据时的“需确认”表达 | `DATA_SOURCES_CN.md` |
 | 中文产物规则 | 约束中文字体、日期、币种、单位、表格、图表、免责声明和摘要 | `CN_OUTPUT_FORMATTING.md` |
