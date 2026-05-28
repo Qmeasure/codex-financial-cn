@@ -94,6 +94,121 @@ THIRD_PARTY_NOTICES.md         第三方许可说明
 | LSEG 数据工作流 | 债券相对价值、期货基差、掉期曲线、外汇套息、期权波动率、固收组合、宏观利率监控 |
 | S&P Global 数据工作流 | 公司速览、融资摘要、业绩预览和 Capital IQ 相关材料 |
 
+## Skill & Command Reference（技能与命令参考）
+
+本仓库不提供显式命令入口；所有技能通过 Codex 根据自然语言任务自动匹配。下表的“命令”列统一为“无”，表示不需要用户输入专门命令。
+
+### 金融分析
+
+| 技能 | 命令 | 用途 |
+|---|---|---|
+| `comps-analysis` | 无 | 构建可比公司分析、估值倍数和同业基准。 |
+| `dcf-model` | 无 | 创建 DCF 估值模型、WACC 和敏感性分析。 |
+| `lbo-model` | 无 | 填充和验证 LBO 模型模板。 |
+| `3-statement-model` | 无 | 补全利润表、资产负债表和现金流量表模型。 |
+| `audit-xls` | 无 | 审核 Excel 模型公式、硬编码、勾稽和平衡检查。 |
+| `clean-data-xls` | 无 | 清理、规范化和去重电子表格数据。 |
+| `deck-refresh` | 无 | 用新数据刷新演示材料中的数字、图表和表格。 |
+| `competitive-analysis` | 无 | 构建竞争格局、同业比较和市场定位分析。 |
+| `ib-check-deck` | 无 | 对投行演示材料做发送前质量检查。 |
+| `pptx-author` | 无 | 在无界面环境生成 `.pptx` 文件。 |
+| `xlsx-author` | 无 | 在无界面环境生成 `.xlsx` 文件。 |
+| `ppt-template-creator` | 无 | 将用户 PowerPoint 模板整理为可复用 PPT 模板技能。 |
+| `skill-creator` | 无 | 创建或更新本仓库风格的 Codex skill。 |
+
+### 投资银行
+
+| 技能 | 命令 | 用途 |
+|---|---|---|
+| `strip-profile` | 无 | 创建投行公司简介页和客户演示公司画像。 |
+| `pitch-deck` | 无 | 用来源数据填充既有投行 pitch deck 模板。 |
+| `datapack-builder` | 无 | 从 CIM、披露文件和数据源构建投资分析数据包。 |
+| `cim-builder` | 无 | 起草卖方 M&A 保密信息备忘录。 |
+| `teaser` | 无 | 起草匿名一页式 teaser。 |
+| `buyer-list` | 无 | 建立战略买方和财务买方清单。 |
+| `merger-model` | 无 | 构建 M&A 增厚/摊薄和 pro forma EPS 分析。 |
+| `process-letter` | 无 | 起草流程函、投标指引和管理层会议邀请。 |
+| `deal-tracker` | 无 | 跟踪交易里程碑、截止日期、行动事项和状态。 |
+
+### 权益研究
+
+| 技能 | 命令 | 用途 |
+|---|---|---|
+| `equity-research` | 无 | 生成股票研究快照和基本面分析。 |
+| `earnings-analysis` | 无 | 起草业绩后季度更新报告。 |
+| `earnings-preview` | 无 | 构建业绩发布前情景、预测和交易关注点。 |
+| `earnings-preview-beta` | 无 | 为单家公司生成简洁业绩预览报告。 |
+| `initiating-coverage` | 无 | 创建机构级首次覆盖报告工作流。 |
+| `model-update` | 无 | 用新业绩、指引或假设更新财务模型。 |
+| `morning-note` | 无 | 起草晨会纪要、隔夜进展和交易想法。 |
+| `sector-overview` | 无 | 创建行业和板块格局报告。 |
+| `thesis-tracker` | 无 | 维护组合持仓和观察名单投资论点。 |
+| `catalyst-calendar` | 无 | 跟踪覆盖池未来催化剂日历。 |
+| `idea-generation` | 无 | 运行股票筛选、主题扫描和投资想法生成。 |
+
+### 私募股权
+
+| 技能 | 命令 | 用途 |
+|---|---|---|
+| `deal-sourcing` | 无 | 寻找目标公司、检查关系并起草创始人外联。 |
+| `deal-screening` | 无 | 快速筛选流入项目、CIM 和 teaser。 |
+| `dd-checklist` | 无 | 生成和跟踪尽职调查清单。 |
+| `dd-meeting-prep` | 无 | 准备管理层会议、专家访谈和客户访谈问题。 |
+| `unit-economics` | 无 | 分析 ARR cohort、LTV/CAC、净留存和收入质量。 |
+| `returns-analysis` | 无 | 构建 IRR/MOIC 回报敏感性分析。 |
+| `ic-memo` | 无 | 起草投资委员会备忘录。 |
+| `portfolio-monitoring` | 无 | 跟踪组合公司 KPI、预算差异和契约风险。 |
+| `value-creation-plan` | 无 | 构建收购后 100 天计划和 EBITDA bridge。 |
+| `ai-readiness` | 无 | 评估组合公司 AI 机会和落地优先级。 |
+
+### 财富管理
+
+| 技能 | 命令 | 用途 |
+|---|---|---|
+| `client-review` | 无 | 准备客户回顾会议材料和谈话要点。 |
+| `financial-plan` | 无 | 构建退休、教育、遗产和现金流规划。 |
+| `portfolio-rebalance` | 无 | 分析组合偏离并生成税务敏感的再平衡建议。 |
+| `client-report` | 无 | 生成面向客户的业绩报告。 |
+| `investment-proposal` | 无 | 创建潜在客户投资建议书。 |
+| `tax-loss-harvesting` | 无 | 识别税损收割机会和 wash sale 风险。 |
+
+### 基金运营
+
+| 技能 | 命令 | 用途 |
+|---|---|---|
+| `gl-recon` | 无 | 执行总账与子账对账并分类差异。 |
+| `break-trace` | 无 | 将对账差异追溯到来源交易或入账记录。 |
+| `accrual-schedule` | 无 | 构建期末预提明细和 JE 草稿。 |
+| `roll-forward` | 无 | 构建资产负债表科目滚动表。 |
+| `variance-commentary` | 无 | 为 P&L 和资产负债表差异撰写波动说明。 |
+| `nav-tieout` | 无 | 将 LP statement 与基金 NAV pack 勾稽。 |
+
+### KYC 与运营
+
+| 技能 | 命令 | 用途 |
+|---|---|---|
+| `kyc-doc-parse` | 无 | 解析开户和准入资料包为结构化 KYC 字段。 |
+| `kyc-rules` | 无 | 应用 KYC/AML 规则表、评级并标记升级事项。 |
+
+### LSEG 和固定收益
+
+| 技能 | 命令 | 用途 |
+|---|---|---|
+| `bond-relative-value` | 无 | 分析债券相对价值、信用利差和利率冲击。 |
+| `bond-futures-basis` | 无 | 分析债券期货基差、CTD 和隐含回购利率。 |
+| `fixed-income-portfolio` | 无 | 审阅固收组合、现金流、久期和 DV01。 |
+| `fx-carry-trade` | 无 | 评估外汇套息交易机会和 carry-to-vol 比率。 |
+| `swap-curve-strategy` | 无 | 分析掉期曲线、利差和曲线交易策略。 |
+| `option-vol-analysis` | 无 | 分析期权波动率曲面、Greeks 和波动率交易。 |
+| `macro-rates-monitor` | 无 | 构建宏观经济、收益率曲线和利率监控 dashboard。 |
+
+### S&P Global 和资本市场数据
+
+| 技能 | 命令 | 用途 |
+|---|---|---|
+| `tear-sheet` | 无 | 使用 S&P Capital IQ 相关数据生成公司速览。 |
+| `funding-digest` | 无 | 汇总融资轮次和资本市场活动为简报材料。 |
+
 ## MCP 集成
 
 `.mcp.json` 当前声明以下 MCP 入口。实际可用性取决于用户本地环境、账号、token、订阅和数据授权；无法确认时，技能必须写“需确认”。
