@@ -1,7 +1,7 @@
 {
   "name": "financial-services-cn",
-  "version": "0.2.1",
-  "description": "面向中国大陆投资者和机构金融工作流的中文 Codex 金融服务插件，A 股优先，兼容港股和美股，覆盖建模、估值、投行、权益研究、私募股权、财富管理、基金运营、KYC、LSEG 和 S&P Global 数据工作流。",
+  "version": "0.2.2",
+  "description": "面向中国大陆投资者和机构金融工作流的中文 Codex 金融服务插件，A 股优先，兼容港股和美股，默认只加载技能，机构和本地 MCP 保留为可选配置模板。",
   "author": {
     "name": "Financial Services CN"
   },
@@ -23,11 +23,10 @@
     "mcp"
   ],
   "skills": "./skills/",
-  "mcpServers": "./.mcp.json",
   "interface": {
     "displayName": "中文金融服务",
     "shortDescription": "A 股优先、港股和美股兼容的中文金融分析技能集合",
-    "longDescription": "覆盖金融建模、估值、投行材料、权益研究、私募股权、财富管理、基金运营、KYC、LSEG 与 S&P Global 数据工作流。所有输出默认遵守中文金融产物格式、来源脚注、币种单位、日期口径和免责声明要求。",
+    "longDescription": "覆盖金融建模、估值、投行材料、权益研究、私募股权、财富管理、基金运营、KYC、LSEG 与 S&P Global 数据工作流。默认安装只加载技能，不自动初始化付费机构源或本地 MCP；需要数据源时由用户按授权另行配置。所有输出默认遵守中文金融产物格式、来源脚注、币种单位、日期口径和免责声明要求。",
     "developerName": "Financial Services CN",
     "category": "Finance",
     "capabilities": [

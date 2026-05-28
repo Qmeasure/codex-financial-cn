@@ -10,7 +10,7 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / ".codex-plugin" / "plugin.json"
-MCP = ROOT / ".mcp.json"
+MCP = ROOT / "OPTIONAL_MCP_SERVERS.json"
 SKILLS = ROOT / "skills"
 
 PLUGIN_NAME = "financial-services-cn"
@@ -152,8 +152,8 @@ def validate_manifest() -> None:
         err("plugin.json description 必须是中文")
     if data.get("skills") != "./skills/":
         err("plugin.json skills 必须是 ./skills/")
-    if data.get("mcpServers") != "./.mcp.json":
-        err("plugin.json mcpServers 必须是 ./.mcp.json")
+    if "mcpServers" in data:
+        err("plugin.json 默认不得声明 mcpServers；机构源和本地 MCP 只能保留为可选配置")
     if "hooks" in data:
         err("plugin.json 不得声明 hooks")
     if "apps" in data and not (ROOT / ".app.json").is_file():
@@ -187,14 +187,14 @@ def validate_mcp_config() -> None:
         return
     servers = data.get("mcpServers")
     if not isinstance(servers, dict) or not servers:
-        err(".mcp.json 必须包含非空 mcpServers 对象")
+        err("OPTIONAL_MCP_SERVERS.json 必须包含非空 mcpServers 对象")
         return
 
     names = set(servers)
     if names != EXPECTED_MCP_SERVERS:
         missing = sorted(EXPECTED_MCP_SERVERS - names)
         extra = sorted(names - EXPECTED_MCP_SERVERS)
-        err(f".mcp.json MCP 清单不正确，缺少 {missing}，多出 {extra}")
+        err(f"OPTIONAL_MCP_SERVERS.json MCP 清单不正确，缺少 {missing}，多出 {extra}")
     if "spglobal" in names:
         err("S&P Global MCP 必须统一命名为 sp-global")
 

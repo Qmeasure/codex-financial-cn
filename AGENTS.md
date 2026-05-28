@@ -5,7 +5,7 @@
 ## 1. 仓库身份
 
 - 插件名称固定为 `financial-services-cn`。
-- 根级结构固定包含 `.codex-plugin/plugin.json`、`.mcp.json`、`skills/`、`README.md`、`DATA_SOURCES_CN.md` 和 `CN_OUTPUT_FORMATTING.md`。
+- 根级结构固定包含 `.codex-plugin/plugin.json`、`OPTIONAL_MCP_SERVERS.json`、`skills/`、`README.md`、`DATA_SOURCES_CN.md` 和 `CN_OUTPUT_FORMATTING.md`；根目录不得放置 `.mcp.json`，避免 Codex 自动加载可选数据源。
 - `skills/` 是唯一的 source skills 目录，采用全扁平结构；每个技能目录必须包含 `SKILL.md`。
 - 仓库内不得重新引入旧多插件包装层、旧平台入口、代理包、托管代理模板或其他旧架构残留。
 - `.codex-plugin/plugin.json` 只能声明真实存在的能力；没有 `.app.json` 时不得声明 `apps`。
@@ -39,9 +39,10 @@
 ## 5. 插件与 MCP 边界
 
 - `.codex-plugin/plugin.json` 的 `name` 必须固定为 `financial-services-cn`。
-- `plugin.json` 的 `skills` 必须固定指向 `./skills/`，`mcpServers` 必须固定指向 `./.mcp.json`。
-- `.mcp.json` 必须保持 Codex 兼容形态，不得硬编码 token。
-- A 股、港股或机构数据相关 MCP 配置可以作为默认入口保留；无法确认本地服务、依赖、账号或授权时，技能必须写“需确认”。
+- `plugin.json` 的 `skills` 必须固定指向 `./skills/`。
+- `plugin.json` 默认不得声明 `mcpServers`；否则 Codex 安装后会主动初始化所有 MCP，导致未登录、未授权或本地服务未启动时弹出启动告警。
+- `OPTIONAL_MCP_SERVERS.json` 必须保持 Codex MCP 配置形态，不得硬编码 token。
+- A 股、港股或机构数据相关 MCP 配置只能作为可选模板保留；无法确认本地服务、依赖、账号或授权时，技能必须写“需确认”。
 - 不修改已有技能目录名、schema key、环境变量名、MCP server 名称或既有 URL，除非用户明确要求并说明迁移方案。
 
 ## 6. 修改工作流

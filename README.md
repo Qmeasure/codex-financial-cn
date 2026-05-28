@@ -1,6 +1,6 @@
 # Financial Services CN
 
-面向中国大陆投资者和机构金融工作流的中文 Codex 金融服务插件。它参考 `anthropics/financial-services` 的 README 信息架构，并按本仓库实际能力改写：A 股优先，兼容港股和美股，覆盖建模、估值、投行材料、权益研究、私募股权、财富管理、基金运营、KYC、LSEG 和 S&P Global 数据工作流。
+面向中国大陆投资者和机构金融工作流的中文 Codex 金融服务插件。它参考 `anthropics/financial-services` 的 README 信息架构，并按本仓库实际能力改写：A 股优先，兼容港股和美股，覆盖建模、估值、投行材料、权益研究、私募股权、财富管理、基金运营、KYC、LSEG 和 S&P Global 数据工作流。默认安装只加载技能，不自动初始化付费机构源或本地 MCP。
 
 > [!IMPORTANT]
 > 本仓库不构成投资、法律、税务、会计或监管建议。所有技能只用于辅助起草分析材料、模型、备忘录、研究笔记、核对表、报告包和演示材料，输出必须由具备资质的专业人员复核。技能不会作出投资建议、执行交易、绑定风险、入账、批准客户准入或对外分发材料。
@@ -19,7 +19,7 @@ mkdir -p "$HOME/plugins" "$HOME/.agents/plugins" && (git clone https://github.co
 2. 新建或合并个人 marketplace entry。
 3. 执行 `codex plugin add financial-services-cn@personal`。
 
-安装完成后，开启一个新的 Codex 线程，让 Codex 重新加载插件技能和 MCP 配置。
+安装完成后，开启一个新的 Codex 线程，让 Codex 重新加载插件技能。默认安装不会自动登录或启动任何机构 MCP、本地 MCP 或付费数据源。
 
 本地开发时，在本仓库根目录执行下面这条命令，即可把当前 checkout 安装到 Codex：
 
@@ -33,7 +33,7 @@ mkdir -p "$HOME/plugins" "$HOME/.agents/plugins" && ln -sfn "$PWD" "$HOME/plugin
 
 - **一个 Codex 插件**：根级 `.codex-plugin/plugin.json` 声明 `financial-services-cn`。
 - **66 个扁平技能**：所有 source skills 直接位于 `skills` 目录，每个技能目录包含 `SKILL.md`。
-- **根级 MCP 配置**：`.mcp.json` 集中声明机构数据源和中国市场相关入口。
+- **可选 MCP 模板**：`OPTIONAL_MCP_SERVERS.json` 集中记录机构数据源和中国市场相关入口；根目录不放 `.mcp.json`，避免 Codex 自动加载。
 - **中文金融规则文档**：`DATA_SOURCES_CN.md` 规定数据来源优先级，`CN_OUTPUT_FORMATTING.md` 规定中文金融产物格式。
 - **校验脚本**：`scripts` 目录提供结构检查、中文化门禁、中文产物样例检查和版本辅助脚本。
 
@@ -49,7 +49,7 @@ mkdir -p "$HOME/plugins" "$HOME/.agents/plugins" && ln -sfn "$PWD" "$HOME/plugin
 
 ```text
 .codex-plugin/plugin.json      Codex 插件 manifest
-.mcp.json                      MCP server 配置入口
+OPTIONAL_MCP_SERVERS.json      可选 MCP server 配置模板，默认不自动加载
 skills                         66 个中文金融技能
 scripts                        结构校验、中文化门禁和产物样例校验
 DATA_SOURCES_CN.md             中国市场数据来源规则
@@ -79,10 +79,10 @@ THIRD_PARTY_NOTICES.md         第三方许可说明
 
 | 组成 | 作用 | 位置 |
 |---|---|---|
-| 插件 manifest | 声明插件名称、版本、展示信息、技能目录和 MCP 配置入口 | `.codex-plugin/plugin.json` |
+| 插件 manifest | 声明插件名称、版本、展示信息和技能目录；默认不声明 MCP，避免安装后自动握手失败 | `.codex-plugin/plugin.json` |
 | 技能 | 写入金融领域方法、执行步骤、产物要求和中文执行契约 | `skills` |
 | 命令入口 | 不提供显式命令入口；自然语言任务由 Codex 自动匹配技能 | 无 |
-| MCP servers | 将 Codex 连接到机构数据源、中国市场工具或本地数据服务 | `.mcp.json` |
+| MCP servers | 可选数据源模板；用户确认授权、登录和本地服务可用后再按需配置 | `OPTIONAL_MCP_SERVERS.json` |
 | 数据来源规则 | 约束来源优先级、授权判断、缺失依据时的“需确认”表达 | `DATA_SOURCES_CN.md` |
 | 中文产物规则 | 约束中文字体、日期、币种、单位、表格、图表、免责声明和摘要 | `CN_OUTPUT_FORMATTING.md` |
 | 校验脚本 | 防止旧架构残留、英文模板残留、manifest 错误和中文产物样例退化 | `scripts` |
@@ -103,7 +103,7 @@ THIRD_PARTY_NOTICES.md         第三方许可说明
 
 ## MCP Integrations（MCP 集成）
 
-`.mcp.json` 当前声明以下 MCP 入口。实际可用性取决于用户本地环境、账号、token、订阅和数据授权；无法确认时，技能必须写“需确认”。
+`OPTIONAL_MCP_SERVERS.json` 当前保留以下可选 MCP 入口。根目录不提供 `.mcp.json`，所以 Codex 默认安装不会自动启用这些 MCP；实际使用前需要用户确认本地环境、账号、token、订阅和数据授权。无法确认时，技能必须写“需确认”。
 
 | 名称 | 类型 | 入口 |
 |---|---|---|
@@ -123,7 +123,7 @@ THIRD_PARTY_NOTICES.md         第三方许可说明
 | `tushare-pro` | 本地 Tushare Pro 工具 | `python -m tushare_mcp_server.main`，通过 `TUSHARE_TOKEN` 读取 token |
 | `akshare-one` | 本地 AKShare 工具 | `uvx akshare-one-mcp` |
 
-机构数据源通常需要订阅或 API key。OpenBB、Tushare 和 AKShare 相关入口只在用户确认本地服务、依赖和授权可用后使用。
+机构数据源通常需要订阅或 API key。OpenBB、Tushare 和 AKShare 相关入口只在用户确认本地服务、依赖和授权可用后使用。这样安装插件时不会弹出未登录、未授权或本地服务未启动的 MCP startup warning。
 
 ## 中国大陆投资者优化
 
@@ -137,7 +137,7 @@ THIRD_PARTY_NOTICES.md         第三方许可说明
 
 这些技能是中文金融工作流模板。落地到具体机构时，建议按以下方式调整：
 
-- **替换数据源**：将 `.mcp.json` 指向你有授权的数据平台、内部数据库或本地市场数据服务。
+- **替换或启用数据源**：在用户确认授权后，将 `OPTIONAL_MCP_SERVERS.json` 中需要的入口复制到个人 Codex MCP 配置，或按机构环境改写为内部数据库和本地市场数据服务。
 - **加入机构语境**：把公司术语、投资标准、KYC 政策、审批流程和材料规范写进相关技能。
 - **带入模板**：用用户提供的 PPT、Excel、DOCX 模板约束版式，但保留中文来源脚注、币种、单位和免责声明。
 - **调整技能边界**：只扩展真实需要的工作流，不引入与本仓库单插件形态冲突的旧架构入口。
@@ -271,7 +271,7 @@ python3 /Users/lesterbot/.codex/skills/.system/plugin-creator/scripts/validate_p
 
 这些检查会覆盖：
 
-- 根级 Codex manifest、MCP 配置和技能目录结构。
+- 根级 Codex manifest、可选 MCP 模板和技能目录结构。
 - 禁止的旧架构目录或文本残留。
 - 中文化门禁、中文金融规则引用和英文模板残留。
 - XLSX、PPTX、Markdown 中文产物样例。
