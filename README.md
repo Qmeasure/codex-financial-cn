@@ -14,7 +14,7 @@
 复制下面整段命令执行，即可安装或更新到 Codex：
 
 ```bash
-mkdir -p "$HOME/plugins" "$HOME/.agents/plugins" && (git clone https://github.com/Qmeasure/codex-financial-cn.git "$HOME/plugins/financial-services-cn" 2>/dev/null || git -C "$HOME/plugins/financial-services-cn" pull --ff-only) && python3 -c 'import json,pathlib;p=pathlib.Path.home()/".agents/plugins/marketplace.json";data=json.loads(p.read_text()) if p.exists() else {"name":"personal","interface":{"displayName":"Personal"},"plugins":[]};entry={"name":"financial-services-cn","source":{"source":"local","path":"./plugins/financial-services-cn"},"policy":{"installation":"AVAILABLE","authentication":"ON_INSTALL"},"category":"Finance"};plugins=data.setdefault("plugins",[]);plugins[:]=[x for x in plugins if not (isinstance(x,dict) and x.get("name")=="financial-services-cn")]+[entry];data.setdefault("name","personal");data.setdefault("interface",{"displayName":"Personal"});p.write_text(json.dumps(data,ensure_ascii=False,indent=2)+"\n")' && codex plugin add financial-services-cn@personal
+mkdir -p "$HOME/plugins" "$HOME/.agents/plugins" && (git clone --branch main https://github.com/Qmeasure/codex-financial-cn.git "$HOME/plugins/financial-services-cn" 2>/dev/null || (git -C "$HOME/plugins/financial-services-cn" checkout main && git -C "$HOME/plugins/financial-services-cn" pull --ff-only origin main)) && python3 -c 'import json,pathlib;p=pathlib.Path.home()/".agents/plugins/marketplace.json";data=json.loads(p.read_text()) if p.exists() else {"name":"personal","interface":{"displayName":"Personal"},"plugins":[]};entry={"name":"financial-services-cn","source":{"source":"local","path":"./plugins/financial-services-cn"},"policy":{"installation":"AVAILABLE","authentication":"ON_INSTALL"},"category":"Finance"};plugins=data.setdefault("plugins",[]);plugins[:]=[x for x in plugins if not (isinstance(x,dict) and x.get("name")=="financial-services-cn")]+[entry];data.setdefault("name","personal");data.setdefault("interface",{"displayName":"Personal"});p.write_text(json.dumps(data,ensure_ascii=False,indent=2)+"\n")' && codex plugin add financial-services-cn@personal
 ```
 
 ### Windows PowerShell
@@ -22,7 +22,7 @@ mkdir -p "$HOME/plugins" "$HOME/.agents/plugins" && (git clone https://github.co
 复制下面整段命令到 PowerShell 执行，即可安装或更新到 Codex：
 
 ```powershell
-$repo='https://github.com/Qmeasure/codex-financial-cn.git'; $plugin=Join-Path $HOME 'plugins\financial-services-cn'; $market=Join-Path $HOME '.agents\plugins\marketplace.json'; New-Item -ItemType Directory -Force -Path (Split-Path $plugin),(Split-Path $market) | Out-Null; if (Test-Path $plugin) { git -C $plugin pull --ff-only } else { git clone $repo $plugin }; py -3 -c "import json,pathlib; p=pathlib.Path.home()/'.agents/plugins/marketplace.json'; data=json.loads(p.read_text(encoding='utf-8')) if p.exists() else {'name':'personal','interface':{'displayName':'Personal'},'plugins':[]}; entry={'name':'financial-services-cn','source':{'source':'local','path':'./plugins/financial-services-cn'},'policy':{'installation':'AVAILABLE','authentication':'ON_INSTALL'},'category':'Finance'}; plugins=data.setdefault('plugins',[]); plugins[:]=[x for x in plugins if not (isinstance(x,dict) and x.get('name')=='financial-services-cn')]+[entry]; data.setdefault('name','personal'); data.setdefault('interface',{'displayName':'Personal'}); p.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')" ; codex plugin add financial-services-cn@personal
+$repo='https://github.com/Qmeasure/codex-financial-cn.git'; $plugin=Join-Path $HOME 'plugins\financial-services-cn'; $market=Join-Path $HOME '.agents\plugins\marketplace.json'; New-Item -ItemType Directory -Force -Path (Split-Path $plugin),(Split-Path $market) | Out-Null; if (Test-Path $plugin) { git -C $plugin checkout main; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }; git -C $plugin pull --ff-only origin main } else { git clone --branch main $repo $plugin }; py -3 -c "import json,pathlib; p=pathlib.Path.home()/'.agents/plugins/marketplace.json'; data=json.loads(p.read_text(encoding='utf-8')) if p.exists() else {'name':'personal','interface':{'displayName':'Personal'},'plugins':[]}; entry={'name':'financial-services-cn','source':{'source':'local','path':'./plugins/financial-services-cn'},'policy':{'installation':'AVAILABLE','authentication':'ON_INSTALL'},'category':'Finance'}; plugins=data.setdefault('plugins',[]); plugins[:]=[x for x in plugins if not (isinstance(x,dict) and x.get('name')=='financial-services-cn')]+[entry]; data.setdefault('name','personal'); data.setdefault('interface',{'displayName':'Personal'}); p.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')" ; codex plugin add financial-services-cn@personal
 ```
 
 Windows 命令默认使用 `py -3`。电脑上只有 `python` 命令时，把上面命令里的 `py -3` 替换为 `python`。
@@ -34,6 +34,8 @@ Windows 命令默认使用 `py -3`。电脑上只有 `python` 命令时，把上
 3. 执行 `codex plugin add financial-services-cn@personal`。
 
 已经安装过本插件的用户，后续更新时重新运行对应系统的同一条安装命令即可。命令会先拉取 GitHub 最新代码，再让 Codex 安装当前插件版本快照。安装或更新完成后，开启一个新的 Codex 线程，让 Codex 重新加载插件技能。默认安装不会自动登录或启动任何机构 MCP、本地 MCP 或付费数据源。
+
+`codex plugin add` 会把当前源码复制成安装快照，路径形如 `~/.codex/plugins/cache/personal/financial-services-cn/<version>`。这是 Codex 的正常安装缓存，不是用户需要手工维护的源码目录；源码目录仍是 `~/plugins/financial-services-cn`，更新时继续重新运行上面的安装或更新命令。
 
 本地开发时，在本仓库根目录执行下面这条 macOS/Linux 命令，即可把当前 checkout 安装到 Codex：
 
