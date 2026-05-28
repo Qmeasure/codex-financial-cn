@@ -7,47 +7,27 @@
 
 ## 安装到 Codex
 
-Codex 插件需要先来自一个已配置的 marketplace，再通过插件名安装。本仓库根目录是插件源，不是 marketplace 根目录；不要把普通插件目录直接传给 `codex plugin add`。
-
-### 从已发布 marketplace 安装
-
-如果插件已经发布到某个 marketplace，按以下顺序安装：
+复制下面整段命令执行，即可安装到 Codex：
 
 ```bash
-codex plugin marketplace add <marketplace-source>
-codex plugin list --marketplace <marketplace-name>
-codex plugin add financial-services-cn@<marketplace-name>
+mkdir -p "$HOME/plugins" "$HOME/.agents/plugins" && (git clone https://github.com/Qmeasure/codex-financial-cn.git "$HOME/plugins/financial-services-cn" 2>/dev/null || git -C "$HOME/plugins/financial-services-cn" pull --ff-only) && python3 -c 'import json,pathlib;p=pathlib.Path.home()/".agents/plugins/marketplace.json";data=json.loads(p.read_text()) if p.exists() else {"name":"personal","interface":{"displayName":"Personal"},"plugins":[]};entry={"name":"financial-services-cn","source":{"source":"local","path":"./plugins/financial-services-cn"},"policy":{"installation":"AVAILABLE","authentication":"ON_INSTALL"},"category":"Finance"};plugins=data.setdefault("plugins",[]);plugins[:]=[x for x in plugins if not (isinstance(x,dict) and x.get("name")=="financial-services-cn")]+[entry];data.setdefault("name","personal");data.setdefault("interface",{"displayName":"Personal"});p.write_text(json.dumps(data,ensure_ascii=False,indent=2)+"\n")' && codex plugin add financial-services-cn@personal
 ```
 
-其中：
+这条命令会自动完成：
 
-- `<marketplace-source>` 可以是本地 marketplace 路径、`owner/repo[@ref]`、HTTPS Git URL 或 SSH Git URL。
-- `<marketplace-name>` 是 marketplace manifest 中声明的名称；先用 `codex plugin list --marketplace <marketplace-name>` 确认能看到 `financial-services-cn`。
-- `codex plugin add` 的选择器必须是 `PLUGIN@MARKETPLACE`，也可以写成 `codex plugin add PLUGIN --marketplace MARKETPLACE`。
+1. 将本仓库 clone 或更新到 `~/plugins/financial-services-cn`。
+2. 新建或合并个人 marketplace entry。
+3. 执行 `codex plugin add financial-services-cn@personal`。
 
-安装后，建议开启一个新 Codex 线程，让 Codex 重新加载插件技能和 MCP 配置。
+安装完成后，开启一个新的 Codex 线程，让 Codex 重新加载插件技能和 MCP 配置。
 
-### 本地 checkout 开发安装
-
-本仓库当前保持“根目录就是插件源”的形态。做本地开发安装时，不要在本仓库内新增 marketplace 包装层；应让你的个人 marketplace 指向这个 checkout。
-
-推荐做法：
-
-1. 将本仓库 checkout 以 `financial-services-cn` 这个目录名放入或链接到你的个人插件目录。
-2. 在个人 marketplace 文件中新增或合并一个 entry，entry 名称为 `financial-services-cn`，本地 source 指向上一步的 checkout，安装策略为可安装，认证策略为安装时确认，类别为 `Finance`。
-3. 运行：
+本地开发时，在本仓库根目录执行下面这条命令，即可把当前 checkout 安装到 Codex：
 
 ```bash
-codex plugin add financial-services-cn@personal
+mkdir -p "$HOME/plugins" "$HOME/.agents/plugins" && ln -sfn "$PWD" "$HOME/plugins/financial-services-cn" && python3 -c 'import json,pathlib;p=pathlib.Path.home()/".agents/plugins/marketplace.json";data=json.loads(p.read_text()) if p.exists() else {"name":"personal","interface":{"displayName":"Personal"},"plugins":[]};entry={"name":"financial-services-cn","source":{"source":"local","path":"./plugins/financial-services-cn"},"policy":{"installation":"AVAILABLE","authentication":"ON_INSTALL"},"category":"Finance"};plugins=data.setdefault("plugins",[]);plugins[:]=[x for x in plugins if not (isinstance(x,dict) and x.get("name")=="financial-services-cn")]+[entry];data.setdefault("name","personal");data.setdefault("interface",{"displayName":"Personal"});p.write_text(json.dumps(data,ensure_ascii=False,indent=2)+"\n")' && codex plugin add financial-services-cn@personal
 ```
 
-如果你使用的不是默认个人 marketplace，而是团队或仓库级 marketplace，则先将该 marketplace 根目录加入 Codex：
-
-```bash
-codex plugin marketplace add <marketplace-source>
-codex plugin list --marketplace <marketplace-name>
-codex plugin add financial-services-cn@<marketplace-name>
-```
+上面两条都是一键命令；不需要用户手写 marketplace JSON。
 
 ## 仓库里有什么
 

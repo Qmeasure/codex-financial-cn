@@ -55,7 +55,6 @@ FORBIDDEN_DIR_NAMES = {
 }
 
 FORBIDDEN_TEXT_PATTERNS = [
-    r"\.agents/plugins",
     r"\.claude-plugin",
     r"\bclaude plugin\b",
     r"\bClaude Code\b",
@@ -68,7 +67,6 @@ FORBIDDEN_TEXT_PATTERNS = [
     r"\bmanaged-agent-cookbooks\b",
     r"POST /v1/agents",
     r"\bcommands/",
-    r"\bplugins/",
     r"\bslash command\b",
     r"斜杠命令",
 ]
