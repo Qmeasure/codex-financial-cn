@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import sys
+import re
 import zipfile
 import xml.etree.ElementTree as ET
 from pathlib import Path
@@ -47,20 +48,40 @@ ws["A4"] = "示例股份（600000.SH）"
 ws["B4"] = 125.4
 ws["C4"] = "=B4/10"
 ws["D4"] = "交易所公告，2026年5月27日"
+ws["D4"].hyperlink = "https://example.com/announcement"
+for cell in ws[4]:
+    cell.font = Font(name="Microsoft YaHei")
 ws["B4"].number_format = '¥#,##0.0"亿"'
 ws["C4"].number_format = '0.0x'
 ws["A6"] = "免责声明：本样例不构成投资建议，需人工复核。"
 ws["A6"].font = Font(name="Microsoft YaHei")
+assumptions = wb.create_sheet("来源与假设")
+assumptions["A1"] = "来源与假设"
+assumptions["A1"].font = Font(name="Microsoft YaHei", bold=True)
+assumptions["A2"] = "来源：交易所公告"
+assumptions["A3"] = "假设：一致预期需终端复核"
+checks = wb.create_sheet("检查区")
+checks["A1"] = "检查项"
+checks["B1"] = "状态"
+checks["A2"] = "公式检查"
+checks["B2"] = "通过"
 wb.save(xlsx)
 
 loaded = load_workbook(xlsx, data_only=False)
 ws = loaded["可比公司"]
+for sheet_name in ("可比公司", "来源与假设", "检查区"):
+    if sheet_name not in loaded.sheetnames:
+        fail(f"xlsx required sheet missing {sheet_name}")
 if "人民币亿元" not in ws["B3"].value:
     fail("xlsx unit header missing Chinese RMB unit")
 if ws["C4"].data_type != "f":
     fail("xlsx formula cell is not a formula")
 if "投资建议" not in ws["A6"].value:
     fail("xlsx disclaimer missing")
+if ws["A1"].font.name != "Microsoft YaHei" or ws["A4"].font.name not in (None, "Microsoft YaHei"):
+    fail("xlsx Chinese font stack missing on title or body")
+if not ws["D4"].hyperlink or "https://example.com/announcement" not in ws["D4"].hyperlink.target:
+    fail("xlsx source hyperlink missing")
 
 pptx = OUT / "cn_acceptance_sample.pptx"
 prs = Presentation()
@@ -71,7 +92,7 @@ title.text_frame.paragraphs[0].runs[0].font.name = "Microsoft YaHei"
 title.text_frame.paragraphs[0].runs[0].font.size = Pt(28)
 box = slide.shapes.add_textbox(left=914400, top=1828800, width=7315200, height=1828800)
 tf = box.text_frame
-tf.text = "来源：交易所公告；币种：人民币；单位：亿元；需人工复核。"
+tf.text = "来源：交易所公告；币种：人民币；单位：亿元；免责声明：不构成投资建议，需人工复核。"
 tf.paragraphs[0].runs[0].font.name = "Microsoft YaHei"
 prs.save(pptx)
 
@@ -81,6 +102,11 @@ if "A股优先估值摘要" not in texts:
     fail("pptx title missing Chinese text")
 if "来源" not in texts or "人民币" not in texts:
     fail("pptx source or currency note missing")
+if "免责声明" not in texts or "不构成投资建议" not in texts:
+    fail("pptx disclaimer missing")
+with zipfile.ZipFile(pptx) as zf:
+    if "ppt/presentation.xml" not in zf.namelist():
+        fail("pptx package missing presentation.xml")
 
 docx = OUT / "cn_acceptance_sample.docx"
 content_types = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -264,13 +290,17 @@ for needle in ("交易所公告", "数据来源", "免责声明"):
 md = OUT / "cn_acceptance_sample.md"
 md.write_text(
     "# 中文研究摘要\n\n"
-    "数据来源：交易所公告，2026年5月27日。\n\n"
+    "数据来源：[交易所公告](https://example.com/announcement)，2026年5月27日。\n\n"
     "币种与单位：人民币亿元。\n\n"
+    "待确认项：一致预期需终端复核。\n\n"
     "风险提示：本材料不构成投资建议，需人工复核。\n"
 )
 text = md.read_text()
-for needle in ("数据来源", "人民币亿元", "不构成投资建议"):
+for needle in ("数据来源", "人民币亿元", "待确认项", "不构成投资建议"):
     if needle not in text:
         fail(f"markdown sample missing {needle}")
+visible_markdown_text = re.sub(r"\[[^\]]+\]\(https?://[^)]+\)", "", text)
+if "http://" in visible_markdown_text or "https://" in visible_markdown_text:
+    fail("markdown sample contains bare visible URL")
 
 print("OK — generated and inspected CN XLSX/PPTX/DOCX/Markdown artifact samples.")

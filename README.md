@@ -50,7 +50,7 @@ Windows 本地开发建议直接把 checkout 放在 `$HOME\plugins\financial-ser
 - **一个 Codex 插件**：根级 `.codex-plugin/plugin.json` 声明 `financial-services-cn`。
 - **66 个扁平技能**：所有 source skills 直接位于 `skills` 目录，每个技能目录包含 `SKILL.md`。
 - **可选 MCP 模板**：`OPTIONAL_MCP_SERVERS.json` 集中记录机构数据源和中国市场相关入口；根目录不放 `.mcp.json`，避免 Codex 自动加载。
-- **中文金融规则文档**：`DATA_SOURCES_CN.md` 规定数据来源优先级，`CN_OUTPUT_FORMATTING.md` 规定中文金融产物格式，`CN_DOCX_OUTPUT_CONTRACT.md` 规定中文 Word 交付契约。
+- **中文金融规则文档**：`DATA_SOURCES_CN.md` 规定数据来源优先级，`CN_OUTPUT_FORMATTING.md` 规定中文金融产物格式，`CN_DOCX_OUTPUT_CONTRACT.md`、`CN_XLSX_OUTPUT_CONTRACT.md`、`CN_PPTX_OUTPUT_CONTRACT.md` 和 `CN_MARKDOWN_OUTPUT_CONTRACT.md` 规定文件交付契约。
 - **校验脚本**：`scripts` 目录提供结构检查、中文化门禁、中文产物样例检查和版本辅助脚本。
 
 本仓库不内置旧式多插件包装层、独立代理包、显式动作入口或托管代理模板。安装、使用和维护都围绕 `financial-services-cn` 进行。
@@ -71,6 +71,9 @@ scripts                        结构校验、中文化门禁和产物样例校�
 DATA_SOURCES_CN.md             中国市场数据来源规则
 CN_OUTPUT_FORMATTING.md        中文金融产物格式规则
 CN_DOCX_OUTPUT_CONTRACT.md     中文 DOCX/Word 交付契约
+CN_XLSX_OUTPUT_CONTRACT.md     中文 XLSX/Excel 交付契约
+CN_PPTX_OUTPUT_CONTRACT.md     中文 PPTX/PowerPoint 交付契约
+CN_MARKDOWN_OUTPUT_CONTRACT.md 中文 Markdown/聊天正文交付契约
 OPTIONAL_MCP_TEMPLATES.md      可选 MCP 接入说明
 ACCEPTANCE_SAMPLES_CN.md       中文产物验收样例
 THIRD_PARTY_NOTICES.md         第三方许可说明
@@ -103,6 +106,9 @@ THIRD_PARTY_NOTICES.md         第三方许可说明
 | 数据来源规则 | 约束来源优先级、授权判断、缺失依据时的“需确认”表达 | `DATA_SOURCES_CN.md` |
 | 中文产物规则 | 约束中文字体、日期、币种、单位、表格、图表、免责声明和摘要 | `CN_OUTPUT_FORMATTING.md` |
 | DOCX 交付契约 | 约束中文 Word 的 preset、OOXML 字体、表格几何、真实编号、超链接和 render QA 降级说明 | `CN_DOCX_OUTPUT_CONTRACT.md` |
+| XLSX 交付契约 | 约束中文工作簿、公式优先、颜色约定、来源/假设/检查区和结构校验 | `CN_XLSX_OUTPUT_CONTRACT.md` |
+| PPTX 交付契约 | 约束中文幻灯片标题、字体、图表、来源脚注、无溢出和视觉 QA | `CN_PPTX_OUTPUT_CONTRACT.md` |
+| Markdown 交付契约 | 约束中文标题层级、表格、来源、链接、免责声明和聊天输出边界 | `CN_MARKDOWN_OUTPUT_CONTRACT.md` |
 | 校验脚本 | 防止旧架构残留、英文模板残留、manifest 错误和中文产物样例退化 | `scripts` |
 
 ## Vertical Plugins（技能领域）
@@ -299,7 +305,7 @@ python3 /Users/lesterbot/.codex/skills/.system/plugin-creator/scripts/validate_p
 
 ## Contributing（贡献规则）
 
-- 新增或改写技能时，必须包含“中文版执行契约”，并引用 `DATA_SOURCES_CN.md` 和 `CN_OUTPUT_FORMATTING.md`；生成 DOCX 的技能还必须引用 `CN_DOCX_OUTPUT_CONTRACT.md`。
+- 新增或改写技能时，必须包含“中文版执行契约”，并引用插件根目录 `../../DATA_SOURCES_CN.md`、`../../CN_OUTPUT_FORMATTING.md` 和对应产物合同；生成 DOCX/XLSX/PPTX/Markdown 文件时分别引用 `../../CN_DOCX_OUTPUT_CONTRACT.md`、`../../CN_XLSX_OUTPUT_CONTRACT.md`、`../../CN_PPTX_OUTPUT_CONTRACT.md`、`../../CN_MARKDOWN_OUTPUT_CONTRACT.md`。
 - 不修改技能目录名、schema key、环境变量名、MCP server 名称或既有 URL，除非同时说明迁移方案。
 - 不默认启用付费源、机构源或本地 MCP；需要用户确认授权和可用性。
 - 不使用 LiteLLM 或外部翻译 API 做本仓库中文化。

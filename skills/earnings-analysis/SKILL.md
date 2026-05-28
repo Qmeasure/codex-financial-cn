@@ -13,6 +13,21 @@ description: 创建专业股票研究业绩更新报告（8-12 页，3,000-5,000
 - 保留 DCF、LBO、WACC、EV/EBITDA、IRR、MOIC、NAV、KYC、AML、MCP、CLI 等专业缩写和代码标识。
 
 
+## 产物合同读取与输出门槛
+
+生成正式输出前必须读取：
+- 插件根目录 `../../DATA_SOURCES_CN.md`
+- 插件根目录 `../../CN_OUTPUT_FORMATTING.md`
+- 插件根目录 `../../CN_MARKDOWN_OUTPUT_CONTRACT.md`
+- 插件根目录 `../../CN_DOCX_OUTPUT_CONTRACT.md`（当输出 DOCX/Word 文件时）
+
+本 skill 的输出必须按既有交付物承诺执行：
+- 聊天摘要或即时分析不能替代本 skill 已承诺的文件主交付物。
+- 纯文本/聊天输出必须包含来源、口径限制、待确认项和人工复核边界，不强制落盘为文件。
+- 若用户要求或本 skill 明确承诺生成 Markdown 文件，最终回复前必须确认 `.md` 文件已生成、Markdown 文件路径存在、结构可读，并确保最终回复包含 Markdown 文件路径。
+- 若本 skill 的既有输出包含 DOCX/Word 文件，最终回复前必须确认 DOCX 文件已生成、DOCX 文件路径存在、可打开或结构校验通过，并确保最终回复包含 DOCX 文件路径。
+
+
 # 股票研究业绩更新
 
 创建专业 **业绩更新报告**，用于分析已覆盖公司的季度业绩，并遵循机构标准（JPMorgan、Goldman Sachs、Morgan Stanley 格式）。
@@ -25,7 +40,7 @@ description: 创建专业股票研究业绩更新报告（8-12 页，3,000-5,000
 - **周转**：1-2 天（业绩后 24-48 小时内）
 - **受众**：已经熟悉公司的客户
 - **重点**：新增信息，即超预期/低于预期、更新预测、投资逻辑影响
-- **字体**：除非用户另有指定，中文输出按 `CN_OUTPUT_FORMATTING.md` 使用中文字体栈
+- **字体**：除非用户另有指定，中文输出按 `../../CN_OUTPUT_FORMATTING.md` 使用中文字体栈
 
 ## 交付物硬门槛
 
@@ -69,7 +84,7 @@ description: 创建专业股票研究业绩更新报告（8-12 页，3,000-5,000
 
 ## DOCX 输出合同
 
-生成 DOCX 时必须使用 `CN_DOCX_OUTPUT_CONTRACT.md` 中的 `cn_institutional_research_brief` preset。必须落实以下 Word 结构要求：
+生成 DOCX 时必须使用 `../../CN_DOCX_OUTPUT_CONTRACT.md` 中的 `cn_institutional_research_brief` preset。必须落实以下 Word 结构要求：
 - 中文字体栈写入 Word OOXML，关键样式和 run 必须包含 `w:rFonts@w:eastAsia`、`w:rFonts@w:ascii`、`w:rFonts@w:hAnsi`
 - 表格必须使用固定宽度，包含 `tblGrid`、`tcW` 和 cell margin
 - 列表必须使用真实 Word numbering definitions，禁止 fake bullets

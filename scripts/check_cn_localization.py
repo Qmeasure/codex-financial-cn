@@ -15,6 +15,9 @@ REQUIRED_DOCS = [
     "DATA_SOURCES_CN.md",
     "CN_OUTPUT_FORMATTING.md",
     "CN_DOCX_OUTPUT_CONTRACT.md",
+    "CN_XLSX_OUTPUT_CONTRACT.md",
+    "CN_PPTX_OUTPUT_CONTRACT.md",
+    "CN_MARKDOWN_OUTPUT_CONTRACT.md",
     "OPTIONAL_MCP_TEMPLATES.md",
     "ACCEPTANCE_SAMPLES_CN.md",
     "THIRD_PARTY_NOTICES.md",
@@ -22,9 +25,71 @@ REQUIRED_DOCS = [
 
 REQUIRED_SKILL_NEEDLES = [
     "中文版执行契约",
-    "DATA_SOURCES_CN.md",
-    "CN_OUTPUT_FORMATTING.md",
+    "../../DATA_SOURCES_CN.md",
+    "../../CN_OUTPUT_FORMATTING.md",
+    "../../CN_MARKDOWN_OUTPUT_CONTRACT.md",
+    "产物合同读取与输出门槛",
+    "生成正式输出前必须读取",
+    "聊天摘要或即时分析不能替代本 skill 已承诺的文件主交付物",
 ]
+
+DOCX_SKILLS = {
+    "cim-builder",
+    "client-report",
+    "client-review",
+    "earnings-analysis",
+    "financial-plan",
+    "ic-memo",
+    "initiating-coverage",
+    "model-update",
+    "morning-note",
+    "process-letter",
+    "sector-overview",
+    "tear-sheet",
+    "teaser",
+    "thesis-tracker",
+    "value-creation-plan",
+}
+
+XLSX_SKILLS = {
+    "3-statement-model",
+    "buyer-list",
+    "catalyst-calendar",
+    "clean-data-xls",
+    "comps-analysis",
+    "datapack-builder",
+    "dcf-model",
+    "dd-checklist",
+    "deal-tracker",
+    "lbo-model",
+    "merger-model",
+    "model-update",
+    "portfolio-rebalance",
+    "returns-analysis",
+    "tax-loss-harvesting",
+    "unit-economics",
+    "xlsx-author",
+}
+
+PPTX_SKILLS = {
+    "competitive-analysis",
+    "deck-refresh",
+    "funding-digest",
+    "investment-proposal",
+    "pitch-deck",
+    "ppt-template-creator",
+    "pptx-author",
+    "sector-overview",
+    "strip-profile",
+    "teaser",
+    "value-creation-plan",
+}
+
+ARTIFACT_CONTRACTS = {
+    "DOCX": ("../../CN_DOCX_OUTPUT_CONTRACT.md", DOCX_SKILLS),
+    "XLSX": ("../../CN_XLSX_OUTPUT_CONTRACT.md", XLSX_SKILLS),
+    "PPTX": ("../../CN_PPTX_OUTPUT_CONTRACT.md", PPTX_SKILLS),
+}
 
 ARTIFACT_RULE_FILES = [
     "skills/xlsx-author/SKILL.md",
@@ -215,6 +280,18 @@ def check_skills() -> None:
         for needle in REQUIRED_SKILL_NEEDLES:
             if needle not in text:
                 err(f"skill 缺少 {needle}：{rel(skill)}")
+        skill_name = skill.parent.name
+        for artifact_type, (contract, skill_names) in ARTIFACT_CONTRACTS.items():
+            if skill_name not in skill_names:
+                continue
+            for needle in (
+                contract,
+                f"{artifact_type} 文件已生成",
+                f"{artifact_type} 文件路径存在",
+                f"最终回复包含 {artifact_type} 文件路径",
+            ):
+                if needle not in text:
+                    err(f"{skill_name} 缺少 {artifact_type} 交付门槛 `{needle}`")
 
 
 def check_artifact_rules() -> None:
