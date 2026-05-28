@@ -1,6 +1,6 @@
 {
   "name": "financial-services-cn",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "面向中国大陆投资者和机构金融工作流的中文 Codex 金融服务插件，A 股优先，兼容港股和美股，覆盖建模、估值、投行、权益研究、私募股权、财富管理、基金运营、KYC、LSEG 和 S&P Global 数据工作流。",
   "author": {
     "name": "Financial Services CN"

@@ -1,33 +1,81 @@
-# Financial Services CN 仓库规则
+# Financial Services CN Agent 规约
 
-本仓库是单一 Codex 插件的中文版金融服务技能集合。仓库根目录本身就是插件源；所有 skill、README、脚本注释和用户可见输出必须使用中文金融语境。
+本仓库是一个单一 Codex 插件的中文金融服务技能集合。仓库根目录就是插件源，不是多插件包装层，也不是旧平台入口集合。任何 Agent 在这里工作时，都必须围绕“中文金融产物、A 股优先、来源可追溯、结构可校验、最小改动”执行。
 
-## 数据规则
+## 1. 仓库身份
 
-- 默认 A 股优先，港股和美股兼容。
-- 所有工作流必须遵守 `DATA_SOURCES_CN.md`。
-- 付费源只能作为用户确认后的增强源，不得默认启用。
-- 非权益工作流涉及监管、会计、KYC、基金文件和月结判断时，必须引用官方材料、用户政策或用户文件；没有依据时写“需确认”。
+- 插件名称固定为 `financial-services-cn`。
+- 根级结构固定包含 `.codex-plugin/plugin.json`、`.mcp.json`、`skills/`、`README.md`、`DATA_SOURCES_CN.md` 和 `CN_OUTPUT_FORMATTING.md`。
+- `skills/` 是唯一的 source skills 目录，采用全扁平结构；每个技能目录必须包含 `SKILL.md`。
+- 仓库内不得重新引入旧多插件包装层、旧平台入口、代理包、托管代理模板或其他旧架构残留。
+- `.codex-plugin/plugin.json` 只能声明真实存在的能力；没有 `.app.json` 时不得声明 `apps`。
 
-## 中文产物规则
+## 2. 默认金融语境
 
-- 所有 DOCX、PPTX、XLSX、Markdown、表格、图表、脚注和最终摘要必须遵守 `CN_OUTPUT_FORMATTING.md`。
-- 中文正文、表格、图表、脚注和来源说明不得沿用英文默认字体或英文版式。
-- 保留 DCF、LBO、WACC、EV/EBITDA、IRR、MOIC、NAV、KYC、AML、MCP、CLI 等专业缩写和代码标识。
+- 未指定市场时，默认按中国大陆机构金融工作流和 A 股语境处理。
+- 港股、美股、ADR、H 股、红筹、双重主要上市和跨市场比较必须显式标注交易所、币种、会计准则、数据日期、汇率来源和口径差异。
+- A 股默认人民币，单位优先“万元/亿元”；港股默认港元；美股默认美元。除非用户明确要求，不默认强制折算成人民币。
+- 保留 DCF、LBO、WACC、EV/EBITDA、IRR、MOIC、NAV、KYC、AML、MCP、CLI、API 等专业缩写和代码标识，但面向用户的解释必须使用中文金融语境。
 
-## Codex 插件规则
+## 3. 数据来源规则
 
-- 根目录固定包含 `.codex-plugin/plugin.json`、`.mcp.json` 和 `skills/`。
-- `plugin.json` 的 `name` 固定为 `financial-services-cn`，`skills` 固定指向 `./skills/`，`mcpServers` 固定指向 `./.mcp.json`。
-- `skills/` 采用全扁平结构，每个 skill 目录必须包含 `SKILL.md`。
-- 不允许重新引入旧多插件包装层、旧平台命令入口、代理包、托管代理模板或其他旧架构入口。
-- `plugin.json` 只能声明真实存在的能力；没有 `.app.json` 时不得声明 `apps`。
-- 默认 MCP 配置必须使用 Codex 兼容的 `.mcp.json` 形态；不得硬编码 token。
-- A 股/港股相关 MCP 配置可以保留为默认入口，但无法确认本地服务、依赖或授权时，技能必须写“需确认”。
+- 所有技能、README、脚本注释、样例和用户可见输出必须遵守 `DATA_SOURCES_CN.md`。
+- 来源优先级为：用户文件或政策、官方披露、已授权 MCP 或机构数据库、用户确认可用的中国市场工具、免费公开网页辅助线索。
+- 付费源、机构源和本地 MCP 只能作为用户确认后的增强源，不得默认启用，不得假设本机已安装、已登录或已有授权。
+- 监管、会计、KYC、AML、税务、基金文件、LP 报告、月结、总账入账、签批和客户适当性判断，必须引用官方材料、用户政策或用户文件；缺少依据时写“需确认”。
+- 免费网页和搜索结果不得作为估值、KYC、会计、监管、基金运营或月结判断的唯一依据。
+- 不得在代码、文档、日志或最终摘要中输出任何 token、key、账号密钥或客户敏感信息。
 
-## 修改规则
+## 4. 中文产物规则
 
-- source skills 直接位于根级 `skills/`。
-- 不修改技能目录名、schema key、环境变量或既有 URL。
-- 不使用 LiteLLM 或外部翻译 API 做本仓库中文化。
-- 改完必须运行结构检查、中文化门禁、中文产物样例检查和 Codex manifest 校验。
+- 所有 DOCX、PPTX、XLSX、Markdown、表格、图表、脚注、文件名建议和最终摘要必须遵守 `CN_OUTPUT_FORMATTING.md`。
+- 中文正文、标题、表头、图例、脚注、来源说明和免责声明不得沿用英文默认标题或英文版式。
+- 用户模板、公司品牌规范和既有版式优先，但不能省略中文可读性、来源脚注、币种、单位、日期、口径和待确认项。
+- 财务模型必须区分输入区、计算区、来源/假设区和检查区；派生值不得硬编码。
+- PPT 每页只表达一个核心结论；图表必须标注数据日期、来源和估算/预测/未经审计等限制。
+- 最终摘要必须说明产物内容、数据来源、口径限制、待人工复核事项和免责声明，不得只返回英文路径或英文状态。
+- 本仓库中文化不得使用 LiteLLM 或外部翻译 API。
+
+## 5. 插件与 MCP 边界
+
+- `.codex-plugin/plugin.json` 的 `name` 必须固定为 `financial-services-cn`。
+- `plugin.json` 的 `skills` 必须固定指向 `./skills/`，`mcpServers` 必须固定指向 `./.mcp.json`。
+- `.mcp.json` 必须保持 Codex 兼容形态，不得硬编码 token。
+- A 股、港股或机构数据相关 MCP 配置可以作为默认入口保留；无法确认本地服务、依赖、账号或授权时，技能必须写“需确认”。
+- 不修改已有技能目录名、schema key、环境变量名、MCP server 名称或既有 URL，除非用户明确要求并说明迁移方案。
+
+## 6. 修改工作流
+
+- 先侦察现有结构，再修改文件。不要凭记忆判断插件结构、技能数量、校验脚本或数据规则。
+- 修改前先确认影响范围：根文档、manifest、MCP、某个 skill、脚本、样例产物或跨文件规则。
+- 优先最小改动。不要顺手重构无关技能、移动目录、改命名、改格式或批量替换无关文本。
+- 如果用户给出明确模板、接口、参数、命令或既有 adapter，必须 1:1 沿用，不自创替代实现。
+- 新增或改写技能时，必须包含“中文版执行契约”，并引用 `DATA_SOURCES_CN.md` 和 `CN_OUTPUT_FORMATTING.md`。
+- 修改根级规则时，同步检查 `README.md`、`DATA_SOURCES_CN.md`、`CN_OUTPUT_FORMATTING.md`、`.codex-plugin/plugin.json` 和相关脚本是否产生矛盾。
+- 修改服务代码时必须自动重启受影响服务；本仓库通常是插件和技能集合，若没有运行服务，不要虚构重启步骤。
+
+## 7. 禁止事项
+
+- 不把英文金融技能直接照搬为中文文件名或英文交付模板。
+- 不默认启用付费源、机构源或本地 MCP。
+- 不输出投资、法律、税务、会计、监管、交易、签批、入账或客户准入建议；只能辅助起草并要求专业人员复核。
+- 不删除兼容路径、不破坏 manifest、不改变技能目录结构、不引入旧架构残留。
+- 不用前端式或营销式文案包装金融结论；材料必须克制、可审计、能追溯。
+- 不把“运行无报错”当作“设计正确”；完成前必须有校验证据。
+
+## 8. 完成前校验
+
+改完必须至少运行以下校验：
+
+```bash
+python3 scripts/check.py
+python3 scripts/check_cn_localization.py
+python3 scripts/check_cn_artifact_samples.py
+python3 /Users/lesterbot/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py .
+```
+
+如果某个校验因本机依赖、外部服务或授权缺失无法执行，必须在最终说明中写清楚具体命令、失败原因和剩余风险。
+
+## 9. 一句话原则
+
+本仓库的每一次修改，都必须让 `financial-services-cn` 更稳定地作为中文金融服务 Codex 插件运行：A 股优先、来源清楚、格式中文、边界可信、结构可校验。
