@@ -27,7 +27,7 @@
   "interface": {
     "displayName": "中文金融服务",
     "shortDescription": "A 股优先、港股和美股兼容的中文金融分析技能集合",
-    "longDescription": "将金融建模、估值、投行材料、权益研究、私募股权、财富管理、基金运营、KYC、LSEG 与 S&P Global 数据工作流收敛为一个 Superpowers 风格的 Codex 单插件。所有输出默认遵守中文金融产物格式、来源脚注、币种单位、日期口径和免责声明要求。",
+    "longDescription": "覆盖金融建模、估值、投行材料、权益研究、私募股权、财富管理、基金运营、KYC、LSEG 与 S&P Global 数据工作流。所有输出默认遵守中文金融产物格式、来源脚注、币种单位、日期口径和免责声明要求。",
     "developerName": "Financial Services CN",
     "category": "Finance",
     "capabilities": [

@@ -1,6 +1,6 @@
 # Financial Services CN
 
-面向中国大陆投资者和机构金融工作流的中文 Codex 金融服务插件。它基于 `anthropics/financial-services` 的金融服务 README 信息架构重写，但按本仓库真实结构落地为一个单一 Codex 插件：A 股优先，兼容港股和美股，覆盖建模、估值、投行材料、权益研究、私募股权、财富管理、基金运营、KYC、LSEG 和 S&P Global 数据工作流。
+面向中国大陆投资者和机构金融工作流的中文 Codex 金融服务插件。它参考 `anthropics/financial-services` 的 README 信息架构，并按本仓库实际能力改写：A 股优先，兼容港股和美股，覆盖建模、估值、投行材料、权益研究、私募股权、财富管理、基金运营、KYC、LSEG 和 S&P Global 数据工作流。
 
 > [!IMPORTANT]
 > 本仓库不构成投资、法律、税务、会计或监管建议。所有技能只用于辅助起草分析材料、模型、备忘录、研究笔记、核对表、报告包和演示材料，输出必须由具备资质的专业人员复核。技能不会作出投资建议、执行交易、绑定风险、入账、批准客户准入或对外分发材料。
@@ -57,7 +57,7 @@ codex plugin add financial-services-cn@<marketplace-name>
 - **中文金融规则文档**：`DATA_SOURCES_CN.md` 规定数据来源优先级，`CN_OUTPUT_FORMATTING.md` 规定中文金融产物格式。
 - **校验脚本**：`scripts` 目录提供结构检查、中文化门禁、中文产物样例检查和版本辅助脚本。
 
-本仓库不内置旧式多插件包装层、独立代理包、显式动作入口或托管代理模板。安装、使用和维护都围绕这个单一 Codex 插件进行。
+本仓库不内置旧式多插件包装层、独立代理包、显式动作入口或托管代理模板。安装、使用和维护都围绕 `financial-services-cn` 进行。
 
 ## 仓库结构
 
