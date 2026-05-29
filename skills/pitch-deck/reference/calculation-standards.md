@@ -1,3 +1,5 @@
+> Reference 链路：执行本文件前，先读取本 skill 的 `references/data-query-order.md`、`references/cn-markdown-formatting.md`、`references/cn-pptx-formatting.md`；本文件只描述业务 workflow 或参考口径，不承载新增中文格式正文。
+
 # 计算验证参考
 
 本文件提供公式和指引，用于在填充模板前验证来源数据中已预先计算的数值。来源数据通常已经包含计算结果；请使用这些公式验证其准确性。

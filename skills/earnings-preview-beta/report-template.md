@@ -1,3 +1,5 @@
+> Reference 链路：执行本文件前，先读取本 skill 的 `references/data-query-order.md`、`references/cn-markdown-formatting.md`、`references/cn-html-formatting.md`；本文件只描述业务 workflow 或参考口径，不承载新增中文格式正文。
+
 # HTML 报告模板参考
 
 使用此模板作为单家公司业绩预览 HTML 报告的基础。请根据第 1-5 阶段收集的研究资料，定制数据、图表和叙述内容。

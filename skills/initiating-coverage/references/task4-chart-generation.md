@@ -1,3 +1,5 @@
+> Reference 链路：执行本文件前，先读取本 skill 的 `references/data-query-order.md`、`references/cn-markdown-formatting.md`、`references/cn-docx-formatting.md`、`references/cn-xlsx-formatting.md`、`references/cn-chart-formatting.md`；本文件只描述业务 workflow 或参考口径，不承载新增中文格式正文。
+
 # 任务 4：图表生成 - 详细工作流
 
 本文档提供执行 initiating-coverage skill 任务 4（图表生成）的分步说明。
@@ -71,14 +73,14 @@
 - [ ] 估值区间是否已计算？（用于图表 32 ⭐）
 
 ### 外部数据验证
-- [ ] 是否可访问历史股价数据？（Yahoo Finance、Bloomberg，用于图表 01）
-- [ ] 是否可访问历史估值数据？（可选，用于图表 34）
+- [ ] 是否已按 `references/data-query-order.md` 先检查可用 MCP/已授权源，再确认可访问历史股价数据？（用于图表 01）
+- [ ] 是否已按 `references/data-query-order.md` 先检查可用 MCP/已授权源，再确认可访问历史估值数据？（可选，用于图表 34）
 
 **如任何验证失败**：
 - 缺少任务 1？→ 先完成任务 1（公司研究）
 - 缺少任务 2？→ 先完成任务 2（财务建模）
 - 缺少任务 3？→ 先完成任务 3（估值分析）
-- 缺少外部数据？→ 从 Yahoo Finance、Bloomberg 或类似来源收集
+- 缺少外部数据？→ 先检查可用 MCP/已授权源；覆盖不足时再从 Yahoo Finance、Bloomberg 或类似来源收集，并说明降级原因
 
 ---
 

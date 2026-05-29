@@ -1,3 +1,5 @@
+> Reference 链路：执行本文件前，先读取本 skill 的 `references/data-query-order.md`、`references/cn-markdown-formatting.md`、`references/cn-xlsx-formatting.md`；本文件只描述业务 workflow 或参考口径，不承载新增中文格式正文。
+
 # 中文三表模型格式参考
 
 本参考文件必须与根目录 `CN_OUTPUT_FORMATTING.md` 一起使用。三表模型、检查表、图表、脚注和最终摘要必须使用中文金融语境；默认 A股优先，港股和美股兼容。跨市场或跨币种模型必须显式标注币种、单位、汇率、会计准则、数据日期和来源。

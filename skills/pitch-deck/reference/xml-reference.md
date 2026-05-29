@@ -1,3 +1,5 @@
+> Reference 链路：执行本文件前，先读取本 skill 的 `references/data-query-order.md`、`references/cn-markdown-formatting.md`、`references/cn-pptx-formatting.md`；本文件只描述业务 workflow 或参考口径，不承载新增中文格式正文。
+
 # PowerPoint XML 参考
 
 本文件包含用于程序化编辑 PowerPoint 的 XML 模式。直接处理 OOXML 格式时使用这些模式。

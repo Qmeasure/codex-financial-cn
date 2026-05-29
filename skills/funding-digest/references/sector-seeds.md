@@ -1,3 +1,5 @@
+> Reference 链路：执行本文件前，先读取本 skill 的 `references/data-query-order.md`、`references/cn-markdown-formatting.md`、`references/cn-pptx-formatting.md`；本文件只描述业务 workflow 或参考口径，不承载新增中文格式正文。
+
 # 行业种子公司参考
 
 当用户只指定行业、没有指定具体公司时，使用这些种子清单启动公司 universe 构建。这些只是起点；必须始终通过 `get_competitors_from_identifiers` 扩展，并用 `get_info_from_identifiers` 核验。

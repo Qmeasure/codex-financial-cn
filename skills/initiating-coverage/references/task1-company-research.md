@@ -1,3 +1,5 @@
+> Reference 链路：执行本文件前，先读取本 skill 的 `references/data-query-order.md`、`references/cn-markdown-formatting.md`、`references/cn-docx-formatting.md`、`references/cn-xlsx-formatting.md`、`references/cn-chart-formatting.md`；本文件只描述业务 workflow 或参考口径，不承载新增中文格式正文。
+
 # 任务 1：公司研究 - 详细工作流
 
 本文档为 initiating-coverage skill 的任务 1（公司研究）提供逐步执行说明。

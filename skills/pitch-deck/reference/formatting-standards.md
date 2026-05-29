@@ -1,3 +1,5 @@
+> Reference 链路：执行本文件前，先读取本 skill 的 `references/data-query-order.md`、`references/cn-markdown-formatting.md`、`references/cn-pptx-formatting.md`；本文件只描述业务 workflow 或参考口径，不承载新增中文格式正文。
+
 # 中文投行材料格式参考
 
 本参考文件必须与根目录 `CN_OUTPUT_FORMATTING.md` 一起使用。用户模板和品牌规范优先，但中文可读性、中文字体栈、币种/单位/日期/口径说明、来源脚注、风险提示和免责声明不得省略。面向中国大陆投资者时默认 A股优先，港股和美股兼容；跨市场材料必须显式标注交易所、币种、汇率、会计准则和数据日期。

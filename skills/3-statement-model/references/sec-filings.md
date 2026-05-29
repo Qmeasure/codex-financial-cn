@@ -1,3 +1,5 @@
+> Reference 链路：执行本文件前，先读取本 skill 的 `references/data-query-order.md`、`references/cn-markdown-formatting.md`、`references/cn-xlsx-formatting.md`；本文件只描述业务 workflow 或参考口径，不承载新增中文格式正文。
+
 # SEC 披露文件数据提取参考
 
 **何时使用：** 仅当模型模板明确要求从 SEC 披露文件（10-K、10-Q）提取数据时引用本文件。若模板已直接提供数据，或使用其他数据源，则不需要此参考。

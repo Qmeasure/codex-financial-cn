@@ -19,12 +19,17 @@ description: 生成并跟踪全面尽职调查清单，并根据目标公司行�
 - 插件根目录 `../../CN_OUTPUT_FORMATTING.md`
 - 插件根目录 `../../CN_MARKDOWN_OUTPUT_CONTRACT.md`
 - 插件根目录 `../../CN_XLSX_OUTPUT_CONTRACT.md`（当输出 XLSX/Excel 文件时）
+- 本 skill 本地 `references/cn-markdown-formatting.md`（聊天摘要、正式 Markdown 或最终交付说明）
+- 本 skill 本地 `references/data-query-order.md`（当任务需要外部数据查询、行情更新、财报抓取、行业/公司/宏观/监管材料检索时）
+- 本 skill 本地 `references/cn-xlsx-formatting.md`（当输出 XLSX/Excel 文件时）
 
 本 skill 的输出必须按既有交付物承诺执行：
 - 聊天摘要或即时分析不能替代本 skill 已承诺的文件主交付物。
 - 纯文本/聊天输出必须包含来源、口径限制、待确认项和人工复核边界，不强制落盘为文件。
 - 若用户要求或本 skill 明确承诺生成 Markdown 文件，最终回复前必须确认 `.md` 文件已生成、Markdown 文件路径存在、结构可读，并确保最终回复包含 Markdown 文件路径。
 - 若本 skill 的既有输出包含 XLSX/Excel 文件，最终回复前必须确认 XLSX 文件已生成、XLSX 文件路径存在、可打开或结构校验通过，并确保最终回复包含 XLSX 文件路径。
+- 需要查询或刷新外部数据时，必须先读取 `references/data-query-order.md`，并按“可用 MCP/已授权数据源优先，网页搜索其次”的顺序执行；若本 skill 有更严格数据源限制，以更严格规则为准。
+- 正式 Markdown、聊天摘要和最终交付说明必须先读取 `references/cn-markdown-formatting.md`，并包含来源、口径限制、待确认项和人工复核边界。
 
 
 # 尽职调查清单

@@ -28,6 +28,8 @@ REQUIRED_SKILL_NEEDLES = [
     "../../DATA_SOURCES_CN.md",
     "../../CN_OUTPUT_FORMATTING.md",
     "../../CN_MARKDOWN_OUTPUT_CONTRACT.md",
+    "references/cn-markdown-formatting.md",
+    "references/data-query-order.md",
     "产物合同读取与输出门槛",
     "生成正式输出前必须读取",
     "聊天摘要或即时分析不能替代本 skill 已承诺的文件主交付物",
@@ -61,6 +63,7 @@ XLSX_SKILLS = {
     "dcf-model",
     "dd-checklist",
     "deal-tracker",
+    "initiating-coverage",
     "lbo-model",
     "merger-model",
     "model-update",
@@ -85,11 +88,49 @@ PPTX_SKILLS = {
     "value-creation-plan",
 }
 
+HTML_SKILLS = {
+    "earnings-preview-beta",
+}
+
+CHART_SKILLS = {
+    "initiating-coverage",
+}
+
 ARTIFACT_CONTRACTS = {
     "DOCX": ("../../CN_DOCX_OUTPUT_CONTRACT.md", DOCX_SKILLS),
     "XLSX": ("../../CN_XLSX_OUTPUT_CONTRACT.md", XLSX_SKILLS),
     "PPTX": ("../../CN_PPTX_OUTPUT_CONTRACT.md", PPTX_SKILLS),
 }
+
+LOCAL_REFERENCE_CONTRACTS = {
+    "DOCX": ("references/cn-docx-formatting.md", DOCX_SKILLS, "DOCX 文件"),
+    "XLSX": ("references/cn-xlsx-formatting.md", XLSX_SKILLS, "XLSX 文件"),
+    "PPTX": ("references/cn-pptx-formatting.md", PPTX_SKILLS, "PPTX 文件"),
+    "HTML": ("references/cn-html-formatting.md", HTML_SKILLS, "HTML 文件"),
+    "图表/ZIP": ("references/cn-chart-formatting.md", CHART_SKILLS, "图表/ZIP 文件"),
+}
+
+BASELINE_REFERENCE_FILES = {
+    "cn-markdown-formatting.md": (
+        "中文 Markdown 与聊天输出格式合同",
+        "不得把聊天摘要冒充已经生成的文件交付物",
+    ),
+    "data-query-order.md": (
+        "数据查询顺序合同",
+        "先检查用户提供的文件、当前会话可用 MCP",
+        "再进行网页搜索",
+    ),
+}
+
+TYPE_REFERENCE_FILES = {
+    "cn-docx-formatting.md": ("中文 DOCX 格式合同", "w:rFonts@w:eastAsia", "最终回复必须包含 DOCX 文件路径"),
+    "cn-xlsx-formatting.md": ("中文 XLSX 格式合同", "公式", "最终回复必须包含 XLSX 文件路径"),
+    "cn-pptx-formatting.md": ("中文 PPTX 格式合同", "文字溢出", "最终回复必须包含 PPTX 文件路径"),
+    "cn-html-formatting.md": ("中文 HTML 格式合同", "浏览器打开", "最终回复必须包含 HTML 文件路径"),
+    "cn-chart-formatting.md": ("中文图表与 ZIP 交付格式合同", "中文字体", "最终回复必须包含图表/ZIP 文件路径"),
+}
+
+GENERATED_REFERENCE_NAMES = set(BASELINE_REFERENCE_FILES) | set(TYPE_REFERENCE_FILES)
 
 ARTIFACT_RULE_FILES = [
     "skills/xlsx-author/SKILL.md",
@@ -281,6 +322,16 @@ def check_skills() -> None:
             if needle not in text:
                 err(f"skill 缺少 {needle}：{rel(skill)}")
         skill_name = skill.parent.name
+        refs = skill.parent / "references"
+        for filename, needles in BASELINE_REFERENCE_FILES.items():
+            path = refs / filename
+            if not path.is_file():
+                err(f"{skill_name} 缺少本地 reference：references/{filename}")
+                continue
+            ref_text = path.read_text(encoding="utf-8")
+            for needle in needles:
+                if needle not in ref_text:
+                    err(f"{skill_name} 的 references/{filename} 缺少 `{needle}`")
         for artifact_type, (contract, skill_names) in ARTIFACT_CONTRACTS.items():
             if skill_name not in skill_names:
                 continue
@@ -292,6 +343,28 @@ def check_skills() -> None:
             ):
                 if needle not in text:
                     err(f"{skill_name} 缺少 {artifact_type} 交付门槛 `{needle}`")
+        for artifact_type, (local_ref, skill_names, gate_prefix) in LOCAL_REFERENCE_CONTRACTS.items():
+            if skill_name not in skill_names:
+                continue
+            if local_ref not in text:
+                err(f"{skill_name} 缺少本地 {artifact_type} reference 读取指令：{local_ref}")
+            filename = local_ref.split("/", 1)[1]
+            path = refs / filename
+            if not path.is_file():
+                err(f"{skill_name} 缺少本地 {artifact_type} reference 文件：{local_ref}")
+                continue
+            ref_text = path.read_text(encoding="utf-8")
+            for needle in TYPE_REFERENCE_FILES[filename]:
+                if needle not in ref_text:
+                    err(f"{skill_name} 的 {local_ref} 缺少 `{needle}`")
+            for needle in (
+                f"{gate_prefix}已生成",
+                f"{gate_prefix}路径存在",
+                f"最终回复包含{gate_prefix}路径",
+            ):
+                spaced = needle.replace("最终回复包含", "最终回复包含 ")
+                if needle not in text and spaced not in text:
+                    err(f"{skill_name} 缺少 {artifact_type} 本地交付门槛 `{needle}`")
 
 
 def check_artifact_rules() -> None:
@@ -303,6 +376,33 @@ def check_artifact_rules() -> None:
         text = path.read_text(encoding="utf-8")
         if "CN_OUTPUT_FORMATTING.md" not in text and "中文" not in text:
             err(f"产物格式文件缺少中文格式规则：{item}")
+
+
+def check_reference_linkage() -> None:
+    for folder_name in ("references", "reference"):
+        for path in sorted(SKILLS.glob(f"*/{folder_name}/*.md")):
+            if path.name in GENERATED_REFERENCE_NAMES:
+                continue
+            text = path.read_text(encoding="utf-8")
+            if "Reference 链路：执行本文件前" not in text:
+                err(f"既有 reference 文件缺少本地格式链路提示：{rel(path)}")
+            if "references/data-query-order.md" not in text or "references/cn-markdown-formatting.md" not in text:
+                err(f"既有 reference 文件未指向本地数据/Markdown 合同：{rel(path)}")
+            for generated_title in (
+                "中文 DOCX 格式合同",
+                "中文 XLSX 格式合同",
+                "中文 PPTX 格式合同",
+                "中文 HTML 格式合同",
+                "中文图表与 ZIP 交付格式合同",
+            ):
+                if generated_title in text:
+                    err(f"既有 reference 文件疑似承载新增格式正文：{rel(path)}")
+
+    template = ROOT / "skills" / "earnings-preview-beta" / "report-template.md"
+    if template.is_file():
+        text = template.read_text(encoding="utf-8")
+        if "references/cn-html-formatting.md" not in text:
+            err("earnings-preview-beta/report-template.md 未指向本地 HTML 格式合同")
 
 
 def check_earnings_analysis_contract() -> None:
@@ -330,6 +430,7 @@ def main() -> int:
     check_manifest()
     check_skills()
     check_artifact_rules()
+    check_reference_linkage()
     check_earnings_analysis_contract()
     check_forbidden_and_residual_text()
 

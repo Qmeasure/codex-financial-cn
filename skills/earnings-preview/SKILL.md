@@ -18,11 +18,15 @@ description: 构建业绩发布前分析，包含预测模型、情景框架和�
 - 插件根目录 `../../DATA_SOURCES_CN.md`
 - 插件根目录 `../../CN_OUTPUT_FORMATTING.md`
 - 插件根目录 `../../CN_MARKDOWN_OUTPUT_CONTRACT.md`
+- 本 skill 本地 `references/cn-markdown-formatting.md`（聊天摘要、正式 Markdown 或最终交付说明）
+- 本 skill 本地 `references/data-query-order.md`（当任务需要外部数据查询、行情更新、财报抓取、行业/公司/宏观/监管材料检索时）
 
 本 skill 的输出必须按既有交付物承诺执行：
 - 聊天摘要或即时分析不能替代本 skill 已承诺的文件主交付物。
 - 纯文本/聊天输出必须包含来源、口径限制、待确认项和人工复核边界，不强制落盘为文件。
 - 若用户要求或本 skill 明确承诺生成 Markdown 文件，最终回复前必须确认 `.md` 文件已生成、Markdown 文件路径存在、结构可读，并确保最终回复包含 Markdown 文件路径。
+- 需要查询或刷新外部数据时，必须先读取 `references/data-query-order.md`，并按“可用 MCP/已授权数据源优先，网页搜索其次”的顺序执行；若本 skill 有更严格数据源限制，以更严格规则为准。
+- 正式 Markdown、聊天摘要和最终交付说明必须先读取 `references/cn-markdown-formatting.md`，并包含来源、口径限制、待确认项和人工复核边界。
 
 
 # 业绩预览
@@ -91,5 +95,5 @@ description: 构建业绩发布前分析，包含预测模型、情景框架和�
 
 - 一致预期会变化 - 必须注明来源和预测日期
 - 来自买方调研的“whisper numbers”往往比公开一致预期更能反映市场真实期待
-- 历史业绩反应可用于校准预期（可搜索“[公司] 业绩后股价反应历史”）
+- 历史业绩反应可用于校准预期（如需外部数据，先按 `references/data-query-order.md` 检查可用 MCP/已授权源，覆盖不足时再搜索“[公司] 业绩后股价反应历史”）
 - 期权隐含涨跌幅反映市场预期，应与情景分析进行对比

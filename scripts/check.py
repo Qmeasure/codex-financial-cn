@@ -238,6 +238,15 @@ def validate_skills() -> None:
             err(f"skill 缺少 YAML frontmatter：{rel(skill)}")
         if not has_cjk(text):
             err(f"skill 缺少中文内容：{rel(skill)}")
+        refs = skill.parent / "references"
+        if not refs.is_dir():
+            err(f"skill 缺少本地 references 目录：{rel(skill.parent)}")
+        for filename in ("cn-markdown-formatting.md", "data-query-order.md"):
+            path = refs / filename
+            if not path.is_file():
+                err(f"skill 缺少本地 reference 文件：{rel(path)}")
+            elif not has_cjk(path.read_text(encoding="utf-8", errors="ignore")):
+                err(f"本地 reference 文件缺少中文内容：{rel(path)}")
 
 
 def iter_text_files() -> list[Path]:
