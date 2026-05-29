@@ -2,7 +2,7 @@
 
 本文从零开始，完成一条完整链路：
 
-1. 建好 Python 环境，安装 **OpenBB**（开源金融数据平台）及全部所需数据源：A股/港股（akshare）、美股/全球（yfinance）、美国与欧美宏观（FRED、ECB 等）、以及一批免 API key 的公开数据源；
+1. 建好 Python 环境，安装 **OpenBB**（开源金融数据平台）及常用数据源：A股/港股（akshare）、美股/全球（yfinance）、美国与欧美宏观（FRED、ECB 等）、一批免 API key 的公开数据源，以及可选的 FMP（Financial Modeling Prep）数据源；
 2. 把这套 OpenBB 封装成 **MCP（Model Context Protocol）Server**；
 3. 接入 **OpenAI Codex CLI**，让 Codex 直接调用金融数据。
 
@@ -12,7 +12,7 @@ MCP 传输方式采用 **stdio**：Codex 自己拉起进程，无需单独开终
 
 ---
 
-## 第一部分 · 安装 OpenBB 与全部数据源
+## 第一部分 · 安装 OpenBB 与常用数据源
 
 ### 1. 准备工具：uv、Python 3.12、Node.js、Codex CLI
 
@@ -66,7 +66,7 @@ uv pip install openbb
 
 > 安装的是 `openbb`（Python 平台库），不是 `openbb-cli`。MCP Server 封装的正是这个平台库，必须装它。
 
-核心会附带一组标准数据源，本教程用得到的有：
+核心会附带一组标准数据源，本教程基础路径用得到的有：
 
 | 数据源 | 覆盖 | key |
 |---|---|---|
@@ -74,9 +74,9 @@ uv pip install openbb
 | Federal Reserve | 美联储 | 无 |
 | SEC | 美国证监会 EDGAR 财报 | 无 |
 
-其余你需要的数据源——无论核心是否已捆绑——都在第 4 步显式安装一遍以确保全部就位（已捆绑的会被识别为“已满足”，不会重复安装）。
+其余你需要的数据源——无论核心是否已捆绑——都在第 4 步显式安装一遍以确保全部就位（已捆绑的会被识别为“已满足”，不会重复安装）。如果要使用 FMP 的业绩日历、一致预期、历史 EPS、财务比率等接口，还需要执行第 4.1 步并在第 6 步配置 `fmp_api_key`。
 
-### 4. 安装其余数据源（A股、美股/全球、宏观及全部免 key 源）
+### 4. 安装其余数据源（A股、美股/全球、宏观及免 key 源）
 
 一条命令装齐。所有列出的源**均无需 API key**（FRED 的 key 在第 6 步单独配）：
 
@@ -115,6 +115,32 @@ uv pip install \
 | `openbb-econdb` | 宏观经济数据库 | 免 |
 | `openbb-seeking-alpha` | 财经新闻 / 分析 | 免 |
 
+### 4.1 可选：安装 FMP provider（业绩日历、一致预期、EPS、财务比率）
+
+如果你需要调用以下 OpenBB MCP 工具或 Python 接口，就需要安装 FMP provider 并配置 FMP API key：
+
+- `equity_calendar_earnings(provider="fmp")`
+- `equity_estimates_historical(provider="fmp", symbol="PDD")`
+- `equity_fundamental_historical_eps(provider="fmp", symbol="PDD")`
+- `equity_fundamental_ratios(provider="fmp", symbol="PDD")`
+
+FMP 是 **Financial Modeling Prep**，对应的 OpenBB 扩展是 `openbb-fmp`，凭据字段名是 `fmp_api_key`。这不是 `financial-services-cn` 插件的 key，也不是 Codex 的 key。
+
+安装：
+
+```bash
+uv pip install openbb-fmp
+```
+
+获取 key：
+
+1. 打开 `https://site.financialmodelingprep.com/developer/docs` 或 FMP 官网的 API 文档 / Dashboard；
+2. 注册或登录 Financial Modeling Prep；
+3. 在账户或开发者控制台生成 API key；
+4. 按第 6 步写入 `~/.openbb_platform/user_settings.json`。
+
+> FMP 的免费额度、可用端点和频率限制以 Financial Modeling Prep 当前账户政策为准。不要把 FMP 视为“免 key 源”；它是需要 `fmp_api_key` 的 OpenBB provider。
+
 > **若提示依赖冲突，或 `openbb` 被降级**：`openbb-akshare` 是社区扩展，个别版本可能与最新核心的依赖范围打架。解决办法是把第 3、4 步合并成**一条** `uv pip install`（把 `openbb` 和上面所有扩展写在同一行），让解析器一次性处理全部版本约束。
 
 ### 5. 重建资源（让新数据源生效）
@@ -125,9 +151,11 @@ uv pip install \
 python -c "import openbb; openbb.build()"
 ```
 
-### 6. 配置 FRED 的免费 key
+### 6. 配置 provider API key
 
-FRED 是本教程唯一需要 key 的数据源，且免费、秒注册。
+基础宏观验证需要 FRED key；如果安装并使用 FMP provider，还需要 FMP key。两个 key 都写在 OpenBB 的本地配置文件 `~/.openbb_platform/user_settings.json` 中。
+
+#### 6.1 FRED key
 
 1. 打开 `https://fred.stlouisfed.org/docs/api/api_key.html`，注册并获取 API key；
 2. 编辑 `~/.openbb_platform/user_settings.json`（文件不存在则新建），写入：
@@ -140,7 +168,22 @@ FRED 是本教程唯一需要 key 的数据源，且免费、秒注册。
 }
 ```
 
-> 这一个文件就是 OpenBB 读取所有 provider 凭据的地方。MCP Server 也会自动读它，后面无需在别处重复配置 FRED key。凭据在运行时读取，改完无需重新 build。
+#### 6.2 FMP key（仅使用 FMP provider 时需要）
+
+如果你要用 `provider="fmp"` 的业绩日历、一致预期、历史 EPS、财务比率等接口，将 FMP key 合并到同一个 `credentials` 对象：
+
+```json
+{
+  "credentials": {
+    "fred_api_key": "粘贴你的FRED key",
+    "fmp_api_key": "粘贴你的FMP key"
+  }
+}
+```
+
+如果只使用 akshare、yfinance、ECB、IMF、OECD、Cboe、FINRA 等免 key provider，可以不配置 `fmp_api_key`；但任何 `provider="fmp"` 的调用都会失败并提示缺少 `fmp_api_key`。
+
+> 这一个文件就是 OpenBB 读取所有 provider 凭据的地方。MCP Server 也会自动读它，后面无需在别处重复配置 FRED 或 FMP key。改完凭据无需重新 `openbb.build()`，但需要重启当前 Python / OpenBB MCP / Codex 会话，让进程重新读取配置。
 
 ### 7. 验证数据层
 
@@ -148,7 +191,7 @@ FRED 是本教程唯一需要 key 的数据源，且免费、秒注册。
 python - << 'PYEOF'
 from openbb import obb
 
-# 查看已安装的全部 provider（应能看到 akshare / yfinance / fred / ecb / cboe ...）
+# 查看已安装的全部 provider（应能看到 akshare / yfinance / fred / ecb / cboe ...；如安装 FMP，也应看到 fmp）
 print(obb.coverage.providers)
 
 # A股 -> akshare（贵州茅台）
@@ -163,6 +206,19 @@ PYEOF
 ```
 
 四项（provider 列表 + 三组取数）都正常返回，数据层即就绪。
+
+如果你配置了 FMP key，可额外验证：
+
+```bash
+python - << 'PYEOF'
+from openbb import obb
+
+print(obb.equity.calendar.earnings(provider="fmp").to_dataframe().head())
+print(obb.equity.fundamental.ratios("PDD", provider="fmp").to_dataframe().tail())
+PYEOF
+```
+
+如果这里报 `fmp_api_key` 缺失，说明 FMP key 没有写入 `~/.openbb_platform/user_settings.json`、字段名写错，或当前 Codex/OpenBB 进程没有重新读取配置。
 
 ---
 
@@ -229,7 +285,7 @@ tool_timeout_sec = 120
 | `startup_timeout_sec = 60` | **必填**。Codex 默认 MCP 启动超时仅 **10 秒**，而 OpenBB 加载这么多数据源必然超过，不调高会直接报 `timed out after 10 seconds` |
 | `tool_timeout_sec = 120` | 单次工具调用超时，默认 60 秒；部分行情/财报查询较慢，给到 120 更稳 |
 
-FRED key 不必写在这里——MCP Server 会自动读取第 6 步配置的 `user_settings.json`。
+FRED 和 FMP key 不必写在这里——MCP Server 会自动读取第 6 步配置的 `user_settings.json`。如果刚刚修改过 key，重启 Codex 会话或 MCP server。
 
 > **CLI 等价写法**（仅用于快速添加，超时参数仍需回到 toml 手动补）：
 > ```bash
@@ -312,11 +368,22 @@ python -c "import openbb; openbb.build()"
 
 工具发现机制下需先激活工具。把提示写明确，如“**使用 openbb 工具**查询……”，或让它先列出类别再激活。
 
-**6. TOML 语法错误导致 CLI 与 VS Code 同时失效**
+**6. FMP 调用报缺少 `fmp_api_key`**
+
+凡是 `provider="fmp"` 的调用都需要 Financial Modeling Prep 的 key。先确认：
+
+- 已在 venv 中安装 `openbb-fmp`；
+- 已执行 `python -c "import openbb; openbb.build()"`；
+- `~/.openbb_platform/user_settings.json` 中存在 `credentials.fmp_api_key`；
+- 修改 key 后已经重启 Codex 会话或 OpenBB MCP server。
+
+如果不想使用 FMP，请在提示中明确要求 provider 用 `akshare`、`yfinance` 或其他已安装且免 key 的 provider；但业绩日历、一致预期、历史 EPS 和部分财务比率接口可能没有完全等价的免 key 覆盖。
+
+**7. TOML 语法错误导致 CLI 与 VS Code 同时失效**
 
 检查：字符串均加双引号、数组用方括号 `["a", "b"]`、`env` 块须正确嵌套在 `[mcp_servers.openbb.env]` 下。拿不准用 TOML 校验器过一遍。
 
-**7. 每次启动 Codex 都要等几秒**
+**8. 每次启动 Codex 都要等几秒**
 
 stdio 模式每开一个会话都会重新拉起进程并 import OpenBB，属固有开销。嫌慢可改用常驻 HTTP 方式（见附录）。
 
@@ -375,8 +442,10 @@ uv pip install openbb                                 # 核心（含 FRED/SEC/Fe
 uv pip install openbb-yfinance openbb-akshare openbb-ecb openbb-imf openbb-oecd \
   openbb-cboe openbb-deribit openbb-finviz openbb-finra openbb-tmx \
   openbb-famafrench openbb-econdb openbb-seeking-alpha
+# 可选：如需 FMP 业绩日历、一致预期、历史 EPS、财务比率
+uv pip install openbb-fmp
 python -c "import openbb; openbb.build()"             # 重建资源（必做）
-# 然后在 ~/.openbb_platform/user_settings.json 写入 fred_api_key
+# 然后在 ~/.openbb_platform/user_settings.json 写入 fred_api_key；如使用 FMP，再写入 fmp_api_key
 
 # ── MCP 层 ──
 uv pip install openbb-mcp-server                      # 装 MCP（同一 venv）
