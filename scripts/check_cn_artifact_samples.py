@@ -55,13 +55,13 @@ for cell in ws[4]:
     cell.font = Font(name="Microsoft YaHei")
 ws["B4"].number_format = '¥#,##0.0"亿"'
 ws["C4"].number_format = '0.0x'
-ws["A6"] = "免责声明：本样例不构成投资建议，需人工复核。"
+ws["A6"] = "免责声明：本样例不构成投资建议，应由人工审阅。"
 ws["A6"].font = Font(name="Microsoft YaHei")
 assumptions = wb.create_sheet("来源与假设")
 assumptions["A1"] = "来源与假设"
 assumptions["A1"].font = Font(name="Microsoft YaHei", bold=True)
 assumptions["A2"] = "来源：交易所公告"
-assumptions["A3"] = "假设：一致预期需终端复核"
+assumptions["A3"] = "假设：一致预期未作为正式输入"
 checks = wb.create_sheet("检查区")
 checks["A1"] = "检查项"
 checks["B1"] = "状态"
@@ -94,8 +94,17 @@ title.text_frame.paragraphs[0].runs[0].font.name = "Microsoft YaHei"
 title.text_frame.paragraphs[0].runs[0].font.size = Pt(28)
 box = slide.shapes.add_textbox(left=914400, top=1828800, width=7315200, height=1828800)
 tf = box.text_frame
-tf.text = "来源：交易所公告；币种：人民币；单位：亿元；免责声明：不构成投资建议，需人工复核。"
-tf.paragraphs[0].runs[0].font.name = "Microsoft YaHei"
+tf.text = "来源：交易所公告"
+source_run = tf.paragraphs[0].runs[0]
+source_run.font.name = "Microsoft YaHei"
+source_run.font.size = Pt(7)
+source_run.hyperlink.address = "https://example.com/announcement"
+note_box = slide.shapes.add_textbox(left=914400, top=3566160, width=7315200, height=457200)
+note_tf = note_box.text_frame
+note_tf.text = "币种：人民币；单位：亿元；免责声明：不构成投资建议，应由人工审阅。"
+note_run = note_tf.paragraphs[0].runs[0]
+note_run.font.name = "Microsoft YaHei"
+note_run.font.size = Pt(8)
 chart_data = CategoryChartData()
 chart_data.categories = ["1Q24", "2Q24", "3Q24"]
 chart_data.add_series("收入", (87, 97, 99))
@@ -122,6 +131,20 @@ if "来源" not in texts or "人民币" not in texts:
     fail("pptx source or currency note missing")
 if "免责声明" not in texts or "不构成投资建议" not in texts:
     fail("pptx disclaimer missing")
+source_shapes = [
+    shape for slide in prs2.slides for shape in slide.shapes
+    if hasattr(shape, "text") and shape.text.startswith("来源：")
+]
+if len(source_shapes) != 1:
+    fail("pptx chart source caption must keep exactly one primary source")
+source_text = source_shapes[0].text
+if "；" in source_text or "PDD " in source_text:
+    fail("pptx chart source caption must not list multiple sources")
+source_runs = source_shapes[0].text_frame.paragraphs[0].runs
+if not source_runs or source_runs[0].font.size is None or source_runs[0].font.size.pt > 8:
+    fail("pptx chart source caption must use very small font <= 8pt")
+if source_runs[0].hyperlink.address != "https://example.com/announcement":
+    fail("pptx chart source caption hyperlink missing")
 with zipfile.ZipFile(pptx) as zf:
     if "ppt/presentation.xml" not in zf.namelist():
         fail("pptx package missing presentation.xml")
@@ -209,7 +232,7 @@ document_xml = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
       </w:pPr>
       <w:r>
         <w:rPr><w:rFonts w:eastAsia="Microsoft YaHei" w:ascii="Microsoft YaHei" w:hAnsi="Microsoft YaHei"/></w:rPr>
-        <w:t>收入同比增长，毛利率需结合公告口径复核。</w:t>
+        <w:t>收入同比增长，毛利率应结合公告口径审阅。</w:t>
       </w:r>
     </w:p>
     <w:tbl>
@@ -241,12 +264,12 @@ document_xml = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
     </w:tbl>
     <w:p>
       <w:r>
-        <w:rPr><w:rFonts w:eastAsia="Microsoft YaHei" w:ascii="Microsoft YaHei" w:hAnsi="Microsoft YaHei"/></w:rPr>
+        <w:rPr><w:rFonts w:eastAsia="Microsoft YaHei" w:ascii="Microsoft YaHei" w:hAnsi="Microsoft YaHei"/><w:sz w:val="15"/></w:rPr>
         <w:t>来源链接：</w:t>
       </w:r>
       <w:hyperlink r:id="rIdSource">
         <w:r>
-          <w:rPr><w:rFonts w:eastAsia="Microsoft YaHei" w:ascii="Microsoft YaHei" w:hAnsi="Microsoft YaHei"/><w:u w:val="single"/><w:color w:val="0563C1"/></w:rPr>
+          <w:rPr><w:rFonts w:eastAsia="Microsoft YaHei" w:ascii="Microsoft YaHei" w:hAnsi="Microsoft YaHei"/><w:sz w:val="15"/><w:u w:val="single"/><w:color w:val="0563C1"/></w:rPr>
           <w:t>交易所公告</w:t>
         </w:r>
       </w:hyperlink>
@@ -254,7 +277,7 @@ document_xml = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
     <w:p>
       <w:r>
         <w:rPr><w:rFonts w:eastAsia="Microsoft YaHei" w:ascii="Microsoft YaHei" w:hAnsi="Microsoft YaHei"/></w:rPr>
-        <w:t>免责声明：本材料不构成投资建议，需人工复核。</w:t>
+        <w:t>免责声明：本材料不构成投资建议，应由人工审阅。</w:t>
       </w:r>
     </w:p>
     <w:sectPr>
@@ -308,6 +331,8 @@ if 'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hy
     fail("docx hyperlink relationship missing")
 if 'Target="https://example.com/announcement"' not in rel_xml or 'TargetMode="External"' not in rel_xml:
     fail("docx hyperlink target missing or not external")
+if '<w:sz w:val="15"/>' not in doc_xml:
+    fail("docx source caption must use very small font <= 8pt")
 for needle in ("交易所公告", "数据来源", "免责声明"):
     if needle not in doc_xml:
         fail(f"docx Chinese content missing {needle}")
@@ -317,11 +342,11 @@ md.write_text(
     "# 中文研究摘要\n\n"
     "数据来源：[交易所公告](https://example.com/announcement)，2026年5月27日。\n\n"
     "币种与单位：人民币亿元。\n\n"
-    "待确认项：一致预期需终端复核。\n\n"
-    "风险提示：本材料不构成投资建议，需人工复核。\n"
+    "数据缺口：一致预期未作为正式结论。\n\n"
+    "风险提示：本材料不构成投资建议，应由人工审阅。\n"
 )
 text = md.read_text()
-for needle in ("数据来源", "人民币亿元", "待确认项", "不构成投资建议"):
+for needle in ("数据来源", "人民币亿元", "数据缺口", "不构成投资建议"):
     if needle not in text:
         fail(f"markdown sample missing {needle}")
 visible_markdown_text = re.sub(r"\[[^\]]+\]\(https?://[^)]+\)", "", text)

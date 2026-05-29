@@ -3,7 +3,7 @@
 面向中国大陆投资者和机构金融工作流的中文 Codex 金融服务插件。它参考 `anthropics/financial-services` 的 README 信息架构，并按本仓库实际能力改写：A 股优先，兼容港股和美股，覆盖建模、估值、投行材料、权益研究、私募股权、财富管理、基金运营、KYC、LSEG 和 S&P Global 数据工作流。默认安装只加载技能，不自动初始化付费机构源或本地 MCP。
 
 > [!IMPORTANT]
-> 本仓库不构成投资、法律、税务、会计或监管建议。所有技能只用于辅助起草分析材料、模型、备忘录、研究笔记、核对表、报告包和演示材料，输出必须由具备资质的专业人员复核。技能不会作出投资建议、执行交易、绑定风险、入账、批准客户准入或对外分发材料。
+> 本仓库不构成投资、法律、税务、会计或监管建议。所有技能只用于辅助起草分析材料、模型、备忘录、研究笔记、核对表、报告包和演示材料，输出必须由具备资质的专业人员审阅。技能不会作出投资建议、执行交易、绑定风险、入账、批准客户准入或对外分发材料。
 
 ## Getting Started（安装或更新到 Codex）
 
@@ -98,7 +98,7 @@ THIRD_PARTY_NOTICES.md         第三方许可说明
 - A 股优先，港股和美股兼容。
 - 官方披露、用户文件和已授权数据源优先。
 - 需要外部数据时，先读取本 skill 的 `references/data-query-order.md`，生成“数据源发现记录”，列出可用/不可用 MCP、connector、已授权源、用户文件、覆盖缺口和降级理由；Gate 通过前不得网页搜索、官网抓取、SEC/交易所抓取或生成正式交付物。
-- 监管、会计、KYC、基金文件、月结和客户适当性判断缺少依据时写“需确认”。
+- 监管、会计、KYC、基金文件、月结和客户适当性判断缺少依据时不得作出正式判断。
 - DOCX、PPTX、XLSX、Markdown、表格、图表、脚注和最终摘要必须使用中文金融语境。
 - 正式文件输出前，先读取本 skill 的 `references/cn-*-formatting.md`；聊天摘要不能冒充已经生成的文件交付物。
 - DCF、LBO、WACC、EV/EBITDA、IRR、MOIC、NAV、KYC、AML、MCP、CLI 等专业缩写保留。
@@ -111,7 +111,7 @@ THIRD_PARTY_NOTICES.md         第三方许可说明
 | 技能 | 写入金融领域方法、执行步骤、产物要求和中文执行契约 | `skills` |
 | Skill 调用 | 支持自然语言自动匹配，也支持 `$financial-services-cn:<skill-name>` 显式调用 | `skills/*/SKILL.md` |
 | MCP servers | 可选数据源模板；用户确认授权、登录和本地服务可用后再按需配置 | `OPTIONAL_MCP_SERVERS.json` |
-| 数据来源规则 | 约束来源优先级、授权判断、缺失依据时的“需确认”表达 | `DATA_SOURCES_CN.md` |
+| 数据来源规则 | 约束来源优先级、授权判断和缺失依据时的数据缺口处理 | `DATA_SOURCES_CN.md` |
 | 中文产物规则 | 约束中文字体、日期、币种、单位、表格、图表、免责声明和摘要 | `CN_OUTPUT_FORMATTING.md` |
 | DOCX 交付契约 | 约束中文 Word 的 preset、OOXML 字体、表格几何、真实编号、超链接和 render QA 降级说明 | `CN_DOCX_OUTPUT_CONTRACT.md` |
 | XLSX 交付契约 | 约束中文工作簿、公式优先、颜色约定、来源/假设/检查区和结构校验 | `CN_XLSX_OUTPUT_CONTRACT.md` |
@@ -126,8 +126,8 @@ THIRD_PARTY_NOTICES.md         第三方许可说明
 Codex 安装插件时会把仓库复制成插件快照。为避免 skill 执行时只看到 `SKILL.md`、却没有继续读取根级格式文件，本仓库把关键格式要求下沉到每个 skill 自己的 `references` 目录：
 
 - 所有 66 个 skill 都包含 `references/cn-markdown-formatting.md`，用于聊天摘要、正式 Markdown、表格、来源、免责声明和最终交付说明。
-- 所有 66 个 skill 都包含 `references/data-query-order.md`。只要任务需要外部数据、行情、财报、行业、公司、宏观、监管、KYC、基金、月结或第三方数据库信息，就必须先填写“数据源发现记录”，列出用户文件、当前会话可用 MCP/connector、本地数据库、已授权终端、适用数据源、调用或未调用原因、覆盖缺口和降级路径。
-- Gate 未通过时，不得网页搜索，不得抓取公司官网、SEC 或交易所页面，也不得生成正式报告或文件交付物；一致预期、估值倍数、市场份额、行业数据和宏观数据等授权源缺口必须写“需终端复核”。
+- 所有 66 个 skill 都包含 `references/data-query-order.md`。只要任务需要外部数据、行情、财报、行业、公司、宏观、监管、KYC、基金、月结或第三方数据库信息，就必须先填写“数据源发现记录”，列出用户文件、当前会话可用 MCP/connector、本地数据库、已授权数据源、适用数据源、调用或未调用原因、覆盖缺口和降级路径。
+- Gate 未通过时，不得网页搜索，不得抓取公司官网、SEC 或交易所页面，也不得生成正式报告或文件交付物；一致预期、估值倍数、市场份额、行业数据和宏观数据等授权源缺口只在数据源发现记录中列为未覆盖数据项。
 - 承诺文件交付的 skill 会额外包含本地类型合同：DOCX 15 个、XLSX 18 个、PPTX 11 个、HTML 1 个、独立图表/ZIP 1 个。
 - 图表相关合同和旧图表 workflow 都包含同一条硬规则：柱状图、堆叠柱状图、分组柱状图默认关闭纵坐标横向网格线；除非用户明确要求或图表类型必须依赖网格线，否则不得显示 major/minor gridlines。
 - 旧 workflow/reference 文件只保留业务流程和参考口径；它们入口处只指向新的本地格式合同，不把新增格式正文追加进旧文件。
@@ -161,7 +161,7 @@ Codex 安装插件时会把仓库复制成插件快照。为避免 skill 执行�
 
 ## MCP Integrations（MCP 集成）
 
-`OPTIONAL_MCP_SERVERS.json` 当前保留以下可选 MCP 入口。根目录不提供 `.mcp.json`，所以 Codex 默认安装不会自动启用这些 MCP；实际使用前需要用户确认本地环境、账号、token、订阅和数据授权。无法确认时，技能必须写“需确认”。
+`OPTIONAL_MCP_SERVERS.json` 当前保留以下可选 MCP 入口。根目录不提供 `.mcp.json`，所以 Codex 默认安装不会自动启用这些 MCP；实际使用前需要用户确认本地环境、账号、token、订阅和数据授权。无法确认时，技能只能记录为未覆盖数据项。
 
 | 名称 | 类型 | 入口 |
 |---|---|---|
@@ -181,9 +181,15 @@ Codex 安装插件时会把仓库复制成插件快照。为避免 skill 执行�
 | `tushare-pro` | 本地 Tushare Pro 工具 | `python -m tushare_mcp_server.main`，通过 `TUSHARE_TOKEN` 读取 token |
 | `akshare-one` | 本地 AKShare 工具 | `uvx akshare-one-mcp` |
 
+安装 [akshare-one-mcp](https://github.com/zwldarren/akshare-one-mcp) 到 Codex：
+
+```bash
+codex mcp add akshare-one -- uvx akshare-one-mcp
+```
+
 机构数据源通常需要订阅或 API key。OpenBB、Tushare 和 AKShare 相关入口只在用户确认本地服务、依赖和授权可用后使用。这样安装插件时不会弹出未登录、未授权或本地服务未启动的 MCP startup warning。
 
-如需从零安装 OpenBB MCP，请参考 [OpenBB MCP Codex 接入教程](./OPENBB_MCP_CODEX_SETUP.md)。该教程说明如何安装 OpenBB、A股/港股和全球公开数据源、`openbb-mcp-server`，并通过 stdio 接入个人 `~/.codex/config.toml`；这仍然是用户主动配置的可选数据源，不会随插件安装自动启用。
+如需从零安装 OpenBB MCP，请参考 [OpenBB MCP Codex 接入教程](./OPENBB_MCP_CODEX_SETUP.md)。该教程说明如何安装 OpenBB、全球公开数据源、`openbb-mcp-server`，并通过 stdio 接入个人 `~/.codex/config.toml`；这仍然是用户主动配置的可选数据源，不会随插件安装自动启用。A 股和港股数据优先使用 `akshare-one` MCP。
 
 ## 中国大陆投资者优化
 
@@ -191,7 +197,7 @@ Codex 安装插件时会把仓库复制成插件快照。为避免 skill 执行�
 - **跨市场可比**：涉及港股、美股或 ADR 时，必须标注交易所、币种、会计准则、数据日期、汇率来源和是否统一口径。
 - **中文产物格式**：中文标题、表头、脚注、图例、来源说明和免责声明不得沿用英文默认版式。
 - **来源可追溯**：每个关键结论应能追溯到用户文件、官方披露、MCP/数据库名称、公告日期、数据日期或页码。
-- **谨慎边界**：缺少官方材料、用户政策或授权数据支持的监管、会计、KYC、税务、基金运营和客户适当性判断，一律写“需确认”。
+- **谨慎边界**：缺少官方材料、用户政策或授权数据支持的监管、会计、KYC、税务、基金运营和客户适当性判断，不得作出正式判断。
 
 ## Making It Yours（按机构定制）
 
@@ -201,7 +207,7 @@ Codex 安装插件时会把仓库复制成插件快照。为避免 skill 执行�
 - **加入机构语境**：把公司术语、投资标准、KYC 政策、审批流程和材料规范写进相关技能。
 - **带入模板**：用用户提供的 PPT、Excel、DOCX 模板约束版式，但保留中文来源脚注、币种、单位和免责声明。
 - **调整技能边界**：只扩展真实需要的工作流，不引入与本仓库单插件形态冲突的旧架构入口。
-- **保留审计链**：模型、报告和演示材料必须说明数据来源、口径限制和待人工复核事项。
+- **保留审计链**：模型、报告和演示材料必须说明数据来源、口径限制和数据缺口。
 
 ## Skill Reference（技能调用参考）
 

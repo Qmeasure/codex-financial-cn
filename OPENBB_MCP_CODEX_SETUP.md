@@ -2,13 +2,13 @@
 
 本文从零开始，完成一条完整链路：
 
-1. 建好 Python 环境，安装 **OpenBB**（开源金融数据平台）及常用数据源：A股/港股（akshare）、美股/全球（yfinance）、美国与欧美宏观（FRED、ECB 等）、一批免 API key 的公开数据源，以及可选的 FMP（Financial Modeling Prep）数据源；
+1. 建好 Python 环境，安装 **OpenBB**（开源金融数据平台）及常用公开数据源：美股/全球（yfinance）、美国与欧美宏观（FRED、ECB 等）和一批免 API key 的公开数据源；
 2. 把这套 OpenBB 封装成 **MCP（Model Context Protocol）Server**；
 3. 接入 **OpenAI Codex CLI**，让 Codex 直接调用金融数据。
 
 MCP 传输方式采用 **stdio**：Codex 自己拉起进程，无需单独开终端、无需端口、无需 HTTPS，是最稳定的接法。
 
-> 全文约 15 分钟可跑完。命令默认 macOS / Linux；Windows 把路径与 shell 命令做对应替换即可。
+> 命令默认 macOS / Linux；Windows 把路径与 shell 命令做对应替换即可。
 
 ---
 
@@ -22,11 +22,13 @@ MCP 传输方式采用 **stdio**：Codex 自己拉起进程，无需单独开终
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-**安装 Python 3.12**（关键版本，原因见下方说明）：
+**安装 Python 3.12**：
 
 ```bash
 uv python install 3.12
 ```
+
+本教程推荐 Python 3.12，用于兼容 OpenBB 平台库和常用 provider 扩展。
 
 **安装 Node.js 18 或更高**（Codex CLI 依赖 Node 运行）。已装可跳过，检查版本：
 
@@ -41,10 +43,7 @@ npm install -g @openai/codex
 codex --version
 ```
 
-> npm 上无 scope 的 `codex` 是另一个无关的老项目，**包名必须带 scope：`@openai/codex`**，装错会出现莫名其妙的错误。
-
-> **为什么必须是 Python 3.12？**
-> OpenBB 核心支持 3.10-3.12，而 A股数据源扩展 `openbb-akshare` 要求 `>=3.11, <3.13`。两者唯一交集是 **3.12**。用 3.13 装 akshare 扩展会直接失败。
+> npm 上无 scope 的 `codex` 是另一个无关的老项目，**包名必须带 scope：`@openai/codex`**。
 
 ### 2. 创建虚拟环境
 
@@ -74,16 +73,13 @@ uv pip install openbb
 | Federal Reserve | 美联储 | 无 |
 | SEC | 美国证监会 EDGAR 财报 | 无 |
 
-其余你需要的数据源——无论核心是否已捆绑——都在第 4 步显式安装一遍以确保全部就位（已捆绑的会被识别为“已满足”，不会重复安装）。如果要使用 FMP 的业绩日历、一致预期、历史 EPS、财务比率等接口，还需要执行第 4.1 步并在第 6 步配置 `fmp_api_key`。
-
-### 4. 安装其余数据源（A股、美股/全球、宏观及免 key 源）
+### 4. 安装其余数据源（美股/全球、宏观及免 key 源）
 
 一条命令装齐。所有列出的源**均无需 API key**（FRED 的 key 在第 6 步单独配）：
 
 ```bash
 uv pip install \
   openbb-yfinance \
-  openbb-akshare \
   openbb-ecb \
   openbb-imf \
   openbb-oecd \
@@ -102,7 +98,6 @@ uv pip install \
 | 扩展 | 覆盖 | key |
 |---|---|---|
 | `openbb-yfinance` | 美股 / 全球股票 / ETF / 外汇（雅虎财经） | 免 |
-| `openbb-akshare` | **A股 / 港股**（底层走东财、新浪、雪球等） | 免 |
 | `openbb-ecb` | 欧洲央行 | 免 |
 | `openbb-imf` | 国际货币基金组织 | 免 |
 | `openbb-oecd` | 经合组织 | 免 |
@@ -115,34 +110,6 @@ uv pip install \
 | `openbb-econdb` | 宏观经济数据库 | 免 |
 | `openbb-seeking-alpha` | 财经新闻 / 分析 | 免 |
 
-### 4.1 可选：安装 FMP provider（业绩日历、一致预期、EPS、财务比率）
-
-如果你需要调用以下 OpenBB MCP 工具或 Python 接口，就需要安装 FMP provider 并配置 FMP API key：
-
-- `equity_calendar_earnings(provider="fmp")`
-- `equity_estimates_historical(provider="fmp", symbol="PDD")`
-- `equity_fundamental_historical_eps(provider="fmp", symbol="PDD")`
-- `equity_fundamental_ratios(provider="fmp", symbol="PDD")`
-
-FMP 是 **Financial Modeling Prep**，对应的 OpenBB 扩展是 `openbb-fmp`，凭据字段名是 `fmp_api_key`。这不是 `financial-services-cn` 插件的 key，也不是 Codex 的 key。
-
-安装：
-
-```bash
-uv pip install openbb-fmp
-```
-
-获取 key：
-
-1. 打开 `https://site.financialmodelingprep.com/developer/docs` 或 FMP 官网的 API 文档 / Dashboard；
-2. 注册或登录 Financial Modeling Prep；
-3. 在账户或开发者控制台生成 API key；
-4. 按第 6 步写入 `~/.openbb_platform/user_settings.json`。
-
-> FMP 的免费额度、可用端点和频率限制以 Financial Modeling Prep 当前账户政策为准。不要把 FMP 视为“免 key 源”；它是需要 `fmp_api_key` 的 OpenBB provider。
-
-> **若提示依赖冲突，或 `openbb` 被降级**：`openbb-akshare` 是社区扩展，个别版本可能与最新核心的依赖范围打架。解决办法是把第 3、4 步合并成**一条** `uv pip install`（把 `openbb` 和上面所有扩展写在同一行），让解析器一次性处理全部版本约束。
-
 ### 5. 重建资源（让新数据源生效）
 
 **这是一条不可省略的步骤。** OpenBB 的接口从已安装的扩展动态生成，每次增删数据源后都必须重建一次，否则在 Python 接口和 MCP 里看不到这些新源：
@@ -151,11 +118,9 @@ uv pip install openbb-fmp
 python -c "import openbb; openbb.build()"
 ```
 
-### 6. 配置 provider API key
+### 6. 配置 FRED 的免费 key
 
-基础宏观验证需要 FRED key；如果安装并使用 FMP provider，还需要 FMP key。两个 key 都写在 OpenBB 的本地配置文件 `~/.openbb_platform/user_settings.json` 中。
-
-#### 6.1 FRED key
+FRED 是本教程验证宏观数据时需要的免费 key。key 写在 OpenBB 的本地配置文件 `~/.openbb_platform/user_settings.json` 中。
 
 1. 打开 `https://fred.stlouisfed.org/docs/api/api_key.html`，注册并获取 API key；
 2. 编辑 `~/.openbb_platform/user_settings.json`（文件不存在则新建），写入：
@@ -168,22 +133,7 @@ python -c "import openbb; openbb.build()"
 }
 ```
 
-#### 6.2 FMP key（仅使用 FMP provider 时需要）
-
-如果你要用 `provider="fmp"` 的业绩日历、一致预期、历史 EPS、财务比率等接口，将 FMP key 合并到同一个 `credentials` 对象：
-
-```json
-{
-  "credentials": {
-    "fred_api_key": "粘贴你的FRED key",
-    "fmp_api_key": "粘贴你的FMP key"
-  }
-}
-```
-
-如果只使用 akshare、yfinance、ECB、IMF、OECD、Cboe、FINRA 等免 key provider，可以不配置 `fmp_api_key`；但任何 `provider="fmp"` 的调用都会失败并提示缺少 `fmp_api_key`。
-
-> 这一个文件就是 OpenBB 读取所有 provider 凭据的地方。MCP Server 也会自动读它，后面无需在别处重复配置 FRED 或 FMP key。改完凭据无需重新 `openbb.build()`，但需要重启当前 Python / OpenBB MCP / Codex 会话，让进程重新读取配置。
+> 这一个文件就是 OpenBB 读取 provider 凭据的地方。MCP Server 也会自动读它，后面无需在别处重复配置 FRED key。改完凭据无需重新 `openbb.build()`，但需要重启当前 Python / OpenBB MCP / Codex 会话，让进程重新读取配置。
 
 ### 7. 验证数据层
 
@@ -191,13 +141,10 @@ python -c "import openbb; openbb.build()"
 python - << 'PYEOF'
 from openbb import obb
 
-# 查看已安装的全部 provider（应能看到 akshare / yfinance / fred / ecb / cboe ...；如安装 FMP，也应看到 fmp）
+# 查看已安装的全部 provider（应能看到 yfinance / fred / ecb / cboe 等）
 print(obb.coverage.providers)
 
-# A股 -> akshare（贵州茅台）
-print(obb.equity.price.historical("600519", provider="akshare").to_dataframe().tail())
-
-# 美股 -> yfinance
+# 美股 / 全球 -> yfinance
 print(obb.equity.price.historical("AAPL", provider="yfinance").to_dataframe().tail())
 
 # 美国宏观 -> fred
@@ -205,20 +152,7 @@ print(obb.economy.fred_series("GDP", provider="fred").to_dataframe().tail())
 PYEOF
 ```
 
-四项（provider 列表 + 三组取数）都正常返回，数据层即就绪。
-
-如果你配置了 FMP key，可额外验证：
-
-```bash
-python - << 'PYEOF'
-from openbb import obb
-
-print(obb.equity.calendar.earnings(provider="fmp").to_dataframe().head())
-print(obb.equity.fundamental.ratios("PDD", provider="fmp").to_dataframe().tail())
-PYEOF
-```
-
-如果这里报 `fmp_api_key` 缺失，说明 FMP key 没有写入 `~/.openbb_platform/user_settings.json`、字段名写错，或当前 Codex/OpenBB 进程没有重新读取配置。
+三项（provider 列表 + 两组取数）都正常返回，数据层即就绪。
 
 ---
 
@@ -226,7 +160,7 @@ PYEOF
 
 ### 8. 安装 MCP Server（装在同一个 venv 里）
 
-**关键点：MCP Server 必须装进上面这个带 akshare/yfinance 扩展的 venv。** 若用 `uvx --from openbb-mcp-server` 那种临时环境，它只有核心 openbb，**akshare、yfinance 等数据源全都不会出现**。
+**关键点：MCP Server 必须装进上面这个带 yfinance 等扩展的 venv。** 若用 `uvx --from openbb-mcp-server` 那种临时环境，它只有核心 openbb，已安装的数据源扩展不会出现。
 
 确认仍在激活状态（命令行有 `(.venv)`），然后：
 
@@ -282,10 +216,10 @@ tool_timeout_sec = 120
 |---|---|
 | `command` | venv 中 openbb-mcp 的**绝对路径** |
 | `args` | 使用 stdio 传输（Codex 经标准输入输出通信） |
-| `startup_timeout_sec = 60` | **必填**。Codex 默认 MCP 启动超时仅 **10 秒**，而 OpenBB 加载这么多数据源必然超过，不调高会直接报 `timed out after 10 seconds` |
+| `startup_timeout_sec = 60` | **必填**。Codex 默认 MCP 启动超时仅 **10 秒**，OpenBB 加载多个数据源时可能超过，不调高会直接报 `timed out after 10 seconds` |
 | `tool_timeout_sec = 120` | 单次工具调用超时，默认 60 秒；部分行情/财报查询较慢，给到 120 更稳 |
 
-FRED 和 FMP key 不必写在这里——MCP Server 会自动读取第 6 步配置的 `user_settings.json`。如果刚刚修改过 key，重启 Codex 会话或 MCP server。
+FRED key 不必写在这里，MCP Server 会自动读取第 6 步配置的 `user_settings.json`。如果刚刚修改过 key，重启 Codex 会话或 MCP server。
 
 > **CLI 等价写法**（仅用于快速添加，超时参数仍需回到 toml 手动补）：
 > ```bash
@@ -319,12 +253,6 @@ codex
 
 OpenBB MCP 默认开启**工具发现机制**：启动时只暴露少量发现类工具（`available_categories`、`activate_tools` 等），Codex 会根据问题自动激活对应的数据工具再去取数。提问时点明数据源，命中更准。
 
-**A股 / 港股（akshare）：**
-
-```text
-用 openbb 拉贵州茅台（600519）2024 年至今的日线行情，provider 用 akshare，并画出收盘价走势。
-```
-
 **美股 / 全球（yfinance）：**
 
 ```text
@@ -347,13 +275,13 @@ OpenBB MCP 默认开启**工具发现机制**：启动时只暴露少量发现�
 
 **2. Codex 找不到命令 / 启动失败**
 
-`command` 填成了裸命令 `openbb-mcp` 而非绝对路径。回到第 9 步用 `which openbb-mcp` 取绝对路径填入。先在终端单独运行那个绝对路径确认能启动——终端跑不起来，Codex 里必然跑不起来。
+`command` 填成了裸命令 `openbb-mcp` 而非绝对路径。回到第 9 步用 `which openbb-mcp` 取绝对路径填入。先在终端单独运行那个绝对路径确认能启动。终端跑不起来，Codex 里必然跑不起来。
 
 **3. 安装时依赖冲突 / openbb 被降级**
 
-社区扩展 `openbb-akshare` 个别版本与最新核心的依赖范围不一致所致。把核心与全部扩展合并成一条 `uv pip install` 命令重装，让解析器一次性求解版本。
+把核心与全部扩展合并成一条 `uv pip install` 命令重装，让解析器一次性求解版本。
 
-**4. akshare / yfinance 等数据源的工具不出现**
+**4. yfinance 等数据源的工具不出现**
 
 装完扩展后没重建资源。回到 venv 重跑第 5 步：
 
@@ -368,22 +296,11 @@ python -c "import openbb; openbb.build()"
 
 工具发现机制下需先激活工具。把提示写明确，如“**使用 openbb 工具**查询……”，或让它先列出类别再激活。
 
-**6. FMP 调用报缺少 `fmp_api_key`**
-
-凡是 `provider="fmp"` 的调用都需要 Financial Modeling Prep 的 key。先确认：
-
-- 已在 venv 中安装 `openbb-fmp`；
-- 已执行 `python -c "import openbb; openbb.build()"`；
-- `~/.openbb_platform/user_settings.json` 中存在 `credentials.fmp_api_key`；
-- 修改 key 后已经重启 Codex 会话或 OpenBB MCP server。
-
-如果不想使用 FMP，请在提示中明确要求 provider 用 `akshare`、`yfinance` 或其他已安装且免 key 的 provider；但业绩日历、一致预期、历史 EPS 和部分财务比率接口可能没有完全等价的免 key 覆盖。
-
-**7. TOML 语法错误导致 CLI 与 VS Code 同时失效**
+**6. TOML 语法错误导致 CLI 与 VS Code 同时失效**
 
 检查：字符串均加双引号、数组用方括号 `["a", "b"]`、`env` 块须正确嵌套在 `[mcp_servers.openbb.env]` 下。拿不准用 TOML 校验器过一遍。
 
-**8. 每次启动 Codex 都要等几秒**
+**7. 每次启动 Codex 都要等几秒**
 
 stdio 模式每开一个会话都会重新拉起进程并 import OpenBB，属固有开销。嫌慢可改用常驻 HTTP 方式（见附录）。
 
@@ -391,9 +308,9 @@ stdio 模式每开一个会话都会重新拉起进程并 import OpenBB，属固
 
 ## 附录：HTTP（streamable-http）常驻方式
 
-适合不愿每次启动都等待 OpenBB 加载的场景——服务器常开常热，Codex 秒连，代价是需单独保持一个进程运行。
+适合不愿每次启动都等待 OpenBB 加载的场景：服务器常开常热，Codex 秒连，代价是需单独保持一个进程运行。
 
-**第一步：从激活的 venv 启动服务器**（必须从 venv 运行，才会带上 akshare/yfinance 等扩展）
+**第一步：从激活的 venv 启动服务器**（必须从 venv 运行，才会带上已安装的数据源扩展）
 
 ```bash
 cd ~/openbb && source .venv/bin/activate
@@ -439,13 +356,11 @@ mkdir ~/openbb && cd ~/openbb
 uv venv --python 3.12 && source .venv/bin/activate    # 建并激活环境
 
 uv pip install openbb                                 # 核心（含 FRED/SEC/Federal Reserve 等）
-uv pip install openbb-yfinance openbb-akshare openbb-ecb openbb-imf openbb-oecd \
+uv pip install openbb-yfinance openbb-ecb openbb-imf openbb-oecd \
   openbb-cboe openbb-deribit openbb-finviz openbb-finra openbb-tmx \
   openbb-famafrench openbb-econdb openbb-seeking-alpha
-# 可选：如需 FMP 业绩日历、一致预期、历史 EPS、财务比率
-uv pip install openbb-fmp
 python -c "import openbb; openbb.build()"             # 重建资源（必做）
-# 然后在 ~/.openbb_platform/user_settings.json 写入 fred_api_key；如使用 FMP，再写入 fmp_api_key
+# 然后在 ~/.openbb_platform/user_settings.json 写入 fred_api_key
 
 # ── MCP 层 ──
 uv pip install openbb-mcp-server                      # 装 MCP（同一 venv）

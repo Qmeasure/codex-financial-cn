@@ -116,6 +116,9 @@ BASELINE_REFERENCE_FILES = {
     "cn-markdown-formatting.md": (
         "中文 Markdown 与聊天输出格式合同",
         "不得把聊天摘要冒充已经生成的文件交付物",
+        "图表下方来源标注",
+        "最大不得超过 8pt",
+        "只保留最重要的 1 个来源",
     ),
     "data-query-order.md": (
         "数据查询顺序合同",
@@ -123,7 +126,7 @@ BASELINE_REFERENCE_FILES = {
         "数据源发现记录",
         "已说明是否实际调用；未调用时必须写明原因",
         "Gate 未通过时，不得网页搜索",
-        "需终端复核",
+        "未覆盖数据项",
     ),
 }
 
@@ -133,22 +136,45 @@ TYPE_REFERENCE_FILES = {
         "w:rFonts@w:eastAsia",
         "柱状图、堆叠柱状图、分组柱状图默认关闭纵坐标横向网格线",
         "major/minor gridlines",
+        "图表下方来源标注必须使用很小字体",
+        "最大不得超过 8pt",
+        "只保留最重要的 1 个来源",
         "最终回复必须包含 DOCX 文件路径",
     ),
-    "cn-xlsx-formatting.md": ("中文 XLSX 格式合同", "公式", "最终回复必须包含 XLSX 文件路径"),
+    "cn-xlsx-formatting.md": (
+        "中文 XLSX 格式合同",
+        "公式",
+        "图表下方来源标注必须使用很小字体",
+        "最大不得超过 8pt",
+        "只保留最重要的 1 个来源",
+        "最终回复必须包含 XLSX 文件路径",
+    ),
     "cn-pptx-formatting.md": (
         "中文 PPTX 格式合同",
         "文字溢出",
         "柱状图、堆叠柱状图、分组柱状图默认关闭纵坐标横向网格线",
         "major/minor gridlines",
+        "图表下方来源标注必须使用很小字体",
+        "最大不得超过 8pt",
+        "只保留最重要的 1 个来源",
         "最终回复必须包含 PPTX 文件路径",
     ),
-    "cn-html-formatting.md": ("中文 HTML 格式合同", "浏览器打开", "最终回复必须包含 HTML 文件路径"),
+    "cn-html-formatting.md": (
+        "中文 HTML 格式合同",
+        "浏览器打开",
+        "图表下方来源标注必须使用很小字号",
+        "最大不得超过 8pt",
+        "只保留最重要的 1 个来源",
+        "最终回复必须包含 HTML 文件路径",
+    ),
     "cn-chart-formatting.md": (
         "中文图表与 ZIP 交付格式合同",
         "中文字体",
         "柱状图、堆叠柱状图、分组柱状图默认关闭纵坐标横向网格线",
         "major/minor gridlines",
+        "图表下方来源标注必须使用很小字体",
+        "最大不得超过 8pt",
+        "只保留最重要的 1 个来源",
         "最终回复必须包含图表/ZIP 文件路径",
     ),
 }
@@ -184,18 +210,37 @@ ROOT_CHART_STYLE_CONTRACTS = {
     "CN_OUTPUT_FORMATTING.md": (
         "柱状图、堆叠柱状图、分组柱状图默认关闭纵坐标横向网格线",
         "major/minor gridlines",
+        "图表下方来源标注必须使用很小字体",
+        "最大不得超过 8pt",
+        "只保留最重要的 1 个来源",
     ),
     "CN_DOCX_OUTPUT_CONTRACT.md": (
         "柱状图、堆叠柱状图、分组柱状图默认关闭纵坐标横向网格线",
         "major/minor gridlines",
         "DOCX 中嵌入的 PNG/JPG 图表也必须遵守",
         "Render QA 必须检查柱状图是否错误显示纵坐标横向网格线",
+        "图表下方来源标注必须使用很小字体",
+        "最大不得超过 8pt",
+        "只保留最重要的 1 个来源",
     ),
     "CN_PPTX_OUTPUT_CONTRACT.md": (
         "柱状图、堆叠柱状图、分组柱状图默认关闭纵坐标横向网格线",
         "major/minor gridlines",
         "PPTX 中嵌入的 PNG/JPG 图表也必须遵守",
         "没有错误显示纵坐标横向网格线",
+        "图表下方来源标注必须使用很小字体",
+        "最大不得超过 8pt",
+        "只保留最重要的 1 个来源",
+    ),
+    "CN_XLSX_OUTPUT_CONTRACT.md": (
+        "图表下方来源标注必须使用很小字体",
+        "最大不得超过 8pt",
+        "只保留最重要的 1 个来源",
+    ),
+    "CN_MARKDOWN_OUTPUT_CONTRACT.md": (
+        "图表下方来源标注",
+        "最大不得超过 8pt",
+        "只保留最重要的 1 个来源",
     ),
 }
 
@@ -238,6 +283,15 @@ FORBIDDEN_LEGACY_WORDING = [
     "commands/",
     "slash command",
     "斜杠命令",
+]
+
+FORBIDDEN_OUTPUT_LABELS = [
+    "\u7ec8\u7aef\u8d1f\u8377",
+    "\u7ec8\u7aef\u590d\u6838",
+    "\u9700\u7ec8\u7aef\u590d\u6838",
+    "\u9700\u786e\u8ba4",
+    "\u5f85\u786e\u8ba4",
+    "\u590d\u6838",
 ]
 
 TEXT_SUFFIXES = {
@@ -519,6 +573,9 @@ def check_earnings_analysis_contract() -> None:
 def check_forbidden_and_residual_text() -> None:
     for path in iter_text_files():
         text = path.read_text(encoding="utf-8", errors="ignore")
+        for forbidden in FORBIDDEN_OUTPUT_LABELS:
+            if forbidden in text:
+                err(f"发现禁止输出标签 `{forbidden}`：{rel(path)}")
         for forbidden in FORBIDDEN_LEGACY_WORDING:
             if forbidden.lower() in text.lower():
                 err(f"发现旧英文或旧架构文本 `{forbidden}`：{rel(path)}")
