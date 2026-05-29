@@ -75,6 +75,7 @@ CN_XLSX_OUTPUT_CONTRACT.md     中文 XLSX/Excel 交付契约
 CN_PPTX_OUTPUT_CONTRACT.md     中文 PPTX/PowerPoint 交付契约
 CN_MARKDOWN_OUTPUT_CONTRACT.md 中文 Markdown/聊天正文交付契约
 OPTIONAL_MCP_TEMPLATES.md      可选 MCP 接入说明
+OPENBB_MCP_CODEX_SETUP.md     OpenBB 金融数据 MCP 本地安装与 Codex 接入教程
 ACCEPTANCE_SAMPLES_CN.md       中文产物验收样例
 THIRD_PARTY_NOTICES.md         第三方许可说明
 ```
@@ -148,6 +149,8 @@ THIRD_PARTY_NOTICES.md         第三方许可说明
 | `akshare-one` | 本地 AKShare 工具 | `uvx akshare-one-mcp` |
 
 机构数据源通常需要订阅或 API key。OpenBB、Tushare 和 AKShare 相关入口只在用户确认本地服务、依赖和授权可用后使用。这样安装插件时不会弹出未登录、未授权或本地服务未启动的 MCP startup warning。
+
+如需从零安装 OpenBB MCP，请参考 [OpenBB MCP Codex 接入教程](./OPENBB_MCP_CODEX_SETUP.md)。该教程说明如何安装 OpenBB、A股/港股和全球公开数据源、`openbb-mcp-server`，并通过 stdio 接入个人 `~/.codex/config.toml`；这仍然是用户主动配置的可选数据源，不会随插件安装自动启用。
 
 ## 中国大陆投资者优化
 
