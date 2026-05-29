@@ -56,11 +56,11 @@ Windows 本地开发建议直接把 checkout 放在 `$HOME\plugins\financial-ser
 - **中文金融规则文档**：`DATA_SOURCES_CN.md` 规定数据来源优先级，`CN_OUTPUT_FORMATTING.md` 规定中文金融产物格式，`CN_DOCX_OUTPUT_CONTRACT.md`、`CN_XLSX_OUTPUT_CONTRACT.md`、`CN_PPTX_OUTPUT_CONTRACT.md` 和 `CN_MARKDOWN_OUTPUT_CONTRACT.md` 规定文件交付契约。
 - **校验脚本**：`scripts` 目录提供结构检查、中文化门禁、中文产物样例检查和版本辅助脚本。
 
-本仓库不内置旧式多插件包装层、独立代理包、显式动作入口或托管代理模板。安装、使用和维护都围绕 `financial-services-cn` 进行。
+本仓库不内置旧式多插件包装层、独立代理包、旧平台动作目录或托管代理模板。安装、使用和维护都围绕 `financial-services-cn` 进行。
 
 ## Agents（工作流入口）
 
-上游 README 的 `Agents` 段用于介绍独立端到端工作流入口。本仓库的对应事实是：不发布独立代理包，不提供托管代理模板，也不需要用户选择多个工作流包。安装 `financial-services-cn` 后，用户直接在 Codex 中用中文自然语言描述任务，Codex 会根据 `skills` 目录中的技能自动匹配金融建模、投行、权益研究、私募股权、财富管理、基金运营、KYC、LSEG 或 S&P Global 工作流。
+上游 README 的 `Agents` 段用于介绍独立端到端工作流入口。本仓库的对应事实是：不发布独立代理包，不提供托管代理模板，也不需要用户选择多个工作流包。安装 `financial-services-cn` 后，用户可以在 Codex 中用中文自然语言描述任务，也可以用 `$financial-services-cn:<skill-name>` 显式调用某个 skill，例如 `$financial-services-cn:earnings-analysis 分析拼多多最新财报`。Codex 会根据 `skills` 目录中的技能匹配金融建模、投行、权益研究、私募股权、财富管理、基金运营、KYC、LSEG 或 S&P Global 工作流。
 
 如果机构要固定自己的端到端流程，应改写相关技能的中文版执行契约、数据来源规则和产物格式规则，而不是新增旧架构目录。
 
@@ -86,11 +86,12 @@ THIRD_PARTY_NOTICES.md         第三方许可说明
 
 ## 如何使用
 
-安装后，在 Codex 中用自然语言描述任务即可触发相关技能，例如：
+安装后，在 Codex 中可以用自然语言描述任务，也可以用 `$financial-services-cn:<skill-name>` 显式调用某个 skill，例如：
 
 - “按 A 股优先口径分析这家公司，并标注港股和美股可比口径。”
-- “把这些披露材料整理成中文投研或投行交付物，补充来源脚注和风险提示。”
-- “使用已授权数据源生成中文金融模型、表格或演示材料，并说明币种、单位、日期和口径。”
+- `$financial-services-cn:earnings-analysis 分析拼多多最新财报`
+- `$financial-services-cn:pitch-deck 用这些材料填充中文 pitch deck`
+- `$financial-services-cn:xlsx-author 生成中文三表模型并标注来源`
 
 所有输出默认遵守：
 
@@ -108,7 +109,7 @@ THIRD_PARTY_NOTICES.md         第三方许可说明
 |---|---|---|
 | 插件 manifest | 声明插件名称、版本、展示信息和技能目录；默认不声明 MCP，避免安装后自动握手失败 | `.codex-plugin/plugin.json` |
 | 技能 | 写入金融领域方法、执行步骤、产物要求和中文执行契约 | `skills` |
-| 命令入口 | 不提供显式命令入口；自然语言任务由 Codex 自动匹配技能 | 无 |
+| Skill 调用 | 支持自然语言自动匹配，也支持 `$financial-services-cn:<skill-name>` 显式调用 | `skills/*/SKILL.md` |
 | MCP servers | 可选数据源模板；用户确认授权、登录和本地服务可用后再按需配置 | `OPTIONAL_MCP_SERVERS.json` |
 | 数据来源规则 | 约束来源优先级、授权判断、缺失依据时的“需确认”表达 | `DATA_SOURCES_CN.md` |
 | 中文产物规则 | 约束中文字体、日期、币种、单位、表格、图表、免责声明和摘要 | `CN_OUTPUT_FORMATTING.md` |
@@ -202,120 +203,120 @@ Codex 安装插件时会把仓库复制成插件快照。为避免 skill 执行�
 - **调整技能边界**：只扩展真实需要的工作流，不引入与本仓库单插件形态冲突的旧架构入口。
 - **保留审计链**：模型、报告和演示材料必须说明数据来源、口径限制和待人工复核事项。
 
-## Skill & Command Reference（技能与命令参考）
+## Skill Reference（技能调用参考）
 
-本仓库不提供显式命令入口；所有技能通过 Codex 根据自然语言任务自动匹配。下表的“命令”列统一为“无”，表示不需要用户输入专门命令。
+所有技能都可以由 Codex 按自然语言任务自动匹配；需要强制指定时，在技能名前加 `$financial-services-cn:`，例如 `$financial-services-cn:dcf-model`。
 
 ### 金融分析
 
-| 技能 | 命令 | 用途 |
-|---|---|---|
-| `comps-analysis` | 无 | 构建可比公司分析、估值倍数和同业基准。 |
-| `dcf-model` | 无 | 创建 DCF 估值模型、WACC 和敏感性分析。 |
-| `lbo-model` | 无 | 填充和验证 LBO 模型模板。 |
-| `3-statement-model` | 无 | 补全利润表、资产负债表和现金流量表模型。 |
-| `audit-xls` | 无 | 审核 Excel 模型公式、硬编码、勾稽和平衡检查。 |
-| `clean-data-xls` | 无 | 清理、规范化和去重电子表格数据。 |
-| `deck-refresh` | 无 | 用新数据刷新演示材料中的数字、图表和表格。 |
-| `competitive-analysis` | 无 | 构建竞争格局、同业比较和市场定位分析。 |
-| `ib-check-deck` | 无 | 对投行演示材料做发送前质量检查。 |
-| `pptx-author` | 无 | 在无界面环境生成 `.pptx` 文件。 |
-| `xlsx-author` | 无 | 在无界面环境生成 `.xlsx` 文件。 |
-| `ppt-template-creator` | 无 | 将用户 PowerPoint 模板整理为可复用 PPT 模板技能。 |
-| `skill-creator` | 无 | 创建或更新本仓库风格的 Codex skill。 |
+| 技能 | 用途 |
+|---|---|
+| `comps-analysis` | 构建可比公司分析、估值倍数和同业基准。 |
+| `dcf-model` | 创建 DCF 估值模型、WACC 和敏感性分析。 |
+| `lbo-model` | 填充和验证 LBO 模型模板。 |
+| `3-statement-model` | 补全利润表、资产负债表和现金流量表模型。 |
+| `audit-xls` | 审核 Excel 模型公式、硬编码、勾稽和平衡检查。 |
+| `clean-data-xls` | 清理、规范化和去重电子表格数据。 |
+| `deck-refresh` | 用新数据刷新演示材料中的数字、图表和表格。 |
+| `competitive-analysis` | 构建竞争格局、同业比较和市场定位分析。 |
+| `ib-check-deck` | 对投行演示材料做发送前质量检查。 |
+| `pptx-author` | 在无界面环境生成 `.pptx` 文件。 |
+| `xlsx-author` | 在无界面环境生成 `.xlsx` 文件。 |
+| `ppt-template-creator` | 将用户 PowerPoint 模板整理为可复用 PPT 模板技能。 |
+| `skill-creator` | 创建或更新本仓库风格的 Codex skill。 |
 
 ### 投资银行
 
-| 技能 | 命令 | 用途 |
-|---|---|---|
-| `strip-profile` | 无 | 创建投行公司简介页和客户演示公司画像。 |
-| `pitch-deck` | 无 | 用来源数据填充既有投行 pitch deck 模板。 |
-| `datapack-builder` | 无 | 从 CIM、披露文件和数据源构建投资分析数据包。 |
-| `cim-builder` | 无 | 起草卖方 M&A 保密信息备忘录。 |
-| `teaser` | 无 | 起草匿名一页式 teaser。 |
-| `buyer-list` | 无 | 建立战略买方和财务买方清单。 |
-| `merger-model` | 无 | 构建 M&A 增厚/摊薄和 pro forma EPS 分析。 |
-| `process-letter` | 无 | 起草流程函、投标指引和管理层会议邀请。 |
-| `deal-tracker` | 无 | 跟踪交易里程碑、截止日期、行动事项和状态。 |
+| 技能 | 用途 |
+|---|---|
+| `strip-profile` | 创建投行公司简介页和客户演示公司画像。 |
+| `pitch-deck` | 用来源数据填充既有投行 pitch deck 模板。 |
+| `datapack-builder` | 从 CIM、披露文件和数据源构建投资分析数据包。 |
+| `cim-builder` | 起草卖方 M&A 保密信息备忘录。 |
+| `teaser` | 起草匿名一页式 teaser。 |
+| `buyer-list` | 建立战略买方和财务买方清单。 |
+| `merger-model` | 构建 M&A 增厚/摊薄和 pro forma EPS 分析。 |
+| `process-letter` | 起草流程函、投标指引和管理层会议邀请。 |
+| `deal-tracker` | 跟踪交易里程碑、截止日期、行动事项和状态。 |
 
 ### 权益研究
 
-| 技能 | 命令 | 用途 |
-|---|---|---|
-| `equity-research` | 无 | 生成股票研究快照和基本面分析。 |
-| `earnings-analysis` | 无 | 起草业绩后季度更新报告。 |
-| `earnings-preview` | 无 | 构建业绩发布前情景、预测和交易关注点。 |
-| `earnings-preview-beta` | 无 | 为单家公司生成简洁业绩预览报告。 |
-| `initiating-coverage` | 无 | 创建机构级首次覆盖报告工作流。 |
-| `model-update` | 无 | 用新业绩、指引或假设更新财务模型。 |
-| `morning-note` | 无 | 起草晨会纪要、隔夜进展和交易想法。 |
-| `sector-overview` | 无 | 创建行业和板块格局报告。 |
-| `thesis-tracker` | 无 | 维护组合持仓和观察名单投资论点。 |
-| `catalyst-calendar` | 无 | 跟踪覆盖池未来催化剂日历。 |
-| `idea-generation` | 无 | 运行股票筛选、主题扫描和投资想法生成。 |
+| 技能 | 用途 |
+|---|---|
+| `equity-research` | 生成股票研究快照和基本面分析。 |
+| `earnings-analysis` | 起草业绩后季度更新报告。 |
+| `earnings-preview` | 构建业绩发布前情景、预测和交易关注点。 |
+| `earnings-preview-beta` | 为单家公司生成简洁业绩预览报告。 |
+| `initiating-coverage` | 创建机构级首次覆盖报告工作流。 |
+| `model-update` | 用新业绩、指引或假设更新财务模型。 |
+| `morning-note` | 起草晨会纪要、隔夜进展和交易想法。 |
+| `sector-overview` | 创建行业和板块格局报告。 |
+| `thesis-tracker` | 维护组合持仓和观察名单投资论点。 |
+| `catalyst-calendar` | 跟踪覆盖池未来催化剂日历。 |
+| `idea-generation` | 运行股票筛选、主题扫描和投资想法生成。 |
 
 ### 私募股权
 
-| 技能 | 命令 | 用途 |
-|---|---|---|
-| `deal-sourcing` | 无 | 寻找目标公司、检查关系并起草创始人外联。 |
-| `deal-screening` | 无 | 快速筛选流入项目、CIM 和 teaser。 |
-| `dd-checklist` | 无 | 生成和跟踪尽职调查清单。 |
-| `dd-meeting-prep` | 无 | 准备管理层会议、专家访谈和客户访谈问题。 |
-| `unit-economics` | 无 | 分析 ARR cohort、LTV/CAC、净留存和收入质量。 |
-| `returns-analysis` | 无 | 构建 IRR/MOIC 回报敏感性分析。 |
-| `ic-memo` | 无 | 起草投资委员会备忘录。 |
-| `portfolio-monitoring` | 无 | 跟踪组合公司 KPI、预算差异和契约风险。 |
-| `value-creation-plan` | 无 | 构建收购后 100 天计划和 EBITDA bridge。 |
-| `ai-readiness` | 无 | 评估组合公司 AI 机会和落地优先级。 |
+| 技能 | 用途 |
+|---|---|
+| `deal-sourcing` | 寻找目标公司、检查关系并起草创始人外联。 |
+| `deal-screening` | 快速筛选流入项目、CIM 和 teaser。 |
+| `dd-checklist` | 生成和跟踪尽职调查清单。 |
+| `dd-meeting-prep` | 准备管理层会议、专家访谈和客户访谈问题。 |
+| `unit-economics` | 分析 ARR cohort、LTV/CAC、净留存和收入质量。 |
+| `returns-analysis` | 构建 IRR/MOIC 回报敏感性分析。 |
+| `ic-memo` | 起草投资委员会备忘录。 |
+| `portfolio-monitoring` | 跟踪组合公司 KPI、预算差异和契约风险。 |
+| `value-creation-plan` | 构建收购后 100 天计划和 EBITDA bridge。 |
+| `ai-readiness` | 评估组合公司 AI 机会和落地优先级。 |
 
 ### 财富管理
 
-| 技能 | 命令 | 用途 |
-|---|---|---|
-| `client-review` | 无 | 准备客户回顾会议材料和谈话要点。 |
-| `financial-plan` | 无 | 构建退休、教育、遗产和现金流规划。 |
-| `portfolio-rebalance` | 无 | 分析组合偏离并生成税务敏感的再平衡建议。 |
-| `client-report` | 无 | 生成面向客户的业绩报告。 |
-| `investment-proposal` | 无 | 创建潜在客户投资建议书。 |
-| `tax-loss-harvesting` | 无 | 识别税损收割机会和 wash sale 风险。 |
+| 技能 | 用途 |
+|---|---|
+| `client-review` | 准备客户回顾会议材料和谈话要点。 |
+| `financial-plan` | 构建退休、教育、遗产和现金流规划。 |
+| `portfolio-rebalance` | 分析组合偏离并生成税务敏感的再平衡建议。 |
+| `client-report` | 生成面向客户的业绩报告。 |
+| `investment-proposal` | 创建潜在客户投资建议书。 |
+| `tax-loss-harvesting` | 识别税损收割机会和 wash sale 风险。 |
 
 ### 基金运营
 
-| 技能 | 命令 | 用途 |
-|---|---|---|
-| `gl-recon` | 无 | 执行总账与子账对账并分类差异。 |
-| `break-trace` | 无 | 将对账差异追溯到来源交易或入账记录。 |
-| `accrual-schedule` | 无 | 构建期末预提明细和 JE 草稿。 |
-| `roll-forward` | 无 | 构建资产负债表科目滚动表。 |
-| `variance-commentary` | 无 | 为 P&L 和资产负债表差异撰写波动说明。 |
-| `nav-tieout` | 无 | 将 LP statement 与基金 NAV pack 勾稽。 |
+| 技能 | 用途 |
+|---|---|
+| `gl-recon` | 执行总账与子账对账并分类差异。 |
+| `break-trace` | 将对账差异追溯到来源交易或入账记录。 |
+| `accrual-schedule` | 构建期末预提明细和 JE 草稿。 |
+| `roll-forward` | 构建资产负债表科目滚动表。 |
+| `variance-commentary` | 为 P&L 和资产负债表差异撰写波动说明。 |
+| `nav-tieout` | 将 LP statement 与基金 NAV pack 勾稽。 |
 
 ### KYC 与运营
 
-| 技能 | 命令 | 用途 |
-|---|---|---|
-| `kyc-doc-parse` | 无 | 解析开户和准入资料包为结构化 KYC 字段。 |
-| `kyc-rules` | 无 | 应用 KYC/AML 规则表、评级并标记升级事项。 |
+| 技能 | 用途 |
+|---|---|
+| `kyc-doc-parse` | 解析开户和准入资料包为结构化 KYC 字段。 |
+| `kyc-rules` | 应用 KYC/AML 规则表、评级并标记升级事项。 |
 
 ### LSEG 和固定收益
 
-| 技能 | 命令 | 用途 |
-|---|---|---|
-| `bond-relative-value` | 无 | 分析债券相对价值、信用利差和利率冲击。 |
-| `bond-futures-basis` | 无 | 分析债券期货基差、CTD 和隐含回购利率。 |
-| `fixed-income-portfolio` | 无 | 审阅固收组合、现金流、久期和 DV01。 |
-| `fx-carry-trade` | 无 | 评估外汇套息交易机会和 carry-to-vol 比率。 |
-| `swap-curve-strategy` | 无 | 分析掉期曲线、利差和曲线交易策略。 |
-| `option-vol-analysis` | 无 | 分析期权波动率曲面、Greeks 和波动率交易。 |
-| `macro-rates-monitor` | 无 | 构建宏观经济、收益率曲线和利率监控 dashboard。 |
+| 技能 | 用途 |
+|---|---|
+| `bond-relative-value` | 分析债券相对价值、信用利差和利率冲击。 |
+| `bond-futures-basis` | 分析债券期货基差、CTD 和隐含回购利率。 |
+| `fixed-income-portfolio` | 审阅固收组合、现金流、久期和 DV01。 |
+| `fx-carry-trade` | 评估外汇套息交易机会和 carry-to-vol 比率。 |
+| `swap-curve-strategy` | 分析掉期曲线、利差和曲线交易策略。 |
+| `option-vol-analysis` | 分析期权波动率曲面、Greeks 和波动率交易。 |
+| `macro-rates-monitor` | 构建宏观经济、收益率曲线和利率监控 dashboard。 |
 
 ### S&P Global 和资本市场数据
 
-| 技能 | 命令 | 用途 |
-|---|---|---|
-| `tear-sheet` | 无 | 使用 S&P Capital IQ 相关数据生成公司速览。 |
-| `funding-digest` | 无 | 汇总融资轮次和资本市场活动为简报材料。 |
+| 技能 | 用途 |
+|---|---|
+| `tear-sheet` | 使用 S&P Capital IQ 相关数据生成公司速览。 |
+| `funding-digest` | 汇总融资轮次和资本市场活动为简报材料。 |
 
 ## 本地开发与校验
 
@@ -353,7 +354,7 @@ python3 /Users/lesterbot/.codex/skills/.system/plugin-creator/scripts/validate_p
 - 不修改技能目录名、schema key、环境变量名、MCP server 名称或既有 URL，除非同时说明迁移方案。
 - 不默认启用付费源、机构源或本地 MCP；需要用户确认授权和可用性。
 - 不使用 LiteLLM 或外部翻译 API 做本仓库中文化。
-- 不引入旧多插件包装层、独立代理包、显式动作入口或托管代理模板。
+- 不引入旧多插件包装层、独立代理包、旧平台动作目录或托管代理模板。
 - 改完必须运行结构检查、中文化门禁、中文产物样例检查和 Codex manifest 校验。
 
 ## License（许可证）
