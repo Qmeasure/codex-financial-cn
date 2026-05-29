@@ -32,6 +32,8 @@ REQUIRED_SKILL_NEEDLES = [
     "references/data-query-order.md",
     "产物合同读取与输出门槛",
     "生成正式输出前必须读取",
+    "先生成“数据源发现记录”",
+    "Gate 通过前不得网页搜索",
     "聊天摘要或即时分析不能替代本 skill 已承诺的文件主交付物",
 ]
 
@@ -117,17 +119,38 @@ BASELINE_REFERENCE_FILES = {
     ),
     "data-query-order.md": (
         "数据查询顺序合同",
-        "先检查用户提供的文件、当前会话可用 MCP",
-        "再进行网页搜索",
+        "网页搜索前 Gate",
+        "数据源发现记录",
+        "已说明是否实际调用；未调用时必须写明原因",
+        "Gate 未通过时，不得网页搜索",
+        "需终端复核",
     ),
 }
 
 TYPE_REFERENCE_FILES = {
-    "cn-docx-formatting.md": ("中文 DOCX 格式合同", "w:rFonts@w:eastAsia", "最终回复必须包含 DOCX 文件路径"),
+    "cn-docx-formatting.md": (
+        "中文 DOCX 格式合同",
+        "w:rFonts@w:eastAsia",
+        "柱状图、堆叠柱状图、分组柱状图默认关闭纵坐标横向网格线",
+        "major/minor gridlines",
+        "最终回复必须包含 DOCX 文件路径",
+    ),
     "cn-xlsx-formatting.md": ("中文 XLSX 格式合同", "公式", "最终回复必须包含 XLSX 文件路径"),
-    "cn-pptx-formatting.md": ("中文 PPTX 格式合同", "文字溢出", "最终回复必须包含 PPTX 文件路径"),
+    "cn-pptx-formatting.md": (
+        "中文 PPTX 格式合同",
+        "文字溢出",
+        "柱状图、堆叠柱状图、分组柱状图默认关闭纵坐标横向网格线",
+        "major/minor gridlines",
+        "最终回复必须包含 PPTX 文件路径",
+    ),
     "cn-html-formatting.md": ("中文 HTML 格式合同", "浏览器打开", "最终回复必须包含 HTML 文件路径"),
-    "cn-chart-formatting.md": ("中文图表与 ZIP 交付格式合同", "中文字体", "最终回复必须包含图表/ZIP 文件路径"),
+    "cn-chart-formatting.md": (
+        "中文图表与 ZIP 交付格式合同",
+        "中文字体",
+        "柱状图、堆叠柱状图、分组柱状图默认关闭纵坐标横向网格线",
+        "major/minor gridlines",
+        "最终回复必须包含图表/ZIP 文件路径",
+    ),
 }
 
 GENERATED_REFERENCE_NAMES = set(BASELINE_REFERENCE_FILES) | set(TYPE_REFERENCE_FILES)
@@ -144,6 +167,10 @@ ARTIFACT_RULE_FILES = [
 
 EARNINGS_ANALYSIS_NEEDLES = [
     "交付物硬门槛",
+    "数据源发现硬门槛",
+    "数据源发现记录必须包含",
+    "未生成该记录，不得进入网页搜索",
+    "最终报告必须在“数据来源与口径说明”中摘要列示该记录",
     "默认意图解析",
     "DOCX 生成前必须读取",
     "CN_DOCX_OUTPUT_CONTRACT.md",
@@ -151,6 +178,50 @@ EARNINGS_ANALYSIS_NEEDLES = [
     "最终回复必须包含 DOCX 文件路径",
     "cn_institutional_research_brief",
     "DOCX 主交付物未完成",
+]
+
+ROOT_CHART_STYLE_CONTRACTS = {
+    "CN_OUTPUT_FORMATTING.md": (
+        "柱状图、堆叠柱状图、分组柱状图默认关闭纵坐标横向网格线",
+        "major/minor gridlines",
+    ),
+    "CN_DOCX_OUTPUT_CONTRACT.md": (
+        "柱状图、堆叠柱状图、分组柱状图默认关闭纵坐标横向网格线",
+        "major/minor gridlines",
+        "DOCX 中嵌入的 PNG/JPG 图表也必须遵守",
+        "Render QA 必须检查柱状图是否错误显示纵坐标横向网格线",
+    ),
+    "CN_PPTX_OUTPUT_CONTRACT.md": (
+        "柱状图、堆叠柱状图、分组柱状图默认关闭纵坐标横向网格线",
+        "major/minor gridlines",
+        "PPTX 中嵌入的 PNG/JPG 图表也必须遵守",
+        "没有错误显示纵坐标横向网格线",
+    ),
+}
+
+CHART_WORKFLOW_FILES = [
+    "skills/competitive-analysis/SKILL.md",
+    "skills/earnings-analysis/SKILL.md",
+    "skills/earnings-analysis/references/best-practices.md",
+    "skills/earnings-analysis/references/workflow.md",
+    "skills/earnings-preview-beta/SKILL.md",
+    "skills/earnings-preview-beta/report-template.md",
+    "skills/funding-digest/SKILL.md",
+    "skills/initiating-coverage/SKILL.md",
+    "skills/initiating-coverage/assets/quality-checklist.md",
+    "skills/initiating-coverage/assets/report-template.md",
+    "skills/initiating-coverage/references/task1-company-research.md",
+    "skills/initiating-coverage/references/task4-chart-generation.md",
+    "skills/initiating-coverage/references/task5-report-assembly.md",
+    "skills/pptx-author/SKILL.md",
+    "skills/strip-profile/SKILL.md",
+]
+
+WEAK_DATA_GATE_WORDING = [
+    "可用 MCP/已授权数据源优先，网页搜索其次",
+    "先检查可用 MCP/已授权源",
+    "先检查可用 MCP/已授权数据源",
+    "再在覆盖不足时",
 ]
 
 FORBIDDEN_LEGACY_WORDING = [
@@ -378,6 +449,38 @@ def check_artifact_rules() -> None:
             err(f"产物格式文件缺少中文格式规则：{item}")
 
 
+def check_chart_style_contracts() -> None:
+    for item, needles in ROOT_CHART_STYLE_CONTRACTS.items():
+        path = ROOT / item
+        if not path.exists():
+            err(f"缺少图表样式合同文件：{item}")
+            continue
+        text = path.read_text(encoding="utf-8")
+        for needle in needles:
+            if needle not in text:
+                err(f"{item} 缺少图表样式硬规则 `{needle}`")
+    for item in CHART_WORKFLOW_FILES:
+        path = ROOT / item
+        if not path.exists():
+            err(f"缺少图表 workflow 文件：{item}")
+            continue
+        text = path.read_text(encoding="utf-8")
+        for needle in (
+            "柱状图、堆叠柱状图、分组柱状图默认关闭纵坐标横向网格线",
+            "major/minor gridlines",
+        ):
+            if needle not in text:
+                err(f"{item} 缺少图表 workflow Gate `{needle}`")
+
+
+def check_data_gate_wording() -> None:
+    for path in sorted(SKILLS.rglob("*.md")):
+        text = path.read_text(encoding="utf-8")
+        for weak in WEAK_DATA_GATE_WORDING:
+            if weak in text:
+                err(f"发现弱数据查询口径 `{weak}`：{rel(path)}")
+
+
 def check_reference_linkage() -> None:
     for folder_name in ("references", "reference"):
         for path in sorted(SKILLS.glob(f"*/{folder_name}/*.md")):
@@ -430,6 +533,8 @@ def main() -> int:
     check_manifest()
     check_skills()
     check_artifact_rules()
+    check_chart_style_contracts()
+    check_data_gate_wording()
     check_reference_linkage()
     check_earnings_analysis_contract()
     check_forbidden_and_residual_text()

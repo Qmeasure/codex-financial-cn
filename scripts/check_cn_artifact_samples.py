@@ -21,7 +21,9 @@ except Exception as exc:  # pragma: no cover
 
 try:
     from pptx import Presentation
-    from pptx.util import Pt
+    from pptx.chart.data import CategoryChartData
+    from pptx.enum.chart import XL_CHART_TYPE
+    from pptx.util import Inches, Pt
 except Exception as exc:  # pragma: no cover
     print(f"requires python-pptx: {exc}", file=sys.stderr)
     sys.exit(2)
@@ -94,6 +96,22 @@ box = slide.shapes.add_textbox(left=914400, top=1828800, width=7315200, height=1
 tf = box.text_frame
 tf.text = "来源：交易所公告；币种：人民币；单位：亿元；免责声明：不构成投资建议，需人工复核。"
 tf.paragraphs[0].runs[0].font.name = "Microsoft YaHei"
+chart_data = CategoryChartData()
+chart_data.categories = ["1Q24", "2Q24", "3Q24"]
+chart_data.add_series("收入", (87, 97, 99))
+chart_shape = slide.shapes.add_chart(
+    XL_CHART_TYPE.COLUMN_CLUSTERED,
+    Inches(1.0),
+    Inches(3.4),
+    Inches(7.4),
+    Inches(2.0),
+    chart_data,
+)
+chart = chart_shape.chart
+chart.has_legend = False
+chart.value_axis.has_major_gridlines = False
+if hasattr(chart.value_axis, "has_minor_gridlines"):
+    chart.value_axis.has_minor_gridlines = False
 prs.save(pptx)
 
 prs2 = Presentation(pptx)
@@ -107,6 +125,13 @@ if "免责声明" not in texts or "不构成投资建议" not in texts:
 with zipfile.ZipFile(pptx) as zf:
     if "ppt/presentation.xml" not in zf.namelist():
         fail("pptx package missing presentation.xml")
+    chart_parts = [name for name in zf.namelist() if name.startswith("ppt/charts/chart") and name.endswith(".xml")]
+    if not chart_parts:
+        fail("pptx chart sample missing chart XML")
+    for chart_part in chart_parts:
+        chart_xml = zf.read(chart_part).decode("utf-8")
+        if "<c:majorGridlines" in chart_xml or "<c:minorGridlines" in chart_xml:
+            fail(f"pptx bar chart gridlines must be disabled in {chart_part}")
 
 docx = OUT / "cn_acceptance_sample.docx"
 content_types = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>

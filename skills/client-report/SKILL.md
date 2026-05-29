@@ -28,7 +28,7 @@ description: 生成面向客户的专业业绩报告，包含组合回报、配�
 - 纯文本/聊天输出必须包含来源、口径限制、待确认项和人工复核边界，不强制落盘为文件。
 - 若用户要求或本 skill 明确承诺生成 Markdown 文件，最终回复前必须确认 `.md` 文件已生成、Markdown 文件路径存在、结构可读，并确保最终回复包含 Markdown 文件路径。
 - 若本 skill 的既有输出包含 DOCX/Word 文件，最终回复前必须确认 DOCX 文件已生成、DOCX 文件路径存在、可打开或结构校验通过，并确保最终回复包含 DOCX 文件路径。
-- 需要查询或刷新外部数据时，必须先读取 `references/data-query-order.md`，并按“可用 MCP/已授权数据源优先，网页搜索其次”的顺序执行；若本 skill 有更严格数据源限制，以更严格规则为准。
+- 需要查询或刷新外部数据时，必须先读取 `references/data-query-order.md`，先生成“数据源发现记录”，列出可用/不可用 MCP、connector、授权源和用户文件；Gate 通过前不得网页搜索、官网抓取、SEC/交易所抓取或生成正式交付物。若本 skill 有更严格数据源限制，以更严格规则为准。
 - 正式 Markdown、聊天摘要和最终交付说明必须先读取 `references/cn-markdown-formatting.md`，并包含来源、口径限制、待确认项和人工复核边界。
 
 

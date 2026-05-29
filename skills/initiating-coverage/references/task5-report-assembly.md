@@ -1,5 +1,7 @@
 > Reference 链路：执行本文件前，先读取本 skill 的 `references/data-query-order.md`、`references/cn-markdown-formatting.md`、`references/cn-docx-formatting.md`、`references/cn-xlsx-formatting.md`、`references/cn-chart-formatting.md`；本文件只描述业务 workflow 或参考口径，不承载新增中文格式正文。
 
+> 图表样式 Gate：生成或审查图表前必须读取本 skill 的本地格式 reference；柱状图、堆叠柱状图、分组柱状图默认关闭纵坐标横向网格线，除非用户明确要求或图表类型必须依赖网格线，否则不得显示 major/minor gridlines。DOCX、PPTX、PNG/JPG 图表都必须在 QA 中检查该项。
+
 # 任务 5：报告组装 - 详细工作流
 
 本文档提供执行 initiating-coverage 技能中任务 5（报告组装）的逐步说明。

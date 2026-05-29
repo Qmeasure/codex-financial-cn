@@ -1,5 +1,7 @@
 > Reference 链路：执行本文件前，先读取本 skill 的 `references/data-query-order.md`、`references/cn-markdown-formatting.md`、`references/cn-docx-formatting.md`；本文件只描述业务 workflow 或参考口径，不承载新增中文格式正文。
 
+> 图表样式 Gate：生成或审查图表前必须读取本 skill 的本地格式 reference；柱状图、堆叠柱状图、分组柱状图默认关闭纵坐标横向网格线，除非用户明确要求或图表类型必须依赖网格线，否则不得显示 major/minor gridlines。DOCX、PPTX、PNG/JPG 图表都必须在 QA 中检查该项。
+
 # 最佳实践、示例和质量指南
 
 本文档提供示例、成功要点、常见错误和综合质量检查清单。
@@ -74,6 +76,12 @@
 为什么错：结构存在不等于中文 Word 交付合格。中文字体可能被替换，表格可能溢出，图表中文字可能乱码，来源和超链接可能只是裸 URL。
 
 正确做法：按 `CN_DOCX_OUTPUT_CONTRACT.md` 和最终回复前检查逐项核验。可用时必须将 DOCX 渲染为 PNG 做视觉检查；如果 LibreOffice/`soffice` 缺失，最终回复必须说明未完成视觉渲染 QA，且不得把结构校验说成视觉 QA。
+
+❌ **读了 data-query-order.md，但没有实际执行数据源发现**
+
+为什么错：这会让“官方披露优先、授权源优先”停留在文本层面，agent 可以直接网页搜索却无法证明 MCP/授权源不可用。
+
+正确做法：网页搜索、公司官网抓取、SEC/交易所抓取前必须生成数据源发现记录；最终报告必须在“数据来源与口径说明”中摘要列示该记录。
 
 ## 综合质量控制清单
 

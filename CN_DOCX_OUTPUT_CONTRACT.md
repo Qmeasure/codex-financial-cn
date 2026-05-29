@@ -83,6 +83,8 @@ captions:
 - 图表必须使用中文字体栈或可证明的 fallback 字体。渲染后不得乱码、缺字、重叠或溢出。
 - 每张图表必须有编号、标题和来源。来源必须包含文档名称、日期和可点击链接或终端复核说明。
 - 图表与 caption 必须保持视觉配对，不能跨页断开后无法判断来源。
+- 柱状图、堆叠柱状图、分组柱状图默认关闭纵坐标横向网格线；保留坐标轴、刻度和必要数据标签。除非用户明确要求或图表类型必须依赖网格线，否则不得显示 major/minor gridlines。
+- DOCX 中嵌入的 PNG/JPG 图表也必须遵守上述网格线规则；不得因为图表先在 Python、HTML、PPTX 或其他工具中生成而绕过检查。
 
 ## 9. 结构校验与视觉 QA
 
@@ -96,6 +98,7 @@ captions:
 - 超链接存在时，`word/_rels/document.xml.rels` 中有 hyperlink relationship。
 - 文档 XML 中没有裸 URL。
 - 若 LibreOffice/`soffice` 可用，必须执行 DOCX -> PNG render QA 并逐页检查中文、表格、图表、页眉页脚和来源脚注。
+- Render QA 必须检查柱状图是否错误显示纵坐标横向网格线，同时检查图例挤压、坐标轴标签、中文字体和来源。
 
 如果本机缺少 LibreOffice/`soffice`，允许交付结构校验通过的 DOCX，但最终回复必须写明：
 
