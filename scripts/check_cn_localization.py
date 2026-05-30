@@ -144,6 +144,8 @@ TYPE_REFERENCE_FILES = {
         "hyperlink run 必须显式设置同一小字号",
         "固定校验标签",
         "正式表格缺失值使用 `—`",
+        "DOCX 章节默认连续排版",
+        "只允许 Word 自然分页",
         "最终回复必须包含 DOCX 文件路径",
     ),
     "cn-xlsx-formatting.md": (
@@ -240,6 +242,8 @@ ROOT_CHART_STYLE_CONTRACTS = {
         "只保留最重要的 1 个来源",
         "固定校验标签",
         "正式表格缺失值使用 `—`",
+        "DOCX 章节默认连续排版",
+        "只允许 Word 自然分页",
     ),
     "CN_PPTX_OUTPUT_CONTRACT.md": (
         "柱状图、堆叠柱状图、分组柱状图默认关闭纵坐标横向网格线",
@@ -267,6 +271,28 @@ ROOT_CHART_STYLE_CONTRACTS = {
         "正式表格缺失值使用 `—`",
     ),
 }
+
+DOCX_PAGINATION_CONTRACT_NEEDLES = (
+    "DOCX 章节默认连续排版",
+    "只允许 Word 自然分页",
+    "只有用户明确要求",
+)
+
+DOCX_PAGINATION_FORBIDDEN_TEXT = (
+    "逐页模板",
+    "pageBreakBefore",
+    "w:pageBreakBefore",
+    "add_page_break",
+    "WD_BREAK.PAGE",
+    'w:type="page"',
+    "自动换页",
+    "另起一页",
+)
+
+DOCX_PAGINATION_FORBIDDEN_REGEX = (
+    re.compile(r"^##\s+第\s*\d", re.MULTILINE),
+    re.compile(r"创建第\s*1\s*页"),
+)
 
 CHART_WORKFLOW_FILES = [
     "skills/competitive-analysis/SKILL.md",
@@ -552,6 +578,34 @@ def check_chart_style_contracts() -> None:
                 err(f"{item} 缺少图表 workflow Gate `{needle}`")
 
 
+def check_docx_pagination_contracts() -> None:
+    root_docx = ROOT / "CN_DOCX_OUTPUT_CONTRACT.md"
+    docx_reference_files = sorted(SKILLS.glob("*/references/cn-docx-formatting.md"))
+    for path in [root_docx, *docx_reference_files]:
+        text = path.read_text(encoding="utf-8")
+        for needle in DOCX_PAGINATION_CONTRACT_NEEDLES:
+            if needle not in text:
+                err(f"{rel(path)} 缺少 DOCX 连续排版规则 `{needle}`")
+        for forbidden in DOCX_PAGINATION_FORBIDDEN_TEXT:
+            if forbidden in text:
+                err(f"{rel(path)} 出现 DOCX 显式分页风险文本 `{forbidden}`")
+
+    for path in (
+        ROOT / "skills" / "earnings-analysis" / "SKILL.md",
+        ROOT / "skills" / "earnings-analysis" / "references" / "workflow.md",
+        ROOT / "skills" / "earnings-analysis" / "references" / "report-structure.md",
+    ):
+        text = path.read_text(encoding="utf-8")
+        for forbidden in DOCX_PAGINATION_FORBIDDEN_TEXT:
+            if forbidden in text:
+                err(f"{rel(path)} 出现 DOCX 显式分页风险文本 `{forbidden}`")
+        for pattern in DOCX_PAGINATION_FORBIDDEN_REGEX:
+            if pattern.search(text):
+                err(f"{rel(path)} 仍存在逐页结构标题或创建步骤：{pattern.pattern}")
+        if "章节应连续排版" not in text and "章节必须连续排版" not in text:
+            err(f"{rel(path)} 缺少 earnings-analysis 连续排版说明")
+
+
 def check_data_gate_wording() -> None:
     for path in sorted(SKILLS.rglob("*.md")):
         text = path.read_text(encoding="utf-8")
@@ -616,6 +670,7 @@ def main() -> int:
     check_skills()
     check_artifact_rules()
     check_chart_style_contracts()
+    check_docx_pagination_contracts()
     check_data_gate_wording()
     check_reference_linkage()
     check_earnings_analysis_contract()

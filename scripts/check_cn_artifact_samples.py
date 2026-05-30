@@ -358,6 +358,19 @@ if 'Target="https://example.com/announcement"' not in rel_xml or 'TargetMode="Ex
     fail("docx hyperlink target missing or not external")
 w_ns = {"w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main"}
 doc_root = ET.fromstring(doc_xml)
+if "<w:pageBreakBefore" in doc_xml or 'w:type="page"' in doc_xml:
+    fail("docx sample must not contain explicit page break settings")
+page_break_runs = [
+    br for br in doc_root.findall(".//w:br", w_ns)
+    if br.attrib.get(f"{{{w_ns['w']}}}type") == "page"
+]
+if page_break_runs:
+    fail("docx sample must not contain page break runs")
+if doc_root.findall(".//w:pPr/w:sectPr", w_ns):
+    fail("docx sample must not contain paragraph-level section breaks")
+sect_prs = doc_root.findall(".//w:sectPr", w_ns)
+if len(sect_prs) != 1:
+    fail("docx sample must contain only the final document section properties")
 source_paragraphs = []
 for paragraph in doc_root.findall(".//w:p", w_ns):
     paragraph_text = "".join(paragraph.itertext()).strip()

@@ -5,6 +5,7 @@
 ## 页面与字体
 
 - 默认使用 A4 页面，页边距、页眉、页脚和页码按中文机构材料处理。
+- DOCX 章节默认连续排版：H1/H2、章节标题、附录标题和报告 section 不得主动插入显式分页或分节符；只允许 Word 自然分页。只有用户明确要求，或用户提供的 Word 模板本身已有分页/分节设置时，才可保留。
 - 中文字体优先级：Microsoft YaHei、PingFang SC、Noto Sans CJK SC、Source Han Sans SC、SimSun、Arial Unicode MS fallback。
 - Word OOXML 必须设置 `w:rFonts@w:eastAsia`、`w:rFonts@w:ascii`、`w:rFonts@w:hAnsi`。
 - 标题、正文、表格、图表标题、来源脚注和免责声明必须使用统一中文样式。
