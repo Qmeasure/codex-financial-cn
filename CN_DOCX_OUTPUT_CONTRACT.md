@@ -27,7 +27,7 @@ tables:
   cell_margins_dxa: {top: 80, bottom: 80, start: 120, end: 120}
 captions:
   chart_title: {size: 9pt, bold: true}
-  source: {size: 7.5pt, max_size: 8pt, color: "#666666", one_source_only: true}
+  source: {size: 6pt, max_size: 7pt, color: "#666666", one_source_only: true}
 ```
 
 该 preset 是本仓库对 Documents skill design preset 的 named override。生成 DOCX 时必须先读取 Documents skill 的 `SKILL.md` 和 `references/design_presets.md`，再把本 preset 的中文金融 token 显式应用到文档实现中。
@@ -81,10 +81,11 @@ captions:
 
 - 图表标题、轴标签、图例、数据标签、注释和来源必须中文化。
 - 图表必须使用中文字体栈或可证明的 fallback 字体。渲染后不得乱码、缺字、重叠或溢出。
-- 每张图表必须有编号、标题和来源。图表下方来源标注必须使用很小字体：建议 6-7.5pt，最大不得超过 8pt。
-- 每张图表下方只保留最重要的 1 个来源，必须包含有意义显示文本和可点击 Word hyperlink；多来源清单放入“数据来源与口径说明”或“参考资料”，不得在图表下方罗列。
-- 订阅数据源没有公开 URL 时，图表下方只写最关键的数据源名称和数据日期；完整数据源口径放入“数据来源与口径说明”，不得在图表下方堆叠缺口提示。
-- 图表与 caption 必须保持视觉配对，不能跨页断开后无法判断来源。
+- 每张图表必须有编号、标题和来源。Exhibit 下方来源标注必须使用很小字体：默认 6pt，最大不得超过 7pt；覆盖图表、表格、图片、关键数据块和紧邻页面底部的来源行。
+- 每个 Exhibit 下方只保留最重要的 1 个来源，必须包含有意义显示文本和可点击 Word hyperlink；hyperlink run 必须显式设置同一小字号；多来源清单放入“数据来源与口径说明”或“参考资料”，不得在 Exhibit 下方罗列。
+- 订阅数据源没有公开 URL 时，Exhibit 下方只写最关键的数据源名称和数据日期；完整数据源口径放入“数据来源与口径说明”，不得在 Exhibit 下方堆叠缺口提示。
+- DOCX 正文、表格单元格、脚注、来源、caption 和超链接显示文本不得出现固定校验标签；正式表格缺失值使用 `—`。
+- Exhibit 与 caption 必须保持视觉配对，不能跨页断开后无法判断来源。
 - 柱状图、堆叠柱状图、分组柱状图默认关闭纵坐标横向网格线；保留坐标轴、刻度和必要数据标签。除非用户明确要求或图表类型必须依赖网格线，否则不得显示 major/minor gridlines。
 - DOCX 中嵌入的 PNG/JPG 图表也必须遵守上述网格线规则；不得因为图表先在 Python、HTML、PPTX 或其他工具中生成而绕过检查。
 
@@ -101,7 +102,7 @@ captions:
 - 文档 XML 中没有裸 URL。
 - 若 LibreOffice/`soffice` 可用，必须执行 DOCX -> PNG render QA 并逐页检查中文、表格、图表、页眉页脚和来源脚注。
 - Render QA 必须检查柱状图是否错误显示纵坐标横向网格线，同时检查图例挤压、坐标轴标签、中文字体和来源。
-- Render QA 必须检查图表下方来源标注是否很小、是否只保留最重要的 1 个来源、是否存在可点击 hyperlink 或可追溯数据源说明。
+- Render QA 必须检查每个 Exhibit 下方来源标注是否很小、是否只保留最重要的 1 个来源、hyperlink run 是否显式小字号、是否存在可点击 hyperlink 或可追溯数据源说明。
 
 如果本机缺少 LibreOffice/`soffice`，允许交付结构校验通过的 DOCX，但最终回复必须写明：
 

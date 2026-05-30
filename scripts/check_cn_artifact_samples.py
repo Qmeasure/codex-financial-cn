@@ -97,8 +97,21 @@ tf = box.text_frame
 tf.text = "来源：交易所公告"
 source_run = tf.paragraphs[0].runs[0]
 source_run.font.name = "Microsoft YaHei"
-source_run.font.size = Pt(7)
+source_run.font.size = Pt(6)
 source_run.hyperlink.address = "https://example.com/announcement"
+table_shape = slide.shapes.add_table(rows=2, cols=2, left=914400, top=3200400, width=3657600, height=731520)
+table = table_shape.table
+table.cell(0, 0).text = "指标"
+table.cell(0, 1).text = "本期"
+table.cell(1, 0).text = "收入（人民币亿元）"
+table.cell(1, 1).text = "125.4"
+table_source_box = slide.shapes.add_textbox(left=914400, top=3931920, width=3657600, height=228600)
+table_source_tf = table_source_box.text_frame
+table_source_tf.text = "来源：上市公司公告"
+table_source_run = table_source_tf.paragraphs[0].runs[0]
+table_source_run.font.name = "Microsoft YaHei"
+table_source_run.font.size = Pt(6)
+table_source_run.hyperlink.address = "https://example.com/announcement"
 note_box = slide.shapes.add_textbox(left=914400, top=3566160, width=7315200, height=457200)
 note_tf = note_box.text_frame
 note_tf.text = "币种：人民币；单位：亿元；免责声明：不构成投资建议，应由人工审阅。"
@@ -135,16 +148,17 @@ source_shapes = [
     shape for slide in prs2.slides for shape in slide.shapes
     if hasattr(shape, "text") and shape.text.startswith("来源：")
 ]
-if len(source_shapes) != 1:
-    fail("pptx chart source caption must keep exactly one primary source")
-source_text = source_shapes[0].text
-if "；" in source_text or "PDD " in source_text:
-    fail("pptx chart source caption must not list multiple sources")
-source_runs = source_shapes[0].text_frame.paragraphs[0].runs
-if not source_runs or source_runs[0].font.size is None or source_runs[0].font.size.pt > 8:
-    fail("pptx chart source caption must use very small font <= 8pt")
-if source_runs[0].hyperlink.address != "https://example.com/announcement":
-    fail("pptx chart source caption hyperlink missing")
+if len(source_shapes) != 2:
+    fail("pptx exhibit source captions must cover chart and table samples")
+for source_shape in source_shapes:
+    source_text = source_shape.text
+    if "；" in source_text or ";" in source_text or "PDD " in source_text:
+        fail("pptx exhibit source caption must not list multiple sources")
+    source_runs = source_shape.text_frame.paragraphs[0].runs
+    if not source_runs or source_runs[0].font.size is None or source_runs[0].font.size.pt > 7:
+        fail("pptx exhibit source caption must use very small font <= 7pt")
+    if source_runs[0].hyperlink.address != "https://example.com/announcement":
+        fail("pptx exhibit source caption hyperlink missing")
 with zipfile.ZipFile(pptx) as zf:
     if "ppt/presentation.xml" not in zf.namelist():
         fail("pptx package missing presentation.xml")
@@ -264,12 +278,12 @@ document_xml = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
     </w:tbl>
     <w:p>
       <w:r>
-        <w:rPr><w:rFonts w:eastAsia="Microsoft YaHei" w:ascii="Microsoft YaHei" w:hAnsi="Microsoft YaHei"/><w:sz w:val="15"/></w:rPr>
-        <w:t>来源链接：</w:t>
+        <w:rPr><w:rFonts w:eastAsia="Microsoft YaHei" w:ascii="Microsoft YaHei" w:hAnsi="Microsoft YaHei"/><w:sz w:val="12"/></w:rPr>
+        <w:t>来源：</w:t>
       </w:r>
       <w:hyperlink r:id="rIdSource">
         <w:r>
-          <w:rPr><w:rFonts w:eastAsia="Microsoft YaHei" w:ascii="Microsoft YaHei" w:hAnsi="Microsoft YaHei"/><w:sz w:val="15"/><w:u w:val="single"/><w:color w:val="0563C1"/></w:rPr>
+          <w:rPr><w:rFonts w:eastAsia="Microsoft YaHei" w:ascii="Microsoft YaHei" w:hAnsi="Microsoft YaHei"/><w:sz w:val="12"/><w:u w:val="single"/><w:color w:val="0563C1"/></w:rPr>
           <w:t>交易所公告</w:t>
         </w:r>
       </w:hyperlink>
@@ -327,12 +341,42 @@ if "<w:numPr>" not in doc_xml or "<w:abstractNum " not in num_xml or "<w:num " n
 doc_visible_text = "".join(ET.fromstring(doc_xml).itertext())
 if "•" in doc_visible_text or "http://" in doc_visible_text or "https://" in doc_visible_text:
     fail("docx visible body text contains fake bullet or bare URL")
+for forbidden in (
+    "\u7ec8\u7aef\u8d1f\u8377",
+    "\u7ec8\u7aef\u590d\u6838",
+    "\u7ec8\u7aef\u5ba1\u6838",
+    "\u9700\u7ec8\u7aef\u590d\u6838",
+    "\u9700\u786e\u8ba4",
+    "\u5f85\u786e\u8ba4",
+    "\u590d\u6838",
+):
+    if forbidden in doc_visible_text:
+        fail("docx visible text contains forbidden fixed review label")
 if 'Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink"' not in rel_xml:
     fail("docx hyperlink relationship missing")
 if 'Target="https://example.com/announcement"' not in rel_xml or 'TargetMode="External"' not in rel_xml:
     fail("docx hyperlink target missing or not external")
-if '<w:sz w:val="15"/>' not in doc_xml:
-    fail("docx source caption must use very small font <= 8pt")
+w_ns = {"w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main"}
+doc_root = ET.fromstring(doc_xml)
+source_paragraphs = []
+for paragraph in doc_root.findall(".//w:p", w_ns):
+    paragraph_text = "".join(paragraph.itertext()).strip()
+    if paragraph_text.startswith("来源："):
+        source_paragraphs.append(paragraph)
+if len(source_paragraphs) != 1:
+    fail("docx exhibit source caption must keep exactly one primary source")
+source_text = "".join(source_paragraphs[0].itertext())
+if "；" in source_text or ";" in source_text or "PDD " in source_text:
+    fail("docx exhibit source caption must not list multiple sources")
+hyperlinks = source_paragraphs[0].findall(".//w:hyperlink", w_ns)
+if len(hyperlinks) != 1:
+    fail("docx exhibit source caption must contain exactly one hyperlink")
+for size in source_paragraphs[0].findall(".//w:sz", w_ns):
+    val = size.attrib.get(f"{{{w_ns['w']}}}val")
+    if val is None or int(val) > 14:
+        fail("docx exhibit source caption font must be <= 7pt")
+if '<w:sz w:val="12"/>' not in doc_xml:
+    fail("docx source caption must default to 6pt")
 for needle in ("交易所公告", "数据来源", "免责声明"):
     if needle not in doc_xml:
         fail(f"docx Chinese content missing {needle}")
