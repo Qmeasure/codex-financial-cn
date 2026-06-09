@@ -45,9 +45,41 @@ mkdir -p "$HOME/plugins" "$HOME/.agents/plugins" && ln -sfn "$PWD" "$HOME/plugin
 
 Windows 本地开发建议直接把 checkout 放在 `$HOME\plugins\financial-services-cn`，然后运行上面的 Windows PowerShell 安装或更新命令。所有命令都是一键命令；不需要用户手写 marketplace JSON。
 
+## Getting Started（安装到 Claude Code）
+
+Claude Code 通过本仓库自带的 `.claude-plugin/marketplace.json` 安装同一个 `financial-services-cn` 插件。默认安装到 user scope，安装后在所有 Claude Code 项目中可用；默认只加载 `skills/`，不会自动启用付费机构源、本地 MCP、hooks 或后台服务。
+
+在 shell 中执行：
+
+```bash
+claude plugin marketplace add Qmeasure/codex-financial-cn
+claude plugin install financial-services-cn@financial-services-cn
+```
+
+也可以在 Claude Code 交互界面中执行：
+
+```text
+/plugin marketplace add Qmeasure/codex-financial-cn
+/plugin install financial-services-cn@financial-services-cn
+/reload-plugins
+```
+
+安装完成后，Claude Code 中的技能调用前缀是 `/financial-services-cn:<skill-name>`，例如：
+
+```text
+/financial-services-cn:earnings-analysis 分析拼多多最新财报
+```
+
+后续更新时执行：
+
+```bash
+claude plugin marketplace update financial-services-cn
+claude plugin update financial-services-cn@financial-services-cn
+```
+
 ## What's in the repo（仓库里有什么）
 
-- **一个 Codex 插件**：根级 `.codex-plugin/plugin.json` 声明 `financial-services-cn`。
+- **一个双入口插件**：根级 `.codex-plugin/plugin.json` 供 Codex 安装，`.claude-plugin/plugin.json` 和 `.claude-plugin/marketplace.json` 供 Claude Code 安装。
 - **66 个扁平技能**：所有 source skills 直接位于 `skills` 目录，每个技能目录包含 `SKILL.md`。
 - **根级 Formatting 合同**：DOCX、XLSX、PPTX、Markdown、HTML 和独立图表/ZIP 的格式规则只保留在根级 `CN_*_OUTPUT_CONTRACT.md`；skill 内不再放重复 formatting reference。
 - **根级数据查询合同**：所有 skill 的外部数据流程都引用根级 `DATA_QUERY_ORDER_CN.md`，要求先生成“数据源发现记录”，列明 MCP、connector、已授权源、用户文件和降级理由，Gate 通过前不得网页搜索或生成正式交付物。
@@ -60,7 +92,7 @@ Windows 本地开发建议直接把 checkout 放在 `$HOME\plugins\financial-ser
 
 ## Agents（工作流入口）
 
-上游 README 的 `Agents` 段用于介绍独立端到端工作流入口。本仓库的对应事实是：不发布独立代理包，不提供托管代理模板，也不需要用户选择多个工作流包。安装 `financial-services-cn` 后，用户可以在 Codex 中用中文自然语言描述任务，也可以用 `$financial-services-cn:<skill-name>` 显式调用某个 skill，例如 `$financial-services-cn:earnings-analysis 分析拼多多最新财报`。Codex 会根据 `skills` 目录中的技能匹配金融建模、投行、权益研究、私募股权、财富管理、基金运营、KYC、LSEG 或 S&P Global 工作流。
+上游 README 的 `Agents` 段用于介绍独立端到端工作流入口。本仓库的对应事实是：不发布独立代理包，不提供托管代理模板，也不需要用户选择多个工作流包。安装 `financial-services-cn` 后，用户可以在 Codex 或 Claude Code 中用中文自然语言描述任务；需要显式调用时，Codex 使用 `$financial-services-cn:<skill-name>`，Claude Code 使用 `/financial-services-cn:<skill-name>`，例如 `$financial-services-cn:earnings-analysis 分析拼多多最新财报` 或 `/financial-services-cn:earnings-analysis 分析拼多多最新财报`。两边都会根据 `skills` 目录中的技能匹配金融建模、投行、权益研究、私募股权、财富管理、基金运营、KYC、LSEG 或 S&P Global 工作流。
 
 如果机构要固定自己的端到端流程，应改写相关技能的中文版执行契约、数据来源规则和产物格式规则，而不是新增旧架构目录。
 
@@ -68,6 +100,8 @@ Windows 本地开发建议直接把 checkout 放在 `$HOME\plugins\financial-ser
 
 ```text
 .codex-plugin/plugin.json      Codex 插件 manifest
+.claude-plugin/plugin.json     Claude Code 插件 manifest
+.claude-plugin/marketplace.json Claude Code marketplace catalog
 OPTIONAL_MCP_SERVERS.json      可选 MCP server 配置模板，默认不自动加载
 skills                         66 个中文金融技能
 skills/*/references            每个技能的业务 reference，不承载共享数据或格式合同
@@ -96,6 +130,12 @@ THIRD_PARTY_NOTICES.md         第三方许可说明
 - `$financial-services-cn:pitch-deck 用这些材料填充中文 pitch deck`
 - `$financial-services-cn:xlsx-author 生成中文三表模型并标注来源`
 
+在 Claude Code 中，自然语言任务同样可自动匹配技能；需要显式调用时使用 `/financial-services-cn:<skill-name>`，例如：
+
+- `/financial-services-cn:earnings-analysis 分析拼多多最新财报`
+- `/financial-services-cn:pitch-deck 用这些材料填充中文 pitch deck`
+- `/financial-services-cn:xlsx-author 生成中文三表模型并标注来源`
+
 所有输出默认遵守：
 
 - A 股优先，港股和美股兼容。
@@ -110,9 +150,11 @@ THIRD_PARTY_NOTICES.md         第三方许可说明
 
 | 组成 | 作用 | 位置 |
 |---|---|---|
-| 插件 manifest | 声明插件名称、版本、展示信息和技能目录；默认不声明 MCP，避免安装后自动握手失败 | `.codex-plugin/plugin.json` |
+| Codex manifest | 声明 Codex 插件名称、版本、展示信息和技能目录；默认不声明 MCP，避免安装后自动握手失败 | `.codex-plugin/plugin.json` |
+| Claude Code manifest | 声明 Claude Code 插件名称、版本、展示信息和技能目录；默认只加载 `skills/` | `.claude-plugin/plugin.json` |
+| Claude Code marketplace | 声明本仓库自带的 marketplace catalog，安装源指向仓库根目录 | `.claude-plugin/marketplace.json` |
 | 技能 | 写入金融领域方法、执行步骤、产物要求和中文执行契约 | `skills` |
-| Skill 调用 | 支持自然语言自动匹配，也支持 `$financial-services-cn:<skill-name>` 显式调用 | `skills/*/SKILL.md` |
+| Skill 调用 | 支持自然语言自动匹配；Codex 使用 `$financial-services-cn:<skill-name>`，Claude Code 使用 `/financial-services-cn:<skill-name>` | `skills/*/SKILL.md` |
 | MCP servers | 可选数据源模板；用户确认授权、登录和本地服务可用后再按需配置 | `OPTIONAL_MCP_SERVERS.json` |
 | 数据来源规则 | 约束来源优先级、授权判断和缺失依据时的数据缺口处理 | `DATA_SOURCES_CN.md` |
 | 数据查询顺序 | 约束外部数据任务先生成数据源发现记录；Gate 通过前不得网页搜索、官网抓取、SEC/交易所抓取或生成正式交付物 | `DATA_QUERY_ORDER_CN.md` |
@@ -167,7 +209,7 @@ Codex 安装插件时会把仓库复制成插件快照。为保持插件简洁�
 
 ## MCP Integrations（MCP 集成）
 
-`OPTIONAL_MCP_SERVERS.json` 当前保留以下可选 MCP 入口。根目录不提供 `.mcp.json`，所以 Codex 默认安装不会自动启用这些 MCP；实际使用前需要用户确认本地环境、账号、token、订阅和数据授权。无法确认时，技能只能记录为未覆盖数据项。
+`OPTIONAL_MCP_SERVERS.json` 是可选 MCP 模板文件，不要求列全所有潜在机构数据源。下表保留本插件支持或可参考的可选 MCP 入口；机构和个人可以按授权范围把需要的入口保留、恢复或复制到自己的 MCP 配置。根目录不提供 `.mcp.json`，所以 Codex 和 Claude Code 默认安装都不会自动启用这些 MCP；实际使用前需要用户确认本地环境、账号、token、订阅和数据授权。无法确认时，技能只能记录为未覆盖数据项。
 
 | 名称 | 类型 | 入口 |
 |---|---|---|
@@ -193,7 +235,7 @@ Codex 安装插件时会把仓库复制成插件快照。为保持插件简洁�
 codex mcp add akshare-one -- uvx akshare-one-mcp
 ```
 
-机构数据源通常需要订阅或 API key。OpenBB、Tushare 和 AKShare 相关入口只在用户确认本地服务、依赖和授权可用后使用。这样安装插件时不会弹出未登录、未授权或本地服务未启动的 MCP startup warning。
+机构数据源通常需要订阅或 API key。本仓库不强制保留或安装这些机构 MCP；机构可按自身授权把需要的入口加入 `OPTIONAL_MCP_SERVERS.json`、个人 MCP 配置或机构内部配置。OpenBB、Tushare 和 AKShare 相关入口只在用户确认本地服务、依赖和授权可用后使用。这样安装插件时不会弹出未登录、未授权或本地服务未启动的 MCP startup warning。
 
 如需从零安装 OpenBB MCP，请参考 [OpenBB MCP Codex 接入教程](./OPENBB_MCP_CODEX_SETUP.md)。该教程说明如何安装 OpenBB、全球公开数据源、`openbb-mcp-server`，并通过 stdio 接入个人 `~/.codex/config.toml`；这仍然是用户主动配置的可选数据源，不会随插件安装自动启用。A 股和港股数据优先使用 `akshare-one` MCP。
 
@@ -343,16 +385,28 @@ python3 /Users/lesterbot/.codex/skills/.system/plugin-creator/scripts/validate_p
 
 这些检查会覆盖：
 
-- 根级 Codex manifest、可选 MCP 模板和技能目录结构。
+- 根级 Codex manifest、Claude Code manifest、Claude Code marketplace、可选 MCP 模板和技能目录结构。
 - 66 个 skill 的根级 `DATA_QUERY_ORDER_CN.md` 引用。
 - 66 个 skill 的 `SKILL.md` 是否明确数据源发现记录和网页搜索前 Gate。
 - DOCX、XLSX、PPTX、HTML、独立图表/ZIP skill 的根级格式合同引用和最终交付门槛。
 - 根级 DOCX/PPTX/图表合同是否包含柱状图网格线规则；PPTX 样例会检查 chart XML 中没有可见 `majorGridlines` / `minorGridlines`。
 - 旧 workflow/reference 文件是否只指向根级格式合同，而不是承载新增格式正文。
-- 禁止的旧架构目录或文本残留。
+- Codex manifest、Claude Code manifest 和 Claude Code marketplace 是否保持同一插件身份。
 - 中文化门禁、中文金融规则引用和英文模板残留。
 - XLSX、PPTX、DOCX、Markdown 中文产物样例。
 - Codex 插件 manifest schema。
+
+Claude Code 兼容性修改后，额外运行：
+
+```bash
+claude plugin validate .
+```
+
+需要验证真实安装流程但不污染个人 Claude Code 配置时，可以使用临时配置目录：
+
+```bash
+tmp_cfg="$(mktemp -d)" && CLAUDE_CONFIG_DIR="$tmp_cfg" claude plugin marketplace add ./ && CLAUDE_CONFIG_DIR="$tmp_cfg" claude plugin install financial-services-cn@financial-services-cn && CLAUDE_CONFIG_DIR="$tmp_cfg" claude plugin list --json && rm -rf "$tmp_cfg"
+```
 
 如果 `python3 scripts/check_cn_artifact_samples.py` 因本机缺少 `python-pptx` 或 `openpyxl` 失败，可以在临时 venv 中安装这两个包后重跑该脚本；不要为了跑样例检查而把临时依赖写进仓库。
 
@@ -367,7 +421,7 @@ python3 /Users/lesterbot/.codex/skills/.system/plugin-creator/scripts/validate_p
 - 不默认启用付费源、机构源或本地 MCP；需要用户确认授权和可用性。
 - 不使用 LiteLLM 或外部翻译 API 做本仓库中文化。
 - 不引入旧多插件包装层、独立代理包、旧平台动作目录或托管代理模板。
-- 改完必须运行结构检查、中文化门禁、中文产物样例检查和 Codex manifest 校验。
+- 改完必须运行结构检查、中文化门禁、中文产物样例检查、Codex manifest 校验和 Claude Code plugin 校验。
 
 ## License（许可证）
 

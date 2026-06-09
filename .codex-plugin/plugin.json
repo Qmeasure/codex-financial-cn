@@ -1,12 +1,12 @@
 {
   "name": "financial-services-cn",
-  "version": "0.2.12+codex.20260609054229",
+  "version": "0.2.13",
   "description": "面向中国大陆投资者和机构金融工作流的中文 Codex 金融服务插件，A 股优先，兼容港股和美股，默认只加载技能，机构和本地 MCP 保留为可选配置模板。",
   "author": {
     "name": "Financial Services CN"
   },
-  "homepage": "https://github.com/anthropics/financial-services",
-  "repository": "https://github.com/anthropics/financial-services",
+  "homepage": "https://github.com/Qmeasure/codex-financial-cn",
+  "repository": "https://github.com/Qmeasure/codex-financial-cn",
   "license": "MIT",
   "keywords": [
     "finance",
