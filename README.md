@@ -49,11 +49,11 @@ Windows 本地开发建议直接把 checkout 放在 `$HOME\plugins\financial-ser
 
 - **一个 Codex 插件**：根级 `.codex-plugin/plugin.json` 声明 `financial-services-cn`。
 - **66 个扁平技能**：所有 source skills 直接位于 `skills` 目录，每个技能目录包含 `SKILL.md`。
-- **本地 reference 格式合同**：每个 skill 都有 `references/cn-markdown-formatting.md` 和 `references/data-query-order.md`；承诺 DOCX、XLSX、PPTX、HTML 或独立图表/ZIP 文件的 skill 还会带对应类型的本地格式合同。
-- **数据源发现 Gate**：所有 skill 的外部数据流程都要求先生成“数据源发现记录”，列明 MCP、connector、已授权源、用户文件和降级理由，Gate 通过前不得网页搜索或生成正式交付物。
+- **根级 Formatting 合同**：DOCX、XLSX、PPTX、Markdown、HTML 和独立图表/ZIP 的格式规则只保留在根级 `CN_*_OUTPUT_CONTRACT.md`；skill 内不再放重复 formatting reference。
+- **根级数据查询合同**：所有 skill 的外部数据流程都引用根级 `DATA_QUERY_ORDER_CN.md`，要求先生成“数据源发现记录”，列明 MCP、connector、已授权源、用户文件和降级理由，Gate 通过前不得网页搜索或生成正式交付物。
 - **图表样式 Gate**：DOCX、PPTX、独立图表和旧图表 workflow 都写入柱状图网格线规则；柱状图、堆叠柱状图、分组柱状图默认关闭纵坐标横向网格线。
 - **可选 MCP 模板**：`OPTIONAL_MCP_SERVERS.json` 集中记录机构数据源和中国市场相关入口；根目录不放 `.mcp.json`，避免 Codex 自动加载。
-- **中文金融规则文档**：`DATA_SOURCES_CN.md` 规定数据来源优先级，`CN_OUTPUT_FORMATTING.md` 规定中文金融产物格式，`CN_DOCX_OUTPUT_CONTRACT.md`、`CN_XLSX_OUTPUT_CONTRACT.md`、`CN_PPTX_OUTPUT_CONTRACT.md` 和 `CN_MARKDOWN_OUTPUT_CONTRACT.md` 规定文件交付契约。
+- **中文金融规则文档**：`DATA_SOURCES_CN.md` 规定数据来源优先级，`CN_OUTPUT_FORMATTING.md` 规定中文金融产物格式，`CN_DOCX_OUTPUT_CONTRACT.md`、`CN_XLSX_OUTPUT_CONTRACT.md`、`CN_PPTX_OUTPUT_CONTRACT.md`、`CN_MARKDOWN_OUTPUT_CONTRACT.md`、`CN_HTML_OUTPUT_CONTRACT.md` 和 `CN_CHART_OUTPUT_CONTRACT.md` 规定文件交付契约。
 - **校验脚本**：`scripts` 目录提供结构检查、中文化门禁、中文产物样例检查和版本辅助脚本。
 
 本仓库不内置旧式多插件包装层、独立代理包、旧平台动作目录或托管代理模板。安装、使用和维护都围绕 `financial-services-cn` 进行。
@@ -70,14 +70,17 @@ Windows 本地开发建议直接把 checkout 放在 `$HOME\plugins\financial-ser
 .codex-plugin/plugin.json      Codex 插件 manifest
 OPTIONAL_MCP_SERVERS.json      可选 MCP server 配置模板，默认不自动加载
 skills                         66 个中文金融技能
-skills/*/references            每个技能的本地格式合同和数据查询顺序合同
+skills/*/references            每个技能的业务 reference，不承载共享数据或格式合同
 scripts                        结构校验、中文化门禁和产物样例校验
 DATA_SOURCES_CN.md             中国市场数据来源规则
+DATA_QUERY_ORDER_CN.md         根级数据查询顺序合同
 CN_OUTPUT_FORMATTING.md        中文金融产物格式规则
 CN_DOCX_OUTPUT_CONTRACT.md     中文 DOCX/Word 交付契约
 CN_XLSX_OUTPUT_CONTRACT.md     中文 XLSX/Excel 交付契约
 CN_PPTX_OUTPUT_CONTRACT.md     中文 PPTX/PowerPoint 交付契约
 CN_MARKDOWN_OUTPUT_CONTRACT.md 中文 Markdown/聊天正文交付契约
+CN_HTML_OUTPUT_CONTRACT.md     中文 HTML 交付契约
+CN_CHART_OUTPUT_CONTRACT.md    中文图表/ZIP 交付契约
 OPTIONAL_MCP_TEMPLATES.md      可选 MCP 接入说明
 OPENBB_MCP_CODEX_SETUP.md     OpenBB 金融数据 MCP 本地安装与 Codex 接入教程
 ACCEPTANCE_SAMPLES_CN.md       中文产物验收样例
@@ -97,10 +100,10 @@ THIRD_PARTY_NOTICES.md         第三方许可说明
 
 - A 股优先，港股和美股兼容。
 - 官方披露、用户文件和已授权数据源优先。
-- 需要外部数据时，先读取本 skill 的 `references/data-query-order.md`，生成“数据源发现记录”，列出可用/不可用 MCP、connector、已授权源、用户文件、覆盖缺口和降级理由；Gate 通过前不得网页搜索、官网抓取、SEC/交易所抓取或生成正式交付物。
+- 需要外部数据时，先读取根级 `DATA_QUERY_ORDER_CN.md`，生成“数据源发现记录”，列出可用/不可用 MCP、connector、已授权源、用户文件、覆盖缺口和降级理由；Gate 通过前不得网页搜索、官网抓取、SEC/交易所抓取或生成正式交付物。
 - 监管、会计、KYC、基金文件、月结和客户适当性判断缺少依据时不得作出正式判断。
 - DOCX、PPTX、XLSX、Markdown、表格、图表、脚注和最终摘要必须使用中文金融语境。
-- 正式文件输出前，先读取本 skill 的 `references/cn-*-formatting.md`；聊天摘要不能冒充已经生成的文件交付物。
+- 正式文件输出前，先读取根级 `CN_OUTPUT_FORMATTING.md` 和对应 `CN_*_OUTPUT_CONTRACT.md`；聊天摘要不能冒充已经生成的文件交付物。
 - DCF、LBO、WACC、EV/EBITDA、IRR、MOIC、NAV、KYC、AML、MCP、CLI 等专业缩写保留。
 
 ## How It Fits Together（它们如何配合）
@@ -112,38 +115,41 @@ THIRD_PARTY_NOTICES.md         第三方许可说明
 | Skill 调用 | 支持自然语言自动匹配，也支持 `$financial-services-cn:<skill-name>` 显式调用 | `skills/*/SKILL.md` |
 | MCP servers | 可选数据源模板；用户确认授权、登录和本地服务可用后再按需配置 | `OPTIONAL_MCP_SERVERS.json` |
 | 数据来源规则 | 约束来源优先级、授权判断和缺失依据时的数据缺口处理 | `DATA_SOURCES_CN.md` |
-| 中文产物规则 | 约束中文字体、日期、币种、单位、表格、图表、免责声明和摘要 | `CN_OUTPUT_FORMATTING.md` |
+| 数据查询顺序 | 约束外部数据任务先生成数据源发现记录；Gate 通过前不得网页搜索、官网抓取、SEC/交易所抓取或生成正式交付物 | `DATA_QUERY_ORDER_CN.md` |
+| 中文产物规则 | 约束 `Source Han Serif CN`、日期、币种、单位、表格、图表、免责声明和摘要 | `CN_OUTPUT_FORMATTING.md` |
 | DOCX 交付契约 | 约束中文 Word 的 preset、OOXML 字体、表格几何、真实编号、超链接和 render QA 降级说明 | `CN_DOCX_OUTPUT_CONTRACT.md` |
 | XLSX 交付契约 | 约束中文工作簿、公式优先、颜色约定、来源/假设/检查区和结构校验 | `CN_XLSX_OUTPUT_CONTRACT.md` |
 | PPTX 交付契约 | 约束中文幻灯片标题、字体、图表、来源脚注、无溢出和视觉 QA | `CN_PPTX_OUTPUT_CONTRACT.md` |
 | Markdown 交付契约 | 约束中文标题层级、表格、来源、链接、免责声明和聊天输出边界 | `CN_MARKDOWN_OUTPUT_CONTRACT.md` |
-| 本地 reference 格式合同 | 让每个 skill 在安装快照内直接读取自己的 Markdown、DOCX、XLSX、PPTX、HTML 或图表格式规则 | `skills/*/references/cn-*-formatting.md` |
-| 本地数据查询顺序 | 约束外部数据任务先生成数据源发现记录；Gate 通过前不得网页搜索、官网抓取、SEC/交易所抓取或生成正式交付物 | `skills/*/references/data-query-order.md` |
+| HTML 交付契约 | 约束中文 HTML 字体 CDN、响应式表格、链接、免责声明和浏览器打开校验 | `CN_HTML_OUTPUT_CONTRACT.md` |
+| 图表/ZIP 交付契约 | 约束独立图表、图片和 ZIP 的中文标题、坐标轴、图例、来源和分辨率 | `CN_CHART_OUTPUT_CONTRACT.md` |
+| 根级数据查询顺序 | 约束外部数据任务先生成数据源发现记录；Gate 通过前不得网页搜索、官网抓取、SEC/交易所抓取或生成正式交付物 | `DATA_QUERY_ORDER_CN.md` |
 | 校验脚本 | 防止旧架构残留、英文模板残留、manifest 错误和中文产物样例退化 | `scripts` |
 
-## Reference Formatting 与数据查询链路
+## Formatting 与数据查询链路
 
-Codex 安装插件时会把仓库复制成插件快照。为避免 skill 执行时只看到 `SKILL.md`、却没有继续读取根级格式文件，本仓库把关键格式要求下沉到每个 skill 自己的 `references` 目录：
+Codex 安装插件时会把仓库复制成插件快照。为保持插件简洁，Formatting 只保留根级一份；每个 skill 在 `SKILL.md` 中直接引用根级格式合同：
 
-- 所有 66 个 skill 都包含 `references/cn-markdown-formatting.md`，用于聊天摘要、正式 Markdown、表格、来源、免责声明和最终交付说明。
-- 所有 66 个 skill 都包含 `references/data-query-order.md`。只要任务需要外部数据、行情、财报、行业、公司、宏观、监管、KYC、基金、月结或第三方数据库信息，就必须先填写“数据源发现记录”，列出用户文件、当前会话可用 MCP/connector、本地数据库、已授权数据源、适用数据源、调用或未调用原因、覆盖缺口和降级路径。
+- 所有 66 个 skill 生成正式输出前都必须读取 `../../CN_OUTPUT_FORMATTING.md` 和 `../../CN_MARKDOWN_OUTPUT_CONTRACT.md`。
+- 所有 66 个 skill 都引用根级 `../../DATA_QUERY_ORDER_CN.md`。只要任务需要外部数据、行情、财报、行业、公司、宏观、监管、KYC、基金、月结或第三方数据库信息，就必须先填写“数据源发现记录”，列出用户文件、当前会话可用 MCP/connector、本地数据库、已授权数据源、适用数据源、调用或未调用原因、覆盖缺口和降级路径。
 - Gate 未通过时，不得网页搜索，不得抓取公司官网、SEC 或交易所页面，也不得生成正式报告或文件交付物；一致预期、估值倍数、市场份额、行业数据和宏观数据等授权源缺口只在数据源发现记录中列为未覆盖数据项。
-- 承诺文件交付的 skill 会额外包含本地类型合同：DOCX 15 个、XLSX 18 个、PPTX 11 个、HTML 1 个、独立图表/ZIP 1 个。
+- 承诺文件交付的 skill 会额外在 `SKILL.md` 中引用根级类型合同：DOCX、XLSX、PPTX、HTML 或独立图表/ZIP。
 - 图表相关合同和旧图表 workflow 都包含同一条硬规则：柱状图、堆叠柱状图、分组柱状图默认关闭纵坐标横向网格线；除非用户明确要求或图表类型必须依赖网格线，否则不得显示 major/minor gridlines。
-- 旧 workflow/reference 文件只保留业务流程和参考口径；它们入口处只指向新的本地格式合同，不把新增格式正文追加进旧文件。
-- `pitch-deck` 保留既有 `reference/` 目录，但新增格式合同仍放在 `references/`，旧 reference 文件通过短提示指向新文件。
+- 旧 workflow/reference 文件只保留业务流程和参考口径；它们入口处只指向根级数据与格式合同，不把新增共享正文追加进旧文件。
+- `pitch-deck` 保留既有 `reference/` 目录；业务 reference 通过短提示指向根级格式合同。
 
-当前本地格式文件包括：
+当前根级格式文件包括：
 
 | 文件 | 用途 |
 |---|---|
-| `references/cn-markdown-formatting.md` | 中文 Markdown、聊天摘要、表格、来源、免责声明和最终交付说明 |
-| `references/data-query-order.md` | 外部数据查询 Gate：先生成数据源发现记录，Gate 通过前不得网页搜索或生成正式交付物 |
-| `references/cn-docx-formatting.md` | 中文 Word 页面、字体、OOXML、表格、编号、超链接和 render QA |
-| `references/cn-xlsx-formatting.md` | 中文 Excel sheet、公式、颜色、来源、假设、检查区和结构校验 |
-| `references/cn-pptx-formatting.md` | 中文 PowerPoint 标题、字体、图表、来源、无溢出和视觉 QA |
-| `references/cn-html-formatting.md` | 中文 HTML 字体、响应式表格、链接、免责声明和浏览器打开校验 |
-| `references/cn-chart-formatting.md` | 独立图表、图片和 ZIP 的中文标题、坐标轴、图例、来源和分辨率 |
+| `DATA_QUERY_ORDER_CN.md` | 外部数据查询 Gate：先生成数据源发现记录，Gate 通过前不得网页搜索或生成正式交付物 |
+| `CN_OUTPUT_FORMATTING.md` | 全格式中文金融产物总合同 |
+| `CN_DOCX_OUTPUT_CONTRACT.md` | 中文 Word 页面、`Source Han Serif CN`、OOXML、表格、编号、超链接和 render QA |
+| `CN_XLSX_OUTPUT_CONTRACT.md` | 中文 Excel sheet、公式、颜色、来源、假设、检查区和结构校验 |
+| `CN_PPTX_OUTPUT_CONTRACT.md` | 中文 PowerPoint 标题、字体、图表、来源、无溢出和视觉 QA |
+| `CN_MARKDOWN_OUTPUT_CONTRACT.md` | 中文 Markdown、聊天摘要、表格、来源、免责声明和最终交付说明 |
+| `CN_HTML_OUTPUT_CONTRACT.md` | 中文 HTML 字体 CDN、响应式表格、链接、免责声明和浏览器打开校验 |
+| `CN_CHART_OUTPUT_CONTRACT.md` | 独立图表、图片和 ZIP 的中文标题、坐标轴、图例、来源和分辨率 |
 
 ## Vertical Plugins（技能领域）
 
@@ -338,11 +344,11 @@ python3 /Users/lesterbot/.codex/skills/.system/plugin-creator/scripts/validate_p
 这些检查会覆盖：
 
 - 根级 Codex manifest、可选 MCP 模板和技能目录结构。
-- 66 个 skill 的本地 `references/cn-markdown-formatting.md` 和 `references/data-query-order.md`。
+- 66 个 skill 的根级 `DATA_QUERY_ORDER_CN.md` 引用。
 - 66 个 skill 的 `SKILL.md` 是否明确数据源发现记录和网页搜索前 Gate。
-- DOCX、XLSX、PPTX、HTML、独立图表/ZIP skill 的本地格式合同和最终交付门槛。
-- 根级和本地 DOCX/PPTX/图表合同是否包含柱状图网格线规则；PPTX 样例会检查 chart XML 中没有可见 `majorGridlines` / `minorGridlines`。
-- 旧 workflow/reference 文件是否只指向本地格式合同，而不是承载新增格式正文。
+- DOCX、XLSX、PPTX、HTML、独立图表/ZIP skill 的根级格式合同引用和最终交付门槛。
+- 根级 DOCX/PPTX/图表合同是否包含柱状图网格线规则；PPTX 样例会检查 chart XML 中没有可见 `majorGridlines` / `minorGridlines`。
+- 旧 workflow/reference 文件是否只指向根级格式合同，而不是承载新增格式正文。
 - 禁止的旧架构目录或文本残留。
 - 中文化门禁、中文金融规则引用和英文模板残留。
 - XLSX、PPTX、DOCX、Markdown 中文产物样例。
@@ -353,8 +359,8 @@ python3 /Users/lesterbot/.codex/skills/.system/plugin-creator/scripts/validate_p
 ## Contributing（贡献规则）
 
 - 新增或改写技能时，必须包含“中文版执行契约”，并引用插件根目录 `../../DATA_SOURCES_CN.md`、`../../CN_OUTPUT_FORMATTING.md` 和对应产物合同；生成 DOCX/XLSX/PPTX/Markdown 文件时分别引用 `../../CN_DOCX_OUTPUT_CONTRACT.md`、`../../CN_XLSX_OUTPUT_CONTRACT.md`、`../../CN_PPTX_OUTPUT_CONTRACT.md`、`../../CN_MARKDOWN_OUTPUT_CONTRACT.md`。
-- 每个 skill 必须有 `references/cn-markdown-formatting.md` 和 `references/data-query-order.md`；承诺 DOCX、XLSX、PPTX、HTML 或独立图表/ZIP 文件时，必须新增对应 `references/cn-*-formatting.md` 并在 `SKILL.md` 的“生成正式输出前必须读取”中引用。
-- 不把新增中文 Formatting 正文追加进旧 workflow/reference 文件；旧文件只能用短提示指向 `references/cn-*-formatting.md` 和 `references/data-query-order.md`。
+- 每个 skill 必须引用根级 `../../DATA_QUERY_ORDER_CN.md`；承诺 DOCX、XLSX、PPTX、HTML 或独立图表/ZIP 文件时，必须在 `SKILL.md` 的“生成正式输出前必须读取”中引用对应根级 `CN_*_OUTPUT_CONTRACT.md`。
+- 不把新增中文 Formatting 正文追加进旧 workflow/reference 文件；旧文件只能用短提示指向根级格式合同和 `DATA_QUERY_ORDER_CN.md`。
 - 任何需要查询外部数据的流程，必须先生成“数据源发现记录”，列出可用/不可用 MCP、connector、已授权源、用户文件、已调用或未调用原因、覆盖缺口和降级路径；Gate 通过前不得网页搜索、官网抓取、SEC/交易所抓取或生成正式交付物。如果某个 skill 有更严格的数据源限制，以更严格规则为准。
 - 任何涉及图表生成、图表嵌入或图表 QA 的流程，都必须遵守柱状图样式 Gate：柱状图、堆叠柱状图、分组柱状图默认关闭纵坐标横向网格线；DOCX、PPTX、PNG/JPG 和独立图表交付都要检查。
 - 不修改技能目录名、schema key、环境变量名、MCP server 名称或既有 URL，除非同时说明迁移方案。

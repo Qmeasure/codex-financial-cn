@@ -37,15 +37,30 @@ REQUIRED_ROOT_DOCS = [
     "README.md",
     "AGENTS.md",
     "DATA_SOURCES_CN.md",
+    "DATA_QUERY_ORDER_CN.md",
     "CN_OUTPUT_FORMATTING.md",
     "CN_DOCX_OUTPUT_CONTRACT.md",
     "CN_XLSX_OUTPUT_CONTRACT.md",
     "CN_PPTX_OUTPUT_CONTRACT.md",
     "CN_MARKDOWN_OUTPUT_CONTRACT.md",
+    "CN_HTML_OUTPUT_CONTRACT.md",
+    "CN_CHART_OUTPUT_CONTRACT.md",
     "OPTIONAL_MCP_TEMPLATES.md",
     "ACCEPTANCE_SAMPLES_CN.md",
     "THIRD_PARTY_NOTICES.md",
 ]
+
+ROOT_CONTRACT_DOCS = {
+    "DATA_SOURCES_CN.md",
+    "DATA_QUERY_ORDER_CN.md",
+    "CN_OUTPUT_FORMATTING.md",
+    "CN_DOCX_OUTPUT_CONTRACT.md",
+    "CN_XLSX_OUTPUT_CONTRACT.md",
+    "CN_PPTX_OUTPUT_CONTRACT.md",
+    "CN_MARKDOWN_OUTPUT_CONTRACT.md",
+    "CN_HTML_OUTPUT_CONTRACT.md",
+    "CN_CHART_OUTPUT_CONTRACT.md",
+}
 
 FORBIDDEN_DIR_NAMES = {
     ".agents",
@@ -126,7 +141,10 @@ def has_cjk(value: str) -> bool:
 
 
 def is_semver(value: object) -> bool:
-    return isinstance(value, str) and re.fullmatch(r"\d+\.\d+\.\d+", value) is not None
+    return isinstance(value, str) and re.fullmatch(
+        r"\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?",
+        value,
+    ) is not None
 
 
 def validate_root_docs() -> None:
@@ -151,7 +169,7 @@ def validate_manifest() -> None:
     if data.get("name") != PLUGIN_NAME:
         err(f"plugin.json name 必须是 {PLUGIN_NAME}")
     if not is_semver(data.get("version")):
-        err("plugin.json version 必须是 x.y.z")
+        err("plugin.json version 必须是 semver，可包含 pre-release 或 build metadata")
     if not has_cjk(str(data.get("description", ""))):
         err("plugin.json description 必须是中文")
     if data.get("skills") != "./skills/":
@@ -238,15 +256,40 @@ def validate_skills() -> None:
             err(f"skill 缺少 YAML frontmatter：{rel(skill)}")
         if not has_cjk(text):
             err(f"skill 缺少中文内容：{rel(skill)}")
-        refs = skill.parent / "references"
-        if not refs.is_dir():
-            err(f"skill 缺少本地 references 目录：{rel(skill.parent)}")
-        for filename in ("cn-markdown-formatting.md", "data-query-order.md"):
-            path = refs / filename
-            if not path.is_file():
-                err(f"skill 缺少本地 reference 文件：{rel(path)}")
-            elif not has_cjk(path.read_text(encoding="utf-8", errors="ignore")):
-                err(f"本地 reference 文件缺少中文内容：{rel(path)}")
+        for root_contract in (
+            "../../DATA_SOURCES_CN.md",
+            "../../DATA_QUERY_ORDER_CN.md",
+            "../../CN_OUTPUT_FORMATTING.md",
+            "../../CN_MARKDOWN_OUTPUT_CONTRACT.md",
+        ):
+            if root_contract not in text:
+                err(f"skill 未引用根级共享合同 {root_contract}：{rel(skill)}")
+
+
+def validate_shared_contract_layout() -> None:
+    for skill_dir in sorted(SKILLS.glob("*")):
+        if not skill_dir.is_dir():
+            continue
+        for folder_name in ("references", "reference"):
+            refs = skill_dir / folder_name
+            if not refs.is_dir():
+                continue
+            data_reference = refs / "data-query-order.md"
+            if data_reference.exists():
+                err(f"不得保留本地 data query reference 文件：{rel(data_reference)}")
+            for formatting_reference in refs.glob("cn-*formatting.md"):
+                err(f"不得保留本地 formatting reference 文件：{rel(formatting_reference)}")
+
+
+def validate_root_contract_references() -> None:
+    contract_pattern = "|".join(re.escape(item) for item in sorted(ROOT_CONTRACT_DOCS))
+    pattern = re.compile(r"(?<!\.)(?:\.\./)+(?:%s)" % contract_pattern)
+    for path in sorted(SKILLS.rglob("*.md")):
+        text = path.read_text(encoding="utf-8", errors="ignore")
+        for match in pattern.finditer(text):
+            target = (path.parent / match.group(0)).resolve()
+            if not target.is_file():
+                err(f"根级合同引用不可解析：{rel(path)} -> {match.group(0)}")
 
 
 def iter_text_files() -> list[Path]:
@@ -275,6 +318,8 @@ def main() -> int:
     validate_manifest()
     validate_mcp_config()
     validate_skills()
+    validate_shared_contract_layout()
+    validate_root_contract_references()
     validate_forbidden_text()
 
     if errors:

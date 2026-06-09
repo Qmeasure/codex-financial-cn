@@ -7,7 +7,7 @@ description: 跟踪并分析组合公司相对计划的表现。读取月度/季
 
 - 默认使用中国大陆金融语境：A股优先，港股和美股兼容；如用户指定市场、币种、会计准则或模板，以用户输入为准。
 - 数据来源必须遵守插件根目录 `../../DATA_SOURCES_CN.md`：官方披露、用户文件、已授权 MCP/数据库优先；免费源只作辅助；监管、会计、KYC、基金文件和月结判断缺少依据时不得下结论，只在数据源发现记录中列为未覆盖数据项。
-- 所有产物必须遵守插件根目录 `../../CN_OUTPUT_FORMATTING.md`：中文字体栈、中文日期、币种/单位、图表标题、表格表头、来源脚注、风险提示和免责声明都要按中文机构材料处理。
+- 所有产物必须遵守插件根目录 `../../CN_OUTPUT_FORMATTING.md`：`Source Han Serif CN`、中文日期、币种/单位、图表标题、表格表头、来源、风险提示和免责声明都要按中文机构材料处理。
 - 用户模板和品牌规范优先，但不得突破中文可读性、来源脚注、币种/单位/日期/口径说明这些底线。
 - 保留 DCF、LBO、WACC、EV/EBITDA、IRR、MOIC、NAV、KYC、AML、MCP、CLI 等专业缩写和代码标识。
 
@@ -18,15 +18,14 @@ description: 跟踪并分析组合公司相对计划的表现。读取月度/季
 - 插件根目录 `../../DATA_SOURCES_CN.md`
 - 插件根目录 `../../CN_OUTPUT_FORMATTING.md`
 - 插件根目录 `../../CN_MARKDOWN_OUTPUT_CONTRACT.md`
-- 本 skill 本地 `references/cn-markdown-formatting.md`（聊天摘要、正式 Markdown 或最终交付说明）
-- 本 skill 本地 `references/data-query-order.md`（当任务需要外部数据查询、行情更新、财报抓取、行业/公司/宏观/监管材料检索时）
+- 插件根目录 `../../DATA_QUERY_ORDER_CN.md`（当任务需要外部数据查询、行情更新、财报抓取、行业/公司/宏观/监管材料检索时）
 
 本 skill 的输出必须按既有交付物承诺执行：
 - 聊天摘要或即时分析不能替代本 skill 已承诺的文件主交付物。
 - 纯文本/聊天输出必须包含来源、口径限制、数据缺口和人工审阅边界，不强制落盘为文件。
 - 若用户要求或本 skill 明确承诺生成 Markdown 文件，最终回复前必须确认 `.md` 文件已生成、Markdown 文件路径存在、结构可读，并确保最终回复包含 Markdown 文件路径。
-- 需要查询或刷新外部数据时，必须先读取 `references/data-query-order.md`，先生成“数据源发现记录”，列出可用/不可用 MCP、connector、授权源和用户文件；Gate 通过前不得网页搜索、官网抓取、SEC/交易所抓取或生成正式交付物。若本 skill 有更严格数据源限制，以更严格规则为准。
-- 正式 Markdown、聊天摘要和最终交付说明必须先读取 `references/cn-markdown-formatting.md`，并包含来源、口径限制、数据缺口和人工审阅边界。
+- 需要查询或刷新外部数据时，必须先读取 `../../DATA_QUERY_ORDER_CN.md`，先生成“数据源发现记录”，列出可用/不可用 MCP、connector、授权源和用户文件；Gate 通过前不得网页搜索、官网抓取、SEC/交易所抓取或生成正式交付物。若本 skill 有更严格数据源限制，以更严格规则为准。
+- 正式 Markdown、聊天摘要和最终交付说明必须遵守插件根目录 `../../CN_MARKDOWN_OUTPUT_CONTRACT.md`，并包含来源、口径限制、数据缺口和人工审阅边界。
 
 
 # 组合公司监控

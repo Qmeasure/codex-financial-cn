@@ -16,6 +16,13 @@
 
 LSEG 相关技能面向债券、利率曲线、外汇、期权、固定收益组合和宏观利率分析场景。使用前必须确认用户拥有有效 LSEG 数据授权，并在产物中标注数据来源、日期、币种、单位和口径。
 
+## Adobe Source Han Serif
+
+本仓库的中文产物格式合同指定使用 `Source Han Serif CN`。字体文件来自 Adobe Source Han Serif 官方仓库，按 SIL Open Font License 1.1 发布；本仓库不内置字体文件，只在字体预检或 HTML CDN 场景引用官方发布文件。
+
+- 官方仓库：`https://github.com/adobe-fonts/source-han-serif`
+- 许可文件：`https://github.com/adobe-fonts/source-han-serif/blob/master/LICENSE.txt`
+
 ## 国内市场数据源
 
 `openbb-cn-market`、`tushare-pro` 和 `akshare-one` 只作为可选 MCP 配置入口。使用前必须确认安装来源、许可证、token、数据授权、频率限制和字段口径。免费或第三方公开源只作辅助，不得替代官方披露、用户文件或已授权数据库。

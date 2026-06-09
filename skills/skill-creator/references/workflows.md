@@ -1,4 +1,4 @@
-> Reference 链路：执行本文件前，先读取本 skill 的 `references/data-query-order.md`、`references/cn-markdown-formatting.md`；本文件只描述业务 workflow 或参考口径，不承载新增中文格式正文。
+> Reference 链路：执行本文件前，先读取插件根目录 `../../../DATA_QUERY_ORDER_CN.md`，并读取插件根目录 `../../../CN_OUTPUT_FORMATTING.md`、`../../../CN_MARKDOWN_OUTPUT_CONTRACT.md`；本文件只描述业务 workflow 或参考口径，不承载新增中文格式正文。
 
 # 工作流模式
 

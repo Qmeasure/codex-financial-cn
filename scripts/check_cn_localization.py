@@ -13,11 +13,14 @@ SKILLS = ROOT / "skills"
 
 REQUIRED_DOCS = [
     "DATA_SOURCES_CN.md",
+    "DATA_QUERY_ORDER_CN.md",
     "CN_OUTPUT_FORMATTING.md",
     "CN_DOCX_OUTPUT_CONTRACT.md",
     "CN_XLSX_OUTPUT_CONTRACT.md",
     "CN_PPTX_OUTPUT_CONTRACT.md",
     "CN_MARKDOWN_OUTPUT_CONTRACT.md",
+    "CN_HTML_OUTPUT_CONTRACT.md",
+    "CN_CHART_OUTPUT_CONTRACT.md",
     "OPTIONAL_MCP_TEMPLATES.md",
     "ACCEPTANCE_SAMPLES_CN.md",
     "THIRD_PARTY_NOTICES.md",
@@ -26,10 +29,9 @@ REQUIRED_DOCS = [
 REQUIRED_SKILL_NEEDLES = [
     "中文版执行契约",
     "../../DATA_SOURCES_CN.md",
+    "../../DATA_QUERY_ORDER_CN.md",
     "../../CN_OUTPUT_FORMATTING.md",
     "../../CN_MARKDOWN_OUTPUT_CONTRACT.md",
-    "references/cn-markdown-formatting.md",
-    "references/data-query-order.md",
     "产物合同读取与输出门槛",
     "生成正式输出前必须读取",
     "先生成“数据源发现记录”",
@@ -90,145 +92,94 @@ PPTX_SKILLS = {
     "value-creation-plan",
 }
 
-HTML_SKILLS = {
-    "earnings-preview-beta",
-}
-
-CHART_SKILLS = {
-    "initiating-coverage",
-}
+HTML_SKILLS = {"earnings-preview-beta"}
+CHART_SKILLS = {"initiating-coverage"}
 
 ARTIFACT_CONTRACTS = {
-    "DOCX": ("../../CN_DOCX_OUTPUT_CONTRACT.md", DOCX_SKILLS),
-    "XLSX": ("../../CN_XLSX_OUTPUT_CONTRACT.md", XLSX_SKILLS),
-    "PPTX": ("../../CN_PPTX_OUTPUT_CONTRACT.md", PPTX_SKILLS),
+    "DOCX": ("../../CN_DOCX_OUTPUT_CONTRACT.md", DOCX_SKILLS, "DOCX 文件"),
+    "XLSX": ("../../CN_XLSX_OUTPUT_CONTRACT.md", XLSX_SKILLS, "XLSX 文件"),
+    "PPTX": ("../../CN_PPTX_OUTPUT_CONTRACT.md", PPTX_SKILLS, "PPTX 文件"),
+    "HTML": ("../../CN_HTML_OUTPUT_CONTRACT.md", HTML_SKILLS, "HTML 文件"),
+    "图表/ZIP": ("../../CN_CHART_OUTPUT_CONTRACT.md", CHART_SKILLS, "图表/ZIP 文件"),
 }
 
-LOCAL_REFERENCE_CONTRACTS = {
-    "DOCX": ("references/cn-docx-formatting.md", DOCX_SKILLS, "DOCX 文件"),
-    "XLSX": ("references/cn-xlsx-formatting.md", XLSX_SKILLS, "XLSX 文件"),
-    "PPTX": ("references/cn-pptx-formatting.md", PPTX_SKILLS, "PPTX 文件"),
-    "HTML": ("references/cn-html-formatting.md", HTML_SKILLS, "HTML 文件"),
-    "图表/ZIP": ("references/cn-chart-formatting.md", CHART_SKILLS, "图表/ZIP 文件"),
-}
+DATA_REFERENCE_NEEDLES = (
+    "数据查询顺序合同",
+    "网页搜索前 Gate",
+    "数据源发现记录",
+    "已说明是否实际调用；未调用时必须写明原因",
+    "Gate 未通过时，不得网页搜索",
+    "未覆盖数据项",
+)
 
-BASELINE_REFERENCE_FILES = {
-    "cn-markdown-formatting.md": (
-        "中文 Markdown 与聊天输出格式合同",
-        "不得把聊天摘要冒充已经生成的文件交付物",
-        "Exhibit 下方来源标注",
-        "最大不得超过 7pt",
-        "只保留最重要的 1 个来源",
-        "固定校验标签",
-        "正式表格缺失值使用 `—`",
-    ),
-    "data-query-order.md": (
-        "数据查询顺序合同",
-        "网页搜索前 Gate",
-        "数据源发现记录",
-        "已说明是否实际调用；未调用时必须写明原因",
-        "Gate 未通过时，不得网页搜索",
-        "未覆盖数据项",
-    ),
-}
-
-TYPE_REFERENCE_FILES = {
-    "cn-docx-formatting.md": (
-        "中文 DOCX 格式合同",
-        "w:rFonts@w:eastAsia",
-        "柱状图、堆叠柱状图、分组柱状图默认关闭纵坐标横向网格线",
-        "major/minor gridlines",
-        "Exhibit 下方来源标注必须使用很小字体",
-        "最大不得超过 7pt",
-        "只保留最重要的 1 个来源",
-        "hyperlink run 必须显式设置同一小字号",
-        "固定校验标签",
-        "正式表格缺失值使用 `—`",
-        "DOCX 章节默认连续排版",
-        "只允许 Word 自然分页",
-        "最终回复必须包含 DOCX 文件路径",
-    ),
-    "cn-xlsx-formatting.md": (
-        "中文 XLSX 格式合同",
-        "公式",
-        "Exhibit 下方来源标注必须使用很小字体",
-        "最大不得超过 7pt",
-        "只保留最重要的 1 个来源",
-        "固定校验标签",
-        "正式表格缺失值使用 `—`",
-        "最终回复必须包含 XLSX 文件路径",
-    ),
-    "cn-pptx-formatting.md": (
-        "中文 PPTX 格式合同",
-        "文字溢出",
-        "柱状图、堆叠柱状图、分组柱状图默认关闭纵坐标横向网格线",
-        "major/minor gridlines",
-        "Exhibit 下方来源标注必须使用很小字体",
-        "最大不得超过 7pt",
-        "只保留最重要的 1 个来源",
-        "hyperlink run 必须显式设置同一小字号",
-        "固定校验标签",
-        "正式表格缺失值使用 `—`",
-        "最终回复必须包含 PPTX 文件路径",
-    ),
-    "cn-html-formatting.md": (
-        "中文 HTML 格式合同",
-        "浏览器打开",
-        "Exhibit 下方来源标注必须使用很小字号",
-        "最大不得超过 7pt",
-        "只保留最重要的 1 个来源",
-        "固定校验标签",
-        "正式表格缺失值使用 `—`",
-        "最终回复必须包含 HTML 文件路径",
-    ),
-    "cn-chart-formatting.md": (
-        "中文图表与 ZIP 交付格式合同",
-        "中文字体",
-        "柱状图、堆叠柱状图、分组柱状图默认关闭纵坐标横向网格线",
-        "major/minor gridlines",
-        "Exhibit 下方来源标注必须使用很小字体",
-        "最大不得超过 7pt",
-        "只保留最重要的 1 个来源",
-        "固定校验标签",
-        "缺失值使用 `—`",
-        "最终回复必须包含图表/ZIP 文件路径",
-    ),
-}
-
-GENERATED_REFERENCE_NAMES = set(BASELINE_REFERENCE_FILES) | set(TYPE_REFERENCE_FILES)
-
-ARTIFACT_RULE_FILES = [
-    "skills/xlsx-author/SKILL.md",
-    "skills/pptx-author/SKILL.md",
-    "skills/earnings-analysis/SKILL.md",
-    "skills/earnings-analysis/references/report-structure.md",
-    "skills/earnings-analysis/references/best-practices.md",
-    "skills/pitch-deck/reference/formatting-standards.md",
-    "skills/3-statement-model/references/formatting.md",
-]
-
-EARNINGS_ANALYSIS_NEEDLES = [
-    "交付物硬门槛",
-    "数据源发现硬门槛",
-    "数据源发现记录必须包含",
-    "未生成该记录，不得进入网页搜索",
-    "最终报告必须在“数据来源与口径说明”中摘要列示该记录",
-    "默认意图解析",
-    "DOCX 生成前必须读取",
+ROOT_CONTRACT_DOCS = {
+    "DATA_SOURCES_CN.md",
+    "DATA_QUERY_ORDER_CN.md",
+    "CN_OUTPUT_FORMATTING.md",
     "CN_DOCX_OUTPUT_CONTRACT.md",
-    "未生成 DOCX 时，不得声称任务完成",
-    "最终回复必须包含 DOCX 文件路径",
-    "cn_institutional_research_brief",
-    "DOCX 主交付物未完成",
-]
+    "CN_XLSX_OUTPUT_CONTRACT.md",
+    "CN_PPTX_OUTPUT_CONTRACT.md",
+    "CN_MARKDOWN_OUTPUT_CONTRACT.md",
+    "CN_HTML_OUTPUT_CONTRACT.md",
+    "CN_CHART_OUTPUT_CONTRACT.md",
+}
+
+ROOT_FONT_CONTRACTS = {
+    "CN_OUTPUT_FORMATTING.md": (
+        "Source Han Serif CN",
+        "唯一指定字体",
+        "SubsetOTF/CN/SourceHanSerifCN-Regular.otf",
+        "SubsetOTF/CN/SourceHanSerifCN-Bold.otf",
+        "图表内部来源固定为 7pt Regular",
+        "DOCX 中图表下方只允许居中标注 `图表 N：<主题>`",
+    ),
+    "CN_DOCX_OUTPUT_CONTRACT.md": (
+        "Source Han Serif CN",
+        'w:eastAsia`、`w:ascii`、`w:hAnsi` 都必须等于 `Source Han Serif CN`',
+        "body: {size: 10.5pt, weight: Regular, line_spacing: 1.20",
+        "表头默认 8.5pt Bold，行距 1.15",
+        "表体默认 8.5pt Regular，行距 1.15",
+        "图表内部来源固定为 7pt Regular",
+        "`图表 N：<主题>` 默认 9pt Bold",
+        "图表下方不得再另写来源小字",
+    ),
+    "CN_PPTX_OUTPUT_CONTRACT.md": (
+        "Source Han Serif CN",
+        "正文默认 11pt Regular，行距 1.15",
+        "表体默认 8.5pt Regular",
+        "图表内部来源默认 7pt Regular",
+        "同时导出 PDF 作为字体视觉兜底",
+    ),
+    "CN_XLSX_OUTPUT_CONTRACT.md": (
+        "Source Han Serif CN",
+        "工作簿默认字体为 10pt Regular，默认行高 18pt",
+        "表体默认 10pt Regular，行高 18pt",
+        "图表内部来源默认 7pt Regular",
+    ),
+    "CN_MARKDOWN_OUTPUT_CONTRACT.md": (
+        "Source Han Serif CN",
+        "Markdown 原文不声明字体",
+        "导出为 DOCX 时，图表下方只允许居中 `图表 N：<主题>`",
+    ),
+    "CN_HTML_OUTPUT_CONTRACT.md": (
+        "Source Han Serif CN",
+        "cdn.jsdelivr.net/gh/adobe-fonts/source-han-serif@release/SubsetOTF/CN/SourceHanSerifCN-Regular.otf",
+        "cdn.jsdelivr.net/gh/adobe-fonts/source-han-serif@release/SubsetOTF/CN/SourceHanSerifCN-Bold.otf",
+        "正文默认 15px Regular，line-height 1.55",
+    ),
+    "CN_CHART_OUTPUT_CONTRACT.md": (
+        "Source Han Serif CN",
+        "图表标题默认 12pt Bold",
+        "图表内部来源默认 7pt Regular",
+        "major/minor gridlines",
+    ),
+}
 
 ROOT_CHART_STYLE_CONTRACTS = {
     "CN_OUTPUT_FORMATTING.md": (
         "柱状图、堆叠柱状图、分组柱状图默认关闭纵坐标横向网格线",
         "major/minor gridlines",
-        "Exhibit 下方来源标注必须使用很小字体",
-        "最大不得超过 7pt",
-        "只保留最重要的 1 个来源",
+        "图表内部来源固定为 7pt Regular",
         "固定校验标签",
         "正式表格缺失值显示 `—`",
     ),
@@ -237,11 +188,7 @@ ROOT_CHART_STYLE_CONTRACTS = {
         "major/minor gridlines",
         "DOCX 中嵌入的 PNG/JPG 图表也必须遵守",
         "Render QA 必须检查柱状图是否错误显示纵坐标横向网格线",
-        "Exhibit 下方来源标注必须使用很小字体",
-        "最大不得超过 7pt",
-        "只保留最重要的 1 个来源",
-        "固定校验标签",
-        "正式表格缺失值使用 `—`",
+        "图表下方不得再另写来源小字",
         "DOCX 章节默认连续排版",
         "只允许 Word 自然分页",
     ),
@@ -250,25 +197,24 @@ ROOT_CHART_STYLE_CONTRACTS = {
         "major/minor gridlines",
         "PPTX 中嵌入的 PNG/JPG 图表也必须遵守",
         "没有错误显示纵坐标横向网格线",
-        "Exhibit 下方来源标注必须使用很小字体",
-        "最大不得超过 7pt",
-        "只保留最重要的 1 个来源",
-        "固定校验标签",
-        "正式表格缺失值使用 `—`",
+        "图表内部来源默认 7pt Regular",
     ),
     "CN_XLSX_OUTPUT_CONTRACT.md": (
-        "Exhibit 下方来源标注必须使用很小字体",
-        "最大不得超过 7pt",
-        "只保留最重要的 1 个来源",
-        "固定校验标签",
+        "图表内部来源默认 7pt Regular",
         "正式表格缺失值使用 `—`",
     ),
     "CN_MARKDOWN_OUTPUT_CONTRACT.md": (
-        "Exhibit 下方来源标注",
-        "最大不得超过 7pt",
-        "只保留最重要的 1 个来源",
-        "固定校验标签",
+        "导出为 DOCX 时，图表下方只允许居中 `图表 N：<主题>`",
         "正式表格缺失值使用 `—`",
+    ),
+    "CN_HTML_OUTPUT_CONTRACT.md": (
+        "Source Han Serif CN",
+        "图表内部来源默认 7pt Regular",
+    ),
+    "CN_CHART_OUTPUT_CONTRACT.md": (
+        "柱状图、堆叠柱状图、分组柱状图默认关闭纵坐标横向网格线",
+        "major/minor gridlines",
+        "图表内部来源默认 7pt Regular",
     ),
 }
 
@@ -312,6 +258,31 @@ CHART_WORKFLOW_FILES = [
     "skills/strip-profile/SKILL.md",
 ]
 
+ARTIFACT_RULE_FILES = [
+    "skills/xlsx-author/SKILL.md",
+    "skills/pptx-author/SKILL.md",
+    "skills/earnings-analysis/SKILL.md",
+    "skills/earnings-analysis/references/report-structure.md",
+    "skills/earnings-analysis/references/best-practices.md",
+    "skills/pitch-deck/reference/formatting-standards.md",
+    "skills/3-statement-model/references/formatting.md",
+]
+
+EARNINGS_ANALYSIS_NEEDLES = [
+    "交付物硬门槛",
+    "数据源发现硬门槛",
+    "数据源发现记录必须包含",
+    "未生成该记录，不得进入网页搜索",
+    "最终报告必须在“数据来源与口径说明”中摘要列示该记录",
+    "默认意图解析",
+    "DOCX 生成前必须读取",
+    "CN_DOCX_OUTPUT_CONTRACT.md",
+    "未生成 DOCX 时，不得声称任务完成",
+    "最终回复必须包含 DOCX 文件路径",
+    "cn_institutional_research_brief",
+    "DOCX 主交付物未完成",
+]
+
 WEAK_DATA_GATE_WORDING = [
     "可用 MCP/已授权数据源优先，网页搜索其次",
     "先检查可用 MCP/已授权源",
@@ -335,6 +306,17 @@ FORBIDDEN_LEGACY_WORDING = [
     "斜杠命令",
 ]
 
+FORBIDDEN_FONT_WORDING = [
+    "Microsoft YaHei",
+    "微软雅黑",
+    "PingFang SC",
+    "SimHei",
+    "SimSun",
+    "Source Han Sans",
+    "中文字体栈",
+    "fallback_fonts",
+]
+
 FORBIDDEN_OUTPUT_LABELS = [
     "\u7ec8\u7aef\u8d1f\u8377",
     "\u7ec8\u7aef\u590d\u6838",
@@ -345,20 +327,8 @@ FORBIDDEN_OUTPUT_LABELS = [
     "\u590d\u6838",
 ]
 
-TEXT_SUFFIXES = {
-    ".md",
-    ".json",
-    ".yaml",
-    ".yml",
-}
-
-SKIP_PARTS = {
-    ".git",
-    "venv",
-    "out",
-    "__pycache__",
-}
-
+TEXT_SUFFIXES = {".md", ".json", ".yaml", ".yml"}
+SKIP_PARTS = {".git", "venv", "out", "__pycache__"}
 SKIP_TEXT_FILES = {
     ROOT / "scripts" / "check.py",
     ROOT / "scripts" / "check_cn_localization.py",
@@ -372,36 +342,29 @@ TECHNICAL_ASCII_ALLOW = {
     "CLI",
     "CN",
     "Codex",
-    "CTD",
     "DCF",
     "DOCX",
     "EBITDA",
     "EV",
-    "FinQ4Cn",
-    "G",
     "Global",
-    "Greeks",
+    "HTML",
     "IRR",
     "Kensho",
     "KYC",
     "LBO",
     "LSEG",
     "LLM",
-    "M",
     "MCP",
     "MOIC",
     "NAV",
-    "OAS",
     "OpenBB",
-    "P",
-    "PEP",
     "PPTX",
-    "SABR",
-    "Services",
+    "Source",
+    "Han",
+    "Serif",
     "Tushare",
     "WACC",
     "XLSX",
-    "Z",
 }
 
 errors: list[str] = []
@@ -447,7 +410,7 @@ def english_phrase_lines(text: str) -> list[str]:
             continue
         if line.startswith("|"):
             continue
-        if re.search(r"\.(png|jpg|jpeg|svg|csv|xlsx|pptx|docx|py|json|yaml|yml)\b", line):
+        if re.search(r"\.(png|jpg|jpeg|svg|csv|xlsx|pptx|docx|py|json|yaml|yml|otf)\b", line):
             continue
         if re.search(r"[_=()\[\]{}]", line):
             continue
@@ -485,6 +448,51 @@ def check_manifest() -> None:
         err("plugin.json 的 defaultPrompt 必须全部使用中文")
 
 
+def check_no_local_formatting_references() -> None:
+    for folder_name in ("references", "reference"):
+        for path in sorted(SKILLS.glob(f"*/{folder_name}/cn-*formatting.md")):
+            err(f"不得保留本地 formatting reference：{rel(path)}")
+        for path in sorted(SKILLS.glob(f"*/{folder_name}/data-query-order.md")):
+            err(f"不得保留本地 data query reference：{rel(path)}")
+    for path in sorted(SKILLS.rglob("*.md")):
+        text = path.read_text(encoding="utf-8")
+        if re.search(r"references/cn-[a-z]+-formatting\.md", text):
+            err(f"不得再引用本地 formatting reference：{rel(path)}")
+        if "references/data-query-order.md" in text:
+            err(f"不得再引用本地 data query reference：{rel(path)}")
+
+
+def check_root_data_query_contract() -> None:
+    path = ROOT / "DATA_QUERY_ORDER_CN.md"
+    if not path.exists():
+        err("缺少根级 DATA_QUERY_ORDER_CN.md")
+        return
+    text = path.read_text(encoding="utf-8")
+    for needle in DATA_REFERENCE_NEEDLES:
+        if needle not in text:
+            err(f"DATA_QUERY_ORDER_CN.md 缺少 `{needle}`")
+
+
+def check_root_contract_references() -> None:
+    contract_pattern = "|".join(re.escape(item) for item in sorted(ROOT_CONTRACT_DOCS))
+    pattern = re.compile(r"(?<!\.)(?:\.\./)+(?:%s)" % contract_pattern)
+    for path in sorted(SKILLS.rglob("*.md")):
+        text = path.read_text(encoding="utf-8", errors="ignore")
+        for match in pattern.finditer(text):
+            target = (path.parent / match.group(0)).resolve()
+            if not target.is_file():
+                err(f"根级合同引用不可解析：{rel(path)} -> {match.group(0)}")
+
+
+def check_root_font_contracts() -> None:
+    for item, needles in ROOT_FONT_CONTRACTS.items():
+        path = ROOT / item
+        text = path.read_text(encoding="utf-8")
+        for needle in needles:
+            if needle not in text:
+                err(f"{item} 缺少字体参数 `{needle}`")
+
+
 def check_skills() -> None:
     skill_files = sorted(SKILLS.glob("*/SKILL.md"))
     if not skill_files:
@@ -498,49 +506,18 @@ def check_skills() -> None:
             if needle not in text:
                 err(f"skill 缺少 {needle}：{rel(skill)}")
         skill_name = skill.parent.name
-        refs = skill.parent / "references"
-        for filename, needles in BASELINE_REFERENCE_FILES.items():
-            path = refs / filename
-            if not path.is_file():
-                err(f"{skill_name} 缺少本地 reference：references/{filename}")
-                continue
-            ref_text = path.read_text(encoding="utf-8")
-            for needle in needles:
-                if needle not in ref_text:
-                    err(f"{skill_name} 的 references/{filename} 缺少 `{needle}`")
-        for artifact_type, (contract, skill_names) in ARTIFACT_CONTRACTS.items():
+        for artifact_type, (contract, skill_names, gate_prefix) in ARTIFACT_CONTRACTS.items():
             if skill_name not in skill_names:
                 continue
             for needle in (
                 contract,
-                f"{artifact_type} 文件已生成",
-                f"{artifact_type} 文件路径存在",
-                f"最终回复包含 {artifact_type} 文件路径",
-            ):
-                if needle not in text:
-                    err(f"{skill_name} 缺少 {artifact_type} 交付门槛 `{needle}`")
-        for artifact_type, (local_ref, skill_names, gate_prefix) in LOCAL_REFERENCE_CONTRACTS.items():
-            if skill_name not in skill_names:
-                continue
-            if local_ref not in text:
-                err(f"{skill_name} 缺少本地 {artifact_type} reference 读取指令：{local_ref}")
-            filename = local_ref.split("/", 1)[1]
-            path = refs / filename
-            if not path.is_file():
-                err(f"{skill_name} 缺少本地 {artifact_type} reference 文件：{local_ref}")
-                continue
-            ref_text = path.read_text(encoding="utf-8")
-            for needle in TYPE_REFERENCE_FILES[filename]:
-                if needle not in ref_text:
-                    err(f"{skill_name} 的 {local_ref} 缺少 `{needle}`")
-            for needle in (
                 f"{gate_prefix}已生成",
                 f"{gate_prefix}路径存在",
-                f"最终回复包含{gate_prefix}路径",
+                f"最终回复包含 {gate_prefix}路径",
             ):
                 spaced = needle.replace("最终回复包含", "最终回复包含 ")
                 if needle not in text and spaced not in text:
-                    err(f"{skill_name} 缺少 {artifact_type} 本地交付门槛 `{needle}`")
+                    err(f"{skill_name} 缺少 {artifact_type} 交付门槛 `{needle}`")
 
 
 def check_artifact_rules() -> None:
@@ -580,15 +557,13 @@ def check_chart_style_contracts() -> None:
 
 def check_docx_pagination_contracts() -> None:
     root_docx = ROOT / "CN_DOCX_OUTPUT_CONTRACT.md"
-    docx_reference_files = sorted(SKILLS.glob("*/references/cn-docx-formatting.md"))
-    for path in [root_docx, *docx_reference_files]:
-        text = path.read_text(encoding="utf-8")
-        for needle in DOCX_PAGINATION_CONTRACT_NEEDLES:
-            if needle not in text:
-                err(f"{rel(path)} 缺少 DOCX 连续排版规则 `{needle}`")
-        for forbidden in DOCX_PAGINATION_FORBIDDEN_TEXT:
-            if forbidden in text:
-                err(f"{rel(path)} 出现 DOCX 显式分页风险文本 `{forbidden}`")
+    text = root_docx.read_text(encoding="utf-8")
+    for needle in DOCX_PAGINATION_CONTRACT_NEEDLES:
+        if needle not in text:
+            err(f"{rel(root_docx)} 缺少 DOCX 连续排版规则 `{needle}`")
+    for forbidden in DOCX_PAGINATION_FORBIDDEN_TEXT:
+        if forbidden in text:
+            err(f"{rel(root_docx)} 出现 DOCX 显式分页风险文本 `{forbidden}`")
 
     for path in (
         ROOT / "skills" / "earnings-analysis" / "SKILL.md",
@@ -617,13 +592,15 @@ def check_data_gate_wording() -> None:
 def check_reference_linkage() -> None:
     for folder_name in ("references", "reference"):
         for path in sorted(SKILLS.glob(f"*/{folder_name}/*.md")):
-            if path.name in GENERATED_REFERENCE_NAMES:
+            if path.name == "data-query-order.md":
                 continue
             text = path.read_text(encoding="utf-8")
             if "Reference 链路：执行本文件前" not in text:
-                err(f"既有 reference 文件缺少本地格式链路提示：{rel(path)}")
-            if "references/data-query-order.md" not in text or "references/cn-markdown-formatting.md" not in text:
-                err(f"既有 reference 文件未指向本地数据/Markdown 合同：{rel(path)}")
+                err(f"既有 reference 文件缺少格式链路提示：{rel(path)}")
+            if "DATA_QUERY_ORDER_CN.md" not in text:
+                err(f"既有 reference 文件未指向根级数据合同：{rel(path)}")
+            if "CN_OUTPUT_FORMATTING.md" not in text and "CN_MARKDOWN_OUTPUT_CONTRACT.md" not in text:
+                err(f"既有 reference 文件未指向根级格式合同：{rel(path)}")
             for generated_title in (
                 "中文 DOCX 格式合同",
                 "中文 XLSX 格式合同",
@@ -637,8 +614,8 @@ def check_reference_linkage() -> None:
     template = ROOT / "skills" / "earnings-preview-beta" / "report-template.md"
     if template.is_file():
         text = template.read_text(encoding="utf-8")
-        if "references/cn-html-formatting.md" not in text:
-            err("earnings-preview-beta/report-template.md 未指向本地 HTML 格式合同")
+        if "CN_HTML_OUTPUT_CONTRACT.md" not in text:
+            err("earnings-preview-beta/report-template.md 未指向根级 HTML 格式合同")
 
 
 def check_earnings_analysis_contract() -> None:
@@ -658,6 +635,9 @@ def check_forbidden_and_residual_text() -> None:
         for forbidden in FORBIDDEN_LEGACY_WORDING:
             if forbidden.lower() in text.lower():
                 err(f"发现旧英文或旧架构文本 `{forbidden}`：{rel(path)}")
+        for forbidden in FORBIDDEN_FONT_WORDING:
+            if forbidden in text:
+                err(f"发现旧字体口径 `{forbidden}`：{rel(path)}")
         if path.suffix == ".md":
             residual = english_phrase_lines(text)
             if residual:
@@ -667,6 +647,10 @@ def check_forbidden_and_residual_text() -> None:
 def main() -> int:
     check_required_docs()
     check_manifest()
+    check_no_local_formatting_references()
+    check_root_data_query_contract()
+    check_root_contract_references()
+    check_root_font_contracts()
     check_skills()
     check_artifact_rules()
     check_chart_style_contracts()

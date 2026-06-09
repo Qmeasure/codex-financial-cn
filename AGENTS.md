@@ -5,7 +5,7 @@
 ## 1. 仓库身份
 
 - 插件名称固定为 `financial-services-cn`。
-- 根级结构固定包含 `.codex-plugin/plugin.json`、`OPTIONAL_MCP_SERVERS.json`、`skills/`、`README.md`、`DATA_SOURCES_CN.md` 和 `CN_OUTPUT_FORMATTING.md`；根目录不得放置 `.mcp.json`，避免 Codex 自动加载可选数据源。
+- 根级结构固定包含 `.codex-plugin/plugin.json`、`OPTIONAL_MCP_SERVERS.json`、`skills/`、`README.md`、`DATA_SOURCES_CN.md`、`DATA_QUERY_ORDER_CN.md` 和 `CN_OUTPUT_FORMATTING.md`；根目录不得放置 `.mcp.json`，避免 Codex 自动加载可选数据源。
 - `skills/` 是唯一的 source skills 目录，采用全扁平结构；每个技能目录必须包含 `SKILL.md`。
 - 仓库内不得重新引入旧多插件包装层、旧平台入口、代理包、托管代理模板或其他旧架构残留。
 - `.codex-plugin/plugin.json` 只能声明真实存在的能力；没有 `.app.json` 时不得声明 `apps`。
@@ -19,7 +19,7 @@
 
 ## 3. 数据来源规则
 
-- 所有技能、README、脚本注释、样例和用户可见输出必须遵守 `DATA_SOURCES_CN.md`。
+- 所有技能、README、脚本注释、样例和用户可见输出必须遵守 `DATA_SOURCES_CN.md` 和 `DATA_QUERY_ORDER_CN.md`。
 - 来源优先级为：用户文件或政策、官方披露、已授权 MCP 或机构数据库、用户确认可用的中国市场工具、免费公开网页辅助线索。
 - 付费源、机构源和本地 MCP 只能作为用户确认后的增强源，不得默认启用，不得假设本机已安装、已登录或已有授权。
 - 监管、会计、KYC、AML、税务、基金文件、LP 报告、月结、总账入账、签批和客户适当性判断，必须引用官方材料、用户政策或用户文件；缺少依据时不得作出正式判断。
@@ -36,7 +36,28 @@
 - 最终摘要必须说明产物内容、数据来源、口径限制、数据缺口和免责声明，不得只返回英文路径或英文状态。
 - 本仓库中文化不得使用 LiteLLM 或外部翻译 API。
 
-## 5. 插件与 MCP 边界
+## 5. Formatting 一致性铁律
+
+- Formatting 规则是全链路合同，不是某个 skill 的局部提示。根级合同、README 说明、校验脚本、样例产物和安装 cache 必须保持一致。
+- 修改 DOCX、XLSX、PPTX、Markdown、HTML、图表或 ZIP 的任何格式规则前，必须先用 `rg` 扫描相关旧口径、禁词、根级合同、业务 reference、README、脚本和样例，确认真实影响范围。
+- 只要某条格式规则属于通用产物类型，就必须同步更新根级对应合同和门禁脚本；不得只修改 `earnings-analysis`、单个 skill、单个根合同或单个样例。
+- 只有当规则确实只适用于某一个 skill 时，才允许局部修改；最终说明必须写清楚为什么不需要同步到其他 formatting 文件。
+- 看到 DOCX、PPTX、XLSX、HTML、Markdown 或图表输出问题时，先追根因到 skill 指令、业务 reference、根级合同、样例产物和门禁脚本；不要只修生成出的某个报告或只改一个示例。
+- 新增或调整 formatting 内容时，不把大段格式正文追加进旧 workflow/reference 文件；业务 reference 只保留短引用，格式正文只放在根级 `CN_*_OUTPUT_CONTRACT.md`。
+- 每次 formatting 修改都必须同步考虑 `scripts/check_cn_localization.py` 和 `scripts/check_cn_artifact_samples.py`，让门禁能防止旧口径回退。
+- 修改完成后，必须重新安装插件并复扫 Codex plugin cache，确认安装快照里的根合同、业务 reference 和门禁规则与源仓库一致。
+
+## 6. 共享合同与交付标准
+
+- 共享合同只能放在根目录，包括 `DATA_SOURCES_CN.md`、`DATA_QUERY_ORDER_CN.md`、`CN_OUTPUT_FORMATTING.md` 和所有 `CN_*_OUTPUT_CONTRACT.md`；不得在 `skills/*/references/` 或 `skills/*/reference/` 下重复放置 `data-query-order.md` 或 `cn-*formatting.md`。
+- `skills/*/references/`、`skills/*/reference/` 和 `skills/*/assets/` 只能承载某个 skill 独有的业务 workflow、schema、样例、计算口径或专用限制；共享数据查询顺序和格式正文必须通过短引用指向根级合同。
+- 每个 `SKILL.md` 必须引用插件根目录 `../../DATA_SOURCES_CN.md`、`../../DATA_QUERY_ORDER_CN.md`、`../../CN_OUTPUT_FORMATTING.md` 和 `../../CN_MARKDOWN_OUTPUT_CONTRACT.md`；承诺 DOCX、XLSX、PPTX、HTML 或独立图表/ZIP 时，必须额外引用对应根级产物合同。
+- 业务 reference 或 asset 引用根级合同时，必须使用相对自身位置可解析的路径，例如 `../../../DATA_QUERY_ORDER_CN.md`；不得从 `SKILL.md` 的层级复制错误路径。
+- 正式交付物不能用聊天摘要替代。凡 skill 承诺生成 DOCX、XLSX、PPTX、HTML、Markdown 文件、图表图片或 ZIP，最终交付前必须确认文件已生成、路径存在、格式合同已读取、数据源发现记录已完成或说明不适用。
+- 修改共享合同、skill 引用或交付标准后，必须同步更新 README、校验脚本和安装 cache；完成验收必须证明源仓库和安装快照中所有根级合同引用都能解析，且不存在重复本地合同。
+- 最终说明必须列出运行过的校验命令、结果、无法通过的具体阻塞原因和剩余风险；不得把“运行无报错”等同于“交付标准正确”。
+
+## 7. 插件与 MCP 边界
 
 - `.codex-plugin/plugin.json` 的 `name` 必须固定为 `financial-services-cn`。
 - `plugin.json` 的 `skills` 必须固定指向 `./skills/`。
@@ -45,17 +66,18 @@
 - A 股、港股或机构数据相关 MCP 配置只能作为可选模板保留；无法确认本地服务、依赖、账号或授权时，技能只能记录为未覆盖数据项。
 - 不修改已有技能目录名、schema key、环境变量名、MCP server 名称或既有 URL，除非用户明确要求并说明迁移方案。
 
-## 6. 修改工作流
+## 8. 修改工作流
 
 - 先侦察现有结构，再修改文件。不要凭记忆判断插件结构、技能数量、校验脚本或数据规则。
 - 修改前先确认影响范围：根文档、manifest、MCP、某个 skill、脚本、样例产物或跨文件规则。
 - 优先最小改动。不要顺手重构无关技能、移动目录、改命名、改格式或批量替换无关文本。
 - 如果用户给出明确模板、接口、参数、命令或既有 adapter，必须 1:1 沿用，不自创替代实现。
-- 新增或改写技能时，必须包含“中文版执行契约”，并引用 `DATA_SOURCES_CN.md` 和 `CN_OUTPUT_FORMATTING.md`。
-- 修改根级规则时，同步检查 `README.md`、`DATA_SOURCES_CN.md`、`CN_OUTPUT_FORMATTING.md`、`.codex-plugin/plugin.json` 和相关脚本是否产生矛盾。
+- 新增或改写技能时，必须包含“中文版执行契约”，并引用 `DATA_SOURCES_CN.md`、`DATA_QUERY_ORDER_CN.md` 和 `CN_OUTPUT_FORMATTING.md`。
+- 修改根级规则时，同步检查 `README.md`、`DATA_SOURCES_CN.md`、`DATA_QUERY_ORDER_CN.md`、`CN_OUTPUT_FORMATTING.md`、`.codex-plugin/plugin.json` 和相关脚本是否产生矛盾。
+- 修改 formatting 规则时，同步检查对应根级合同、README、样例产物、门禁脚本和安装 cache；不得留下源仓库与安装快照不一致。
 - 修改服务代码时必须自动重启受影响服务；本仓库通常是插件和技能集合，若没有运行服务，不要虚构重启步骤。
 
-## 7. 禁止事项
+## 9. 禁止事项
 
 - 不把英文金融技能直接照搬为中文文件名或英文交付模板。
 - 不默认启用付费源、机构源或本地 MCP。
@@ -63,8 +85,9 @@
 - 不删除兼容路径、不破坏 manifest、不改变技能目录结构、不引入旧架构残留。
 - 不用前端式或营销式文案包装金融结论；材料必须克制、可审计、能追溯。
 - 不把“运行无报错”当作“设计正确”；完成前必须有校验证据。
+- 不在 skill 目录下新增重复共享合同；`data-query-order.md`、`cn-docx-formatting.md`、`cn-xlsx-formatting.md`、`cn-pptx-formatting.md`、`cn-markdown-formatting.md`、`cn-html-formatting.md` 和 `cn-chart-formatting.md` 一律禁止回流。
 
-## 8. 完成前校验
+## 10. 完成前校验
 
 改完必须至少运行以下校验：
 
@@ -77,6 +100,6 @@ python3 /Users/lesterbot/.codex/skills/.system/plugin-creator/scripts/validate_p
 
 如果某个校验因本机依赖、外部服务或授权缺失无法执行，必须在最终说明中写清楚具体命令、失败原因和剩余风险。
 
-## 9. 一句话原则
+## 11. 一句话原则
 
 本仓库的每一次修改，都必须让 `financial-services-cn` 更稳定地作为中文金融服务 Codex 插件运行：A 股优先、来源清楚、格式中文、边界可信、结构可校验。

@@ -1,6 +1,6 @@
-> Reference 链路：执行本文件前，先读取本 skill 的 `references/data-query-order.md`、`references/cn-markdown-formatting.md`、`references/cn-docx-formatting.md`；本文件只描述业务 workflow 或参考口径，不承载新增中文格式正文。
+> Reference 链路：执行本文件前，先读取插件根目录 `../../../DATA_QUERY_ORDER_CN.md`，并读取插件根目录 `../../../CN_OUTPUT_FORMATTING.md`、`../../../CN_MARKDOWN_OUTPUT_CONTRACT.md`、`../../../CN_DOCX_OUTPUT_CONTRACT.md`；本文件只描述业务 workflow 或参考口径，不承载新增中文格式正文。
 
-> 图表样式 Gate：生成或审查图表前必须读取本 skill 的本地格式 reference；柱状图、堆叠柱状图、分组柱状图默认关闭纵坐标横向网格线，除非用户明确要求或图表类型必须依赖网格线，否则不得显示 major/minor gridlines。DOCX、PPTX、PNG/JPG 图表都必须在 QA 中检查该项。
+> 图表样式 Gate：生成或审查图表前必须遵守插件根目录 `CN_CHART_OUTPUT_CONTRACT.md` 及对应产物合同；柱状图、堆叠柱状图、分组柱状图默认关闭纵坐标横向网格线，除非用户明确要求或图表类型必须依赖网格线，否则不得显示 major/minor gridlines。DOCX、PPTX、PNG/JPG 图表都必须在 QA 中检查该项。
 
 # 业绩更新详细工作流
 
@@ -10,7 +10,7 @@
 
 **先停下来读这一段：**
 
-训练数据已经过时。必须按 `references/data-query-order.md` 先填写数据源发现记录，列明可用/不可用 MCP、connector、已授权数据源和官方材料；Gate 通过后，才可在覆盖不足时网页搜索并获取**最新**业绩材料。使用过时业绩数据是业绩分析中的第一大错误。
+训练数据已经过时。必须按 `../../../DATA_QUERY_ORDER_CN.md` 先填写数据源发现记录，列明可用/不可用 MCP、connector、已授权数据源和官方材料；Gate 通过后，才可在覆盖不足时网页搜索并获取**最新**业绩材料。使用过时业绩数据是业绩分析中的第一大错误。
 
 **开始前：**
 1. **检查今天日期** - 写下当前日期
@@ -22,7 +22,7 @@
 
 ### 步骤 1：识别最新业绩期间
 
-**关键**：始终按 `references/data-query-order.md` 获取最新业绩，不要依赖知识截止日期。
+**关键**：始终按 `../../../DATA_QUERY_ORDER_CN.md` 获取最新业绩，不要依赖知识截止日期。
 **关键**：不要使用训练数据中的业绩数据，它已经过时。
 
 **步骤 1a：获取最新业绩公告**
@@ -31,7 +31,7 @@
 
 **强制步骤 0：填写数据源发现记录**
 
-在任何网页搜索、公司官网抓取、SEC/交易所抓取前，先按 `references/data-query-order.md` 填写：
+在任何网页搜索、公司官网抓取、SEC/交易所抓取前，先按 `../../../DATA_QUERY_ORDER_CN.md` 填写：
 
 ```
 数据源发现记录

@@ -8,7 +8,7 @@ description: |
 
 - 默认使用中国大陆金融语境：A股优先，港股和美股兼容；如用户指定市场、币种、会计准则或模板，以用户输入为准。
 - 数据来源必须遵守插件根目录 `../../DATA_SOURCES_CN.md`：官方披露、用户文件、已授权 MCP/数据库优先；免费源只作辅助；监管、会计、KYC、基金文件和月结判断缺少依据时不得下结论，只在数据源发现记录中列为未覆盖数据项。
-- 所有产物必须遵守插件根目录 `../../CN_OUTPUT_FORMATTING.md`：中文字体栈、中文日期、币种/单位、图表标题、表格表头、来源脚注、风险提示和免责声明都要按中文机构材料处理。
+- 所有产物必须遵守插件根目录 `../../CN_OUTPUT_FORMATTING.md`：`Source Han Serif CN`、中文日期、币种/单位、图表标题、表格表头、来源、风险提示和免责声明都要按中文机构材料处理。
 - 用户模板和品牌规范优先，但不得突破中文可读性、来源脚注、币种/单位/日期/口径说明这些底线。
 - 保留 DCF、LBO、WACC、EV/EBITDA、IRR、MOIC、NAV、KYC、AML、MCP、CLI 等专业缩写和代码标识。
 
@@ -20,18 +20,16 @@ description: |
 - 插件根目录 `../../CN_OUTPUT_FORMATTING.md`
 - 插件根目录 `../../CN_MARKDOWN_OUTPUT_CONTRACT.md`
 - 插件根目录 `../../CN_PPTX_OUTPUT_CONTRACT.md`（当输出 PPTX/PowerPoint 文件时）
-- 本 skill 本地 `references/cn-markdown-formatting.md`（聊天摘要、正式 Markdown 或最终交付说明）
-- 本 skill 本地 `references/data-query-order.md`（当任务需要外部数据查询、行情更新、财报抓取、行业/公司/宏观/监管材料检索时）
-- 本 skill 本地 `references/cn-pptx-formatting.md`（当输出 PPTX/PowerPoint 文件时）
+- 插件根目录 `../../DATA_QUERY_ORDER_CN.md`（当任务需要外部数据查询、行情更新、财报抓取、行业/公司/宏观/监管材料检索时）
 
 本 skill 的输出必须按既有交付物承诺执行：
 - 聊天摘要或即时分析不能替代本 skill 已承诺的文件主交付物。
 - 纯文本/聊天输出必须包含来源、口径限制、数据缺口和人工审阅边界，不强制落盘为文件。
 - 若用户要求或本 skill 明确承诺生成 Markdown 文件，最终回复前必须确认 `.md` 文件已生成、Markdown 文件路径存在、结构可读，并确保最终回复包含 Markdown 文件路径。
 - 若本 skill 的既有输出包含 PPTX/PowerPoint 文件，最终回复前必须确认 PPTX 文件已生成、PPTX 文件路径存在、可打开或结构校验通过，并确保最终回复包含 PPTX 文件路径。
-- 需要查询或刷新外部数据时，必须先读取 `references/data-query-order.md`，先生成“数据源发现记录”，列出可用/不可用 MCP、connector、授权源和用户文件；Gate 通过前不得网页搜索、官网抓取、SEC/交易所抓取或生成正式交付物。若本 skill 有更严格数据源限制，以更严格规则为准。
-- 正式 Markdown、聊天摘要和最终交付说明必须先读取 `references/cn-markdown-formatting.md`，并包含来源、口径限制、数据缺口和人工审阅边界。
-- 生成或审查图表时，必须先读取对应本地格式 reference；柱状图、堆叠柱状图、分组柱状图默认关闭纵坐标横向网格线，除非用户明确要求或图表类型必须依赖网格线，否则不得显示 major/minor gridlines。
+- 需要查询或刷新外部数据时，必须先读取 `../../DATA_QUERY_ORDER_CN.md`，先生成“数据源发现记录”，列出可用/不可用 MCP、connector、授权源和用户文件；Gate 通过前不得网页搜索、官网抓取、SEC/交易所抓取或生成正式交付物。若本 skill 有更严格数据源限制，以更严格规则为准。
+- 正式 Markdown、聊天摘要和最终交付说明必须遵守插件根目录 `../../CN_MARKDOWN_OUTPUT_CONTRACT.md`，并包含来源、口径限制、数据缺口和人工审阅边界。
+- 生成或审查图表时，必须遵守插件根目录对应产物合同；柱状图、堆叠柱状图、分组柱状图默认关闭纵坐标横向网格线，除非用户明确要求或图表类型必须依赖网格线，否则不得显示 major/minor gridlines。
 
 
 ## 工作流
@@ -171,7 +169,7 @@ def add_section(slide, x, y, w, header_text, bullets, header_size=10, bullet_siz
       { text: '市值：8,500 亿美元（全球市值第 6）', options: { bullet: { indent: 10 }, breakLine: true } },
       { text: '分部：汽车（85%）、能源（10%）、服务（5%）', options: { bullet: { indent: 10 } } }
     ],
-    { x: 0.45, y: 0.95, w: 4.5, h: 2.6, fontSize: 11, fontFace: 'Microsoft YaHei', valign: 'top', paraSpaceAfter: 6 }
+    { x: 0.45, y: 0.95, w: 4.5, h: 2.6, fontSize: 11, fontFace: 'Source Han Serif CN', valign: 'top', paraSpaceAfter: 6 }
   );
 
   // 错误：为每个要点创建多个独立文本框，会造成对齐问题
@@ -184,7 +182,7 @@ def add_section(slide, x, y, w, header_text, bullets, header_size=10, bullet_siz
   - 将多个相关事实压缩进同一个要点（例如“总部：Austin；成立：2003”）
   - 包含具体数字和百分比，以提高信息密度
 - **标题使用 Title Case**（不要 ALL CAPS），左对齐
-- **字体保持一致**，表格也要一致；中文材料优先使用中文字体栈
+- **字体保持一致**，表格也要一致；中文材料优先使用`Source Han Serif CN`
 - **公司品牌色**：创建幻灯片前必须研究公司真实品牌色。不要猜测或假设颜色。
 - **如用户提供品牌指南，必须遵循**
 
@@ -262,7 +260,7 @@ slide.addShape(pptx.shapes.RECTANGLE, {
   fill: { color: 'E31937' }  // 使用公司品牌色
 });
 slide.addText('公司概览', {
-  x: 0.45, y: 0.6, w: 4.5, h: 0.3, fontSize: 14, bold: true, fontFace: 'Microsoft YaHei'
+  x: 0.45, y: 0.6, w: 4.5, h: 0.3, fontSize: 14, bold: true, fontFace: 'Source Han Serif CN'
 });
 ```
 
@@ -273,7 +271,7 @@ slide.addText('公司概览', {
 - 表格使用浅灰色细网格线（#CCCCCC）
 
 ### 首页格式
-- **字体**：中文材料优先使用 `Microsoft YaHei` / `PingFang SC` / `Noto Sans CJK SC` 等中文字体栈；若用户或品牌指南另有指定，以其为准
+- **字体**：中文材料优先使用 `Source Han Serif CN` / `Source Han Serif CN` / `Source Han Serif CN` 等`Source Han Serif CN`；若用户或品牌指南另有指定，以其为准
 - **象限标题**：中文标题自然表达，英文公司名保留原文；不要使用 ALL CAPS
 - **Bullets**：开头关键词加粗，例如“**市场地位：** 全球领先制造商……”
 - 只使用白色背景，不使用方框、填充或阴影
@@ -364,7 +362,7 @@ slide.addShape(pptx.shapes.RECTANGLE, {
   x: 0.3, y: 3.7, w: 0.08, h: 0.25, fill: { color: 'E31937' }
 });
 slide.addText('关键财务与估值', {
-  x: 0.45, y: 3.7, w: 4.5, h: 0.3, fontSize: 14, bold: true, fontFace: 'Microsoft YaHei'
+  x: 0.45, y: 3.7, w: 4.5, h: 0.3, fontSize: 14, bold: true, fontFace: 'Source Han Serif CN'
 });
 
 // 财务数据表
@@ -381,7 +379,7 @@ slide.addTable([
   ['EV/EBITDA', '12.5x', '11.7x']
 ], {
   x: 0.45, y: 4.1, w: 4.3, h: 3.0,  // 左下象限标题下方
-  fontFace: 'Microsoft YaHei', fontSize: 10,
+  fontFace: 'Source Han Serif CN', fontSize: 10,
   border: { pt: 0.5, color: 'CCCCCC' },
   valign: 'middle',
   colW: [1.8, 1.25, 1.25]  // 列宽

@@ -7,7 +7,7 @@ description: 创建专业股票研究业绩更新报告（8-12 页，3,000-5,000
 
 - 默认使用中国大陆金融语境：A股优先，港股和美股兼容；如用户指定市场、币种、会计准则或模板，以用户输入为准。
 - 数据来源必须遵守插件根目录 `../../DATA_SOURCES_CN.md`：官方披露、用户文件、已授权 MCP/数据库优先；免费源只作辅助；监管、会计、KYC、基金文件和月结判断缺少依据时不得下结论，只在数据源发现记录中列为未覆盖数据项。
-- 所有产物必须遵守插件根目录 `../../CN_OUTPUT_FORMATTING.md`：中文字体栈、中文日期、币种/单位、图表标题、表格表头、来源脚注、风险提示和免责声明都要按中文机构材料处理。
+- 所有产物必须遵守插件根目录 `../../CN_OUTPUT_FORMATTING.md`：`Source Han Serif CN`、中文日期、币种/单位、图表标题、表格表头、来源、风险提示和免责声明都要按中文机构材料处理。
 - DOCX 主交付物必须遵守插件根目录 `../../CN_DOCX_OUTPUT_CONTRACT.md`，使用 `cn_institutional_research_brief` 中文机构投研 preset，并完成结构校验与可用的 render QA。
 - 用户模板和品牌规范优先，但不得突破中文可读性、来源脚注、币种/单位/日期/口径说明这些底线。
 - 保留 DCF、LBO、WACC、EV/EBITDA、IRR、MOIC、NAV、KYC、AML、MCP、CLI 等专业缩写和代码标识。
@@ -20,18 +20,16 @@ description: 创建专业股票研究业绩更新报告（8-12 页，3,000-5,000
 - 插件根目录 `../../CN_OUTPUT_FORMATTING.md`
 - 插件根目录 `../../CN_MARKDOWN_OUTPUT_CONTRACT.md`
 - 插件根目录 `../../CN_DOCX_OUTPUT_CONTRACT.md`（当输出 DOCX/Word 文件时）
-- 本 skill 本地 `references/cn-markdown-formatting.md`（聊天摘要、正式 Markdown 或最终交付说明）
-- 本 skill 本地 `references/data-query-order.md`（当任务需要外部数据查询、行情更新、财报抓取、行业/公司/宏观/监管材料检索时）
-- 本 skill 本地 `references/cn-docx-formatting.md`（当输出 DOCX/Word 文件时）
+- 插件根目录 `../../DATA_QUERY_ORDER_CN.md`（当任务需要外部数据查询、行情更新、财报抓取、行业/公司/宏观/监管材料检索时）
 
 本 skill 的输出必须按既有交付物承诺执行：
 - 聊天摘要或即时分析不能替代本 skill 已承诺的文件主交付物。
 - 纯文本/聊天输出必须包含来源、口径限制、数据缺口和人工审阅边界，不强制落盘为文件。
 - 若用户要求或本 skill 明确承诺生成 Markdown 文件，最终回复前必须确认 `.md` 文件已生成、Markdown 文件路径存在、结构可读，并确保最终回复包含 Markdown 文件路径。
 - 若本 skill 的既有输出包含 DOCX/Word 文件，最终回复前必须确认 DOCX 文件已生成、DOCX 文件路径存在、可打开或结构校验通过，并确保最终回复包含 DOCX 文件路径。
-- 需要查询或刷新外部数据时，必须先读取 `references/data-query-order.md`，先生成“数据源发现记录”，列出可用/不可用 MCP、connector、授权源和用户文件；Gate 通过前不得网页搜索、官网抓取、SEC/交易所抓取或生成正式交付物。若本 skill 有更严格数据源限制，以更严格规则为准。
-- 正式 Markdown、聊天摘要和最终交付说明必须先读取 `references/cn-markdown-formatting.md`，并包含来源、口径限制、数据缺口和人工审阅边界。
-- 生成或审查图表时，必须先读取对应本地格式 reference；柱状图、堆叠柱状图、分组柱状图默认关闭纵坐标横向网格线，除非用户明确要求或图表类型必须依赖网格线，否则不得显示 major/minor gridlines。
+- 需要查询或刷新外部数据时，必须先读取 `../../DATA_QUERY_ORDER_CN.md`，先生成“数据源发现记录”，列出可用/不可用 MCP、connector、授权源和用户文件；Gate 通过前不得网页搜索、官网抓取、SEC/交易所抓取或生成正式交付物。若本 skill 有更严格数据源限制，以更严格规则为准。
+- 正式 Markdown、聊天摘要和最终交付说明必须遵守插件根目录 `../../CN_MARKDOWN_OUTPUT_CONTRACT.md`，并包含来源、口径限制、数据缺口和人工审阅边界。
+- 生成或审查图表时，必须遵守插件根目录对应产物合同；柱状图、堆叠柱状图、分组柱状图默认关闭纵坐标横向网格线，除非用户明确要求或图表类型必须依赖网格线，否则不得显示 major/minor gridlines。
 
 ## 数据源发现硬门槛
 
@@ -61,7 +59,7 @@ description: 创建专业股票研究业绩更新报告（8-12 页，3,000-5,000
 - **周转**：1-2 天（业绩后 24-48 小时内）
 - **受众**：已经熟悉公司的客户
 - **重点**：新增信息，即超预期/低于预期、更新预测、投资逻辑影响
-- **字体**：除非用户另有指定，中文输出按 `../../CN_OUTPUT_FORMATTING.md` 使用中文字体栈
+- **字体**：除非用户另有指定，中文输出按 `../../CN_OUTPUT_FORMATTING.md` 使用 `Source Han Serif CN`
 
 ## 交付物硬门槛
 
@@ -100,16 +98,14 @@ description: 创建专业股票研究业绩更新报告（8-12 页，3,000-5,000
 - `references/best-practices.md`
 - Documents skill 的 `SKILL.md`
 - Documents skill 的 `references/design_presets.md`
-- 本 skill 本地 `references/cn-docx-formatting.md`
-- 本 skill 本地 `references/cn-markdown-formatting.md`
-- 本 skill 本地 `references/data-query-order.md`（如需查询或刷新外部数据）
+- 插件根目录 `../../DATA_QUERY_ORDER_CN.md`（如需查询或刷新外部数据）
 
 未读取上述规则时，不得生成正式 DOCX。若 Documents skill 或 `references/design_presets.md` 在当前环境不可读取，只允许输出临时纯文本摘要，并必须标记“DOCX 主交付物未完成”，不得声称任务完成。
 
 ## DOCX 输出合同
 
 生成 DOCX 时必须使用 `../../CN_DOCX_OUTPUT_CONTRACT.md` 中的 `cn_institutional_research_brief` preset。必须落实以下 Word 结构要求：
-- 中文字体栈写入 Word OOXML，关键样式和 run 必须包含 `w:rFonts@w:eastAsia`、`w:rFonts@w:ascii`、`w:rFonts@w:hAnsi`
+- `Source Han Serif CN` 写入 Word OOXML，关键样式和 run 必须包含 `w:rFonts@w:eastAsia`、`w:rFonts@w:ascii`、`w:rFonts@w:hAnsi`
 - 表格必须使用固定宽度，包含 `tblGrid`、`tcW` 和 cell margin
 - 列表必须使用真实 Word numbering definitions，禁止 fake bullets
 - 来源必须使用可点击 hyperlink，禁止裸 URL
@@ -131,7 +127,7 @@ description: 创建专业股票研究业绩更新报告（8-12 页，3,000-5,000
 - [ ] DOCX 无裸 URL
 - [ ] DOCX 可见正文、表格、脚注、来源、caption 和超链接显示文本不含固定校验标签；缺失的一致预期或市场口径在正式表格中显示 `—`
 - [ ] DOCX 章节连续排版，未因为 H1/H2、章节标题或附录标题主动插入显式分页或分节符
-- [ ] DOCX 使用中文字体栈
+- [ ] DOCX 使用 `Source Han Serif CN`
 - [ ] 表格使用固定宽度、`tblGrid`、`tcW` 和 cell margin
 - [ ] 列表使用真实 Word numbering definitions
 - [ ] 图表中文字体可显示
@@ -177,13 +173,13 @@ description: 创建专业股票研究业绩更新报告（8-12 页，3,000-5,000
 来源：[2024 年第三季度 10-Q（2024 年 11 月 8 日提交）](https://www.sec.gov/cgi-bin/viewer?accession=...)
 ```
 
-Exhibit 包括图表、表格、图片、关键数据块和紧邻页面底部的来源行。每个 Exhibit 下方只保留最重要的 1 个来源，字体默认 6pt、最大 7pt；完整来源清单放入“数据来源与口径说明”或“来源与参考资料”章节，不得堆在 Exhibit 下方。
+Exhibit 包括图表、表格、图片、关键数据块和紧邻页面底部的来源行。图表来源必须写入图表内部，固定 7pt Regular；DOCX 图表下方只保留居中的 `图表 N：<主题>`，完整来源清单放入“数据来源与口径说明”或“来源与参考资料”章节。
 
 **超链接在 Word 中应如何呈现：**
 - 文档名称显示为蓝色、带下划线的可点击链接
 - 读者可 Ctrl+Click 直接打开来源
 - 不要使用纯文本 URL，应使用带显示文本的格式化超链接
-- 来源 caption 内的 hyperlink run 必须显式设置同一小字号，不能依赖 Word 默认 Hyperlink 样式
+- DOCX 图表下方只保留 `图表 N：<主题>`，不得放来源 hyperlink；图表来源写入图表内部，完整来源放入“数据来源与口径说明”
 
 **必需来源清单：**
 
@@ -218,7 +214,7 @@ Exhibit 包括图表、表格、图片、关键数据块和紧邻页面底部的
 
 **核验清单：**
 - [ ] 每个 Exhibit 下方只有 1 个最重要来源，且含具体文档和日期
-- [ ] Exhibit 下方来源 caption 默认 6pt、最大 7pt，超链接 run 同步设置小字号
+- [ ] 图表内部来源固定 7pt Regular；DOCX 图表下方只保留居中的 `图表 N：<主题>`，不再写来源小字
 - [ ] 完整来源清单只放在来源章节，不在 Exhibit 下方堆叠
 - [ ] 超预期/低于预期分析引用带日期的一致预期来源
 - [ ] 指引变化引用当前和先前指引来源
@@ -243,14 +239,14 @@ Exhibit 包括图表、表格、图片、关键数据块和紧邻页面底部的
 
 **开始前按顺序完成以下 4 步：**
 1. **检查今天日期**：写下当前日期
-2. **按数据查询顺序获取最新信息**：先读取 `references/data-query-order.md`，检查本会话可用 MCP/已授权数据源/官方材料；覆盖不足时再网页搜索“[公司] 最新业绩结果”
+2. **按数据查询顺序获取最新信息**：先读取 `../../DATA_QUERY_ORDER_CN.md`，检查本会话可用 MCP/已授权数据源/官方材料；覆盖不足时再网页搜索“[公司] 最新业绩结果”
 3. **核验日期**：确认业绩发布日期在过去 3 个月内
 4. **检查纪要日期**：确认业绩会纪要日期与发布日期匹配
 
 **常见错误**：使用训练数据中的过时业绩会，或跳过 MCP/已授权数据源检查直接网页搜索。
 
 **要求：**
-- ✅ 按 `references/data-query-order.md` 获取最新业绩，不依赖训练数据
+- ✅ 按 `../../DATA_QUERY_ORDER_CN.md` 获取最新业绩，不依赖训练数据
 - ✅ 写下今天日期和找到的发布日期
 - ✅ 核验发布日期距今天不超过 3 个月
 - ✅ 核验业绩会纪要日期与发布日期匹配

@@ -11,6 +11,15 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "out"
 OUT.mkdir(exist_ok=True)
+FONT_FAMILY = "Source Han Serif CN"
+
+sys.path.insert(0, str(ROOT / "scripts"))
+from ensure_source_han_serif_cn import main as ensure_source_han_serif_cn  # noqa: E402
+
+if ensure_source_han_serif_cn() != 0:
+    fail_msg = "Source Han Serif CN Regular/Bold font preflight failed"
+    print(f"FAIL: {fail_msg}", file=sys.stderr)
+    sys.exit(1)
 
 try:
     from openpyxl import Workbook, load_workbook
@@ -39,27 +48,30 @@ wb = Workbook()
 ws = wb.active
 ws.title = "可比公司"
 ws["A1"] = "A股优先可比公司分析"
-ws["A1"].font = Font(name="Microsoft YaHei", bold=True)
+ws["A1"].font = Font(name=FONT_FAMILY, bold=True, size=14)
+ws.row_dimensions[1].height = 24
 ws["A3"] = "公司"
 ws["B3"] = "收入（人民币亿元）"
 ws["C3"] = "EV/EBITDA（倍）"
 ws["D3"] = "来源"
 for cell in ws[3]:
-    cell.font = Font(name="Microsoft YaHei", bold=True)
+    cell.font = Font(name=FONT_FAMILY, bold=True, size=10)
+ws.row_dimensions[3].height = 20
 ws["A4"] = "示例股份（600000.SH）"
 ws["B4"] = 125.4
 ws["C4"] = "=B4/10"
 ws["D4"] = "交易所公告，2026年5月27日"
 ws["D4"].hyperlink = "https://example.com/announcement"
 for cell in ws[4]:
-    cell.font = Font(name="Microsoft YaHei")
+    cell.font = Font(name=FONT_FAMILY, size=10)
+ws.row_dimensions[4].height = 18
 ws["B4"].number_format = '¥#,##0.0"亿"'
 ws["C4"].number_format = '0.0x'
 ws["A6"] = "免责声明：本样例不构成投资建议，应由人工审阅。"
-ws["A6"].font = Font(name="Microsoft YaHei")
+ws["A6"].font = Font(name=FONT_FAMILY, size=8)
 assumptions = wb.create_sheet("来源与假设")
 assumptions["A1"] = "来源与假设"
-assumptions["A1"].font = Font(name="Microsoft YaHei", bold=True)
+assumptions["A1"].font = Font(name=FONT_FAMILY, bold=True, size=14)
 assumptions["A2"] = "来源：交易所公告"
 assumptions["A3"] = "假设：一致预期未作为正式输入"
 checks = wb.create_sheet("检查区")
@@ -80,8 +92,10 @@ if ws["C4"].data_type != "f":
     fail("xlsx formula cell is not a formula")
 if "投资建议" not in ws["A6"].value:
     fail("xlsx disclaimer missing")
-if ws["A1"].font.name != "Microsoft YaHei" or ws["A4"].font.name not in (None, "Microsoft YaHei"):
-    fail("xlsx Chinese font stack missing on title or body")
+if ws["A1"].font.name != FONT_FAMILY or ws["A4"].font.name not in (None, FONT_FAMILY):
+    fail("xlsx Source Han Serif CN font missing on title or body")
+if ws.row_dimensions[1].height != 24 or ws.row_dimensions[4].height != 18:
+    fail("xlsx Source Han Serif CN row-height policy missing")
 if not ws["D4"].hyperlink or "https://example.com/announcement" not in ws["D4"].hyperlink.target:
     fail("xlsx source hyperlink missing")
 
@@ -90,14 +104,14 @@ prs = Presentation()
 slide = prs.slides.add_slide(prs.slide_layouts[5])
 title = slide.shapes.title
 title.text = "A股优先估值摘要"
-title.text_frame.paragraphs[0].runs[0].font.name = "Microsoft YaHei"
-title.text_frame.paragraphs[0].runs[0].font.size = Pt(28)
+title.text_frame.paragraphs[0].runs[0].font.name = FONT_FAMILY
+title.text_frame.paragraphs[0].runs[0].font.size = Pt(22)
 box = slide.shapes.add_textbox(left=914400, top=1828800, width=7315200, height=1828800)
 tf = box.text_frame
-tf.text = "来源：交易所公告"
+tf.text = "来源：交易所公告，2026年5月27日"
 source_run = tf.paragraphs[0].runs[0]
-source_run.font.name = "Microsoft YaHei"
-source_run.font.size = Pt(6)
+source_run.font.name = FONT_FAMILY
+source_run.font.size = Pt(7)
 source_run.hyperlink.address = "https://example.com/announcement"
 table_shape = slide.shapes.add_table(rows=2, cols=2, left=914400, top=3200400, width=3657600, height=731520)
 table = table_shape.table
@@ -105,18 +119,11 @@ table.cell(0, 0).text = "指标"
 table.cell(0, 1).text = "本期"
 table.cell(1, 0).text = "收入（人民币亿元）"
 table.cell(1, 1).text = "125.4"
-table_source_box = slide.shapes.add_textbox(left=914400, top=3931920, width=3657600, height=228600)
-table_source_tf = table_source_box.text_frame
-table_source_tf.text = "来源：上市公司公告"
-table_source_run = table_source_tf.paragraphs[0].runs[0]
-table_source_run.font.name = "Microsoft YaHei"
-table_source_run.font.size = Pt(6)
-table_source_run.hyperlink.address = "https://example.com/announcement"
 note_box = slide.shapes.add_textbox(left=914400, top=3566160, width=7315200, height=457200)
 note_tf = note_box.text_frame
 note_tf.text = "币种：人民币；单位：亿元；免责声明：不构成投资建议，应由人工审阅。"
 note_run = note_tf.paragraphs[0].runs[0]
-note_run.font.name = "Microsoft YaHei"
+note_run.font.name = FONT_FAMILY
 note_run.font.size = Pt(8)
 chart_data = CategoryChartData()
 chart_data.categories = ["1Q24", "2Q24", "3Q24"]
@@ -148,15 +155,17 @@ source_shapes = [
     shape for slide in prs2.slides for shape in slide.shapes
     if hasattr(shape, "text") and shape.text.startswith("来源：")
 ]
-if len(source_shapes) != 2:
-    fail("pptx exhibit source captions must cover chart and table samples")
+if len(source_shapes) != 1:
+    fail("pptx sample must keep one chart-internal source line")
 for source_shape in source_shapes:
     source_text = source_shape.text
     if "；" in source_text or ";" in source_text or "PDD " in source_text:
-        fail("pptx exhibit source caption must not list multiple sources")
+        fail("pptx chart source must not list multiple sources")
     source_runs = source_shape.text_frame.paragraphs[0].runs
-    if not source_runs or source_runs[0].font.size is None or source_runs[0].font.size.pt > 7:
-        fail("pptx exhibit source caption must use very small font <= 7pt")
+    if not source_runs or source_runs[0].font.name != FONT_FAMILY:
+        fail("pptx chart source must use Source Han Serif CN")
+    if source_runs[0].font.size is None or source_runs[0].font.size.pt != 7:
+        fail("pptx chart source font must be exactly 7pt")
     if source_runs[0].hyperlink.address != "https://example.com/announcement":
         fail("pptx exhibit source caption hyperlink missing")
 with zipfile.ZipFile(pptx) as zf:
@@ -190,7 +199,7 @@ styles_xml = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
   <w:style w:type="paragraph" w:default="1" w:styleId="Normal">
     <w:name w:val="正文"/>
     <w:rPr>
-      <w:rFonts w:eastAsia="Microsoft YaHei" w:ascii="Microsoft YaHei" w:hAnsi="Microsoft YaHei"/>
+      <w:rFonts w:eastAsia="Source Han Serif CN" w:ascii="Source Han Serif CN" w:hAnsi="Source Han Serif CN"/>
       <w:sz w:val="21"/>
     </w:rPr>
   </w:style>
@@ -198,7 +207,7 @@ styles_xml = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
     <w:name w:val="标题 1"/>
     <w:basedOn w:val="Normal"/>
     <w:rPr>
-      <w:rFonts w:eastAsia="Microsoft YaHei" w:ascii="Microsoft YaHei" w:hAnsi="Microsoft YaHei"/>
+      <w:rFonts w:eastAsia="Source Han Serif CN" w:ascii="Source Han Serif CN" w:hAnsi="Source Han Serif CN"/>
       <w:b/>
       <w:color w:val="1F4E5F"/>
       <w:sz w:val="30"/>
@@ -236,7 +245,7 @@ document_xml = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
     <w:p>
       <w:pPr><w:pStyle w:val="Heading1"/></w:pPr>
       <w:r>
-        <w:rPr><w:rFonts w:eastAsia="Microsoft YaHei" w:ascii="Microsoft YaHei" w:hAnsi="Microsoft YaHei"/></w:rPr>
+        <w:rPr><w:rFonts w:eastAsia="Source Han Serif CN" w:ascii="Source Han Serif CN" w:hAnsi="Source Han Serif CN"/></w:rPr>
         <w:t>A股优先业绩更新报告</w:t>
       </w:r>
     </w:p>
@@ -245,7 +254,7 @@ document_xml = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
         <w:numPr><w:ilvl w:val="0"/><w:numId w:val="1"/></w:numPr>
       </w:pPr>
       <w:r>
-        <w:rPr><w:rFonts w:eastAsia="Microsoft YaHei" w:ascii="Microsoft YaHei" w:hAnsi="Microsoft YaHei"/></w:rPr>
+        <w:rPr><w:rFonts w:eastAsia="Source Han Serif CN" w:ascii="Source Han Serif CN" w:hAnsi="Source Han Serif CN"/></w:rPr>
         <w:t>收入同比增长，毛利率应结合公告口径审阅。</w:t>
       </w:r>
     </w:p>
@@ -266,31 +275,25 @@ document_xml = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
         <w:gridCol w:w="3000"/>
       </w:tblGrid>
       <w:tr>
-        <w:tc><w:tcPr><w:tcW w:w="3000" w:type="dxa"/></w:tcPr><w:p><w:r><w:rPr><w:rFonts w:eastAsia="Microsoft YaHei" w:ascii="Microsoft YaHei" w:hAnsi="Microsoft YaHei"/></w:rPr><w:t>指标</w:t></w:r></w:p></w:tc>
-        <w:tc><w:tcPr><w:tcW w:w="3000" w:type="dxa"/></w:tcPr><w:p><w:r><w:rPr><w:rFonts w:eastAsia="Microsoft YaHei" w:ascii="Microsoft YaHei" w:hAnsi="Microsoft YaHei"/></w:rPr><w:t>本期</w:t></w:r></w:p></w:tc>
-        <w:tc><w:tcPr><w:tcW w:w="3000" w:type="dxa"/></w:tcPr><w:p><w:r><w:rPr><w:rFonts w:eastAsia="Microsoft YaHei" w:ascii="Microsoft YaHei" w:hAnsi="Microsoft YaHei"/></w:rPr><w:t>来源</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:tcW w:w="3000" w:type="dxa"/></w:tcPr><w:p><w:r><w:rPr><w:rFonts w:eastAsia="Source Han Serif CN" w:ascii="Source Han Serif CN" w:hAnsi="Source Han Serif CN"/></w:rPr><w:t>指标</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:tcW w:w="3000" w:type="dxa"/></w:tcPr><w:p><w:r><w:rPr><w:rFonts w:eastAsia="Source Han Serif CN" w:ascii="Source Han Serif CN" w:hAnsi="Source Han Serif CN"/></w:rPr><w:t>本期</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:tcW w:w="3000" w:type="dxa"/></w:tcPr><w:p><w:r><w:rPr><w:rFonts w:eastAsia="Source Han Serif CN" w:ascii="Source Han Serif CN" w:hAnsi="Source Han Serif CN"/></w:rPr><w:t>来源</w:t></w:r></w:p></w:tc>
       </w:tr>
       <w:tr>
-        <w:tc><w:tcPr><w:tcW w:w="3000" w:type="dxa"/></w:tcPr><w:p><w:r><w:rPr><w:rFonts w:eastAsia="Microsoft YaHei" w:ascii="Microsoft YaHei" w:hAnsi="Microsoft YaHei"/></w:rPr><w:t>收入（人民币亿元）</w:t></w:r></w:p></w:tc>
-        <w:tc><w:tcPr><w:tcW w:w="3000" w:type="dxa"/></w:tcPr><w:p><w:r><w:rPr><w:rFonts w:eastAsia="Microsoft YaHei" w:ascii="Microsoft YaHei" w:hAnsi="Microsoft YaHei"/></w:rPr><w:t>125.4</w:t></w:r></w:p></w:tc>
-        <w:tc><w:tcPr><w:tcW w:w="3000" w:type="dxa"/></w:tcPr><w:p><w:r><w:rPr><w:rFonts w:eastAsia="Microsoft YaHei" w:ascii="Microsoft YaHei" w:hAnsi="Microsoft YaHei"/></w:rPr><w:t>数据来源：交易所公告</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:tcW w:w="3000" w:type="dxa"/></w:tcPr><w:p><w:r><w:rPr><w:rFonts w:eastAsia="Source Han Serif CN" w:ascii="Source Han Serif CN" w:hAnsi="Source Han Serif CN"/></w:rPr><w:t>收入（人民币亿元）</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:tcW w:w="3000" w:type="dxa"/></w:tcPr><w:p><w:r><w:rPr><w:rFonts w:eastAsia="Source Han Serif CN" w:ascii="Source Han Serif CN" w:hAnsi="Source Han Serif CN"/></w:rPr><w:t>125.4</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:tcW w:w="3000" w:type="dxa"/></w:tcPr><w:p><w:r><w:rPr><w:rFonts w:eastAsia="Source Han Serif CN" w:ascii="Source Han Serif CN" w:hAnsi="Source Han Serif CN"/></w:rPr><w:t>数据来源：交易所公告</w:t></w:r></w:p></w:tc>
       </w:tr>
     </w:tbl>
     <w:p>
       <w:r>
-        <w:rPr><w:rFonts w:eastAsia="Microsoft YaHei" w:ascii="Microsoft YaHei" w:hAnsi="Microsoft YaHei"/><w:sz w:val="12"/></w:rPr>
-        <w:t>来源：</w:t>
+        <w:rPr><w:rFonts w:eastAsia="Source Han Serif CN" w:ascii="Source Han Serif CN" w:hAnsi="Source Han Serif CN"/><w:b/><w:sz w:val="18"/></w:rPr>
+        <w:t>图表 1：收入与估值摘要</w:t>
       </w:r>
-      <w:hyperlink r:id="rIdSource">
-        <w:r>
-          <w:rPr><w:rFonts w:eastAsia="Microsoft YaHei" w:ascii="Microsoft YaHei" w:hAnsi="Microsoft YaHei"/><w:sz w:val="12"/><w:u w:val="single"/><w:color w:val="0563C1"/></w:rPr>
-          <w:t>交易所公告</w:t>
-        </w:r>
-      </w:hyperlink>
     </w:p>
     <w:p>
       <w:r>
-        <w:rPr><w:rFonts w:eastAsia="Microsoft YaHei" w:ascii="Microsoft YaHei" w:hAnsi="Microsoft YaHei"/></w:rPr>
+        <w:rPr><w:rFonts w:eastAsia="Source Han Serif CN" w:ascii="Source Han Serif CN" w:hAnsi="Source Han Serif CN"/></w:rPr>
         <w:t>免责声明：本材料不构成投资建议，应由人工审阅。</w:t>
       </w:r>
     </w:p>
@@ -327,9 +330,9 @@ with zipfile.ZipFile(docx) as zf:
     rel_xml = zf.read("word/_rels/document.xml.rels").decode("utf-8")
 
 for needle in (
-    'w:eastAsia="Microsoft YaHei"',
-    'w:ascii="Microsoft YaHei"',
-    'w:hAnsi="Microsoft YaHei"',
+    'w:eastAsia="Source Han Serif CN"',
+    'w:ascii="Source Han Serif CN"',
+    'w:hAnsi="Source Han Serif CN"',
 ):
     if needle not in doc_xml or needle not in style_xml:
         fail(f"docx font attribute missing {needle}")
@@ -372,24 +375,20 @@ sect_prs = doc_root.findall(".//w:sectPr", w_ns)
 if len(sect_prs) != 1:
     fail("docx sample must contain only the final document section properties")
 source_paragraphs = []
+figure_paragraphs = []
 for paragraph in doc_root.findall(".//w:p", w_ns):
     paragraph_text = "".join(paragraph.itertext()).strip()
     if paragraph_text.startswith("来源："):
         source_paragraphs.append(paragraph)
-if len(source_paragraphs) != 1:
-    fail("docx exhibit source caption must keep exactly one primary source")
-source_text = "".join(source_paragraphs[0].itertext())
-if "；" in source_text or ";" in source_text or "PDD " in source_text:
-    fail("docx exhibit source caption must not list multiple sources")
-hyperlinks = source_paragraphs[0].findall(".//w:hyperlink", w_ns)
-if len(hyperlinks) != 1:
-    fail("docx exhibit source caption must contain exactly one hyperlink")
-for size in source_paragraphs[0].findall(".//w:sz", w_ns):
-    val = size.attrib.get(f"{{{w_ns['w']}}}val")
-    if val is None or int(val) > 14:
-        fail("docx exhibit source caption font must be <= 7pt")
-if '<w:sz w:val="12"/>' not in doc_xml:
-    fail("docx source caption must default to 6pt")
+    if paragraph_text.startswith("图表 "):
+        figure_paragraphs.append(paragraph)
+if source_paragraphs:
+    fail("docx must not place a source paragraph below charts")
+if len(figure_paragraphs) != 1 or "图表 1：收入与估值摘要" not in "".join(figure_paragraphs[0].itertext()):
+    fail("docx chart caption must use centered 图表 N：<主题> text")
+figure_sizes = figure_paragraphs[0].findall(".//w:sz", w_ns)
+if not figure_sizes or any(size.attrib.get(f"{{{w_ns['w']}}}val") != "18" for size in figure_sizes):
+    fail("docx chart caption font must be exactly 9pt")
 for needle in ("交易所公告", "数据来源", "免责声明"):
     if needle not in doc_xml:
         fail(f"docx Chinese content missing {needle}")

@@ -1,4 +1,4 @@
-> Reference 链路：执行本文件前，先读取本 skill 的 `references/data-query-order.md`、`references/cn-markdown-formatting.md`、`references/cn-docx-formatting.md`；本文件只描述业务 workflow 或参考口径，不承载新增中文格式正文。
+> Reference 链路：执行本文件前，先读取插件根目录 `../../../DATA_QUERY_ORDER_CN.md`，并读取插件根目录 `../../../CN_OUTPUT_FORMATTING.md`、`../../../CN_MARKDOWN_OUTPUT_CONTRACT.md`、`../../../CN_DOCX_OUTPUT_CONTRACT.md`；本文件只描述业务 workflow 或参考口径，不承载新增中文格式正文。
 
 # 报告结构与模板
 
@@ -351,7 +351,7 @@ EV/EBITDA（x）       XX.Xx     XX.Xx               XX.Xx
 ### 3. 所有图表要求
 - 图表上方写“图 X - [标题]”
 - Exhibit 下方写单一主来源：“来源：[有意义显示文本]”
-- 来源 caption 默认 6pt、最大 7pt；hyperlink run 必须显式设置同一小字号
+- 图表内部来源固定 7pt Regular；DOCX 图表下方只保留居中的 `图表 N：<主题>`，不再写来源小字
 - 使用专业样式
 - 完整来源清单放在“数据来源与口径说明”或“来源与参考资料”，不得堆在 Exhibit 下方
 

@@ -1,6 +1,6 @@
-> Reference 链路：执行本文件前，先读取本 skill 的 `references/data-query-order.md`、`references/cn-markdown-formatting.md`、`references/cn-html-formatting.md`；本文件只描述业务 workflow 或参考口径，不承载新增中文格式正文。
+> Reference 链路：执行本文件前，先读取插件根目录 `../../DATA_QUERY_ORDER_CN.md`，并读取插件根目录 `../../CN_OUTPUT_FORMATTING.md`、`../../CN_MARKDOWN_OUTPUT_CONTRACT.md`、`../../CN_HTML_OUTPUT_CONTRACT.md`；本文件只描述业务 workflow 或参考口径，不承载新增中文格式正文。
 
-> 图表样式 Gate：生成或审查图表前必须读取本 skill 的本地格式 reference；柱状图、堆叠柱状图、分组柱状图默认关闭纵坐标横向网格线，除非用户明确要求或图表类型必须依赖网格线，否则不得显示 major/minor gridlines。DOCX、PPTX、PNG/JPG 图表都必须在 QA 中检查该项。
+> 图表样式 Gate：生成或审查图表前必须遵守插件根目录 `CN_CHART_OUTPUT_CONTRACT.md` 及对应产物合同；柱状图、堆叠柱状图、分组柱状图默认关闭纵坐标横向网格线，除非用户明确要求或图表类型必须依赖网格线，否则不得显示 major/minor gridlines。DOCX、PPTX、PNG/JPG 图表都必须在 QA 中检查该项。
 
 # HTML 报告模板参考
 
@@ -27,14 +27,26 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js" integrity="sha384-vsrfeLOOY6KuIYKDlmVH5UiBmgIdB1oEf7p01YgWHuqmOHfZr374+odEv96n9tNC" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.1.0/dist/chartjs-plugin-annotation.min.js" integrity="sha384-3N9GHhCtN3CQef6tNfqgZlv7sQLYIkcChN+uaTZ7xVdzKYp/SjBNPxa92+hM7EAY" crossorigin="anonymous"></script>
   <style>
+    @font-face {
+      font-family: "Source Han Serif CN";
+      font-style: normal;
+      font-weight: 400;
+      src: url("https://cdn.jsdelivr.net/gh/adobe-fonts/source-han-serif@release/SubsetOTF/CN/SourceHanSerifCN-Regular.otf") format("opentype");
+    }
+    @font-face {
+      font-family: "Source Han Serif CN";
+      font-style: normal;
+      font-weight: 700;
+      src: url("https://cdn.jsdelivr.net/gh/adobe-fonts/source-han-serif@release/SubsetOTF/CN/SourceHanSerifCN-Bold.otf") format("opentype");
+    }
     /* ── 重置与基础样式 ── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { font-size: 15px; }
     body {
-      font-family: 'Microsoft YaHei', 'PingFang SC', 'Noto Sans CJK SC', Arial, sans-serif;
+      font-family: 'Source Han Serif CN';
       color: #1a1a2e;
       background: #fff;
-      line-height: 1.6;
+      line-height: 1.55;
     }
 
     /* ── 版式 ── */
@@ -713,7 +725,7 @@ if (window['chartjs-plugin-annotation']) {
 }
 
 // ── Chart 默认值 ──
-Chart.defaults.font.family = "'Microsoft YaHei', 'PingFang SC', 'Noto Sans CJK SC', Arial, sans-serif";
+Chart.defaults.font.family = "'Source Han Serif CN'";
 Chart.defaults.font.size = 11;
 Chart.defaults.color = '#555';
 Chart.defaults.plugins.legend.position = 'bottom';
@@ -1191,6 +1203,6 @@ try {
 
 ### 风格规则
 - **报告任何位置都不得使用表情符号**。标题、表格、图表标签和正文都不得出现表情符号。这是一份专业研究文档。
-- 字体：全文使用中文优先字体栈（正文、标题、表格、图表），例如 Microsoft YaHei / PingFang SC / Noto Sans CJK SC，并保留 Arial 作为备用字体。
+- 字体：全文使用 `Source Han Serif CN`（正文、标题、表格、图表），通过 `CN_HTML_OUTPUT_CONTRACT.md` 规定的 CDN `@font-face` 加载 Regular 和 Bold。
 - 管理层引述：作为 `<blockquote>` 元素嵌入核心观点叙述中，不要单独设立标题。
 - 文字保持精炼。正文目标总长度为打印后 4-5 页，附录另计。

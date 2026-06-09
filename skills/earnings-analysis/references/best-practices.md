@@ -1,6 +1,6 @@
-> Reference 链路：执行本文件前，先读取本 skill 的 `references/data-query-order.md`、`references/cn-markdown-formatting.md`、`references/cn-docx-formatting.md`；本文件只描述业务 workflow 或参考口径，不承载新增中文格式正文。
+> Reference 链路：执行本文件前，先读取插件根目录 `../../../DATA_QUERY_ORDER_CN.md`，并读取插件根目录 `../../../CN_OUTPUT_FORMATTING.md`、`../../../CN_MARKDOWN_OUTPUT_CONTRACT.md`、`../../../CN_DOCX_OUTPUT_CONTRACT.md`；本文件只描述业务 workflow 或参考口径，不承载新增中文格式正文。
 
-> 图表样式 Gate：生成或审查图表前必须读取本 skill 的本地格式 reference；柱状图、堆叠柱状图、分组柱状图默认关闭纵坐标横向网格线，除非用户明确要求或图表类型必须依赖网格线，否则不得显示 major/minor gridlines。DOCX、PPTX、PNG/JPG 图表都必须在 QA 中检查该项。
+> 图表样式 Gate：生成或审查图表前必须遵守插件根目录 `CN_CHART_OUTPUT_CONTRACT.md` 及对应产物合同；柱状图、堆叠柱状图、分组柱状图默认关闭纵坐标横向网格线，除非用户明确要求或图表类型必须依赖网格线，否则不得显示 major/minor gridlines。DOCX、PPTX、PNG/JPG 图表都必须在 QA 中检查该项。
 
 # 最佳实践、示例和质量指南
 
@@ -139,9 +139,9 @@
 
 **图表：**
 - [ ] 全文嵌入 8-12 张图表
-- [ ] 所有图表上方都有“图 X - [标题]”图题
-- [ ] 所有 Exhibit 下方都有单一主来源 caption
-- [ ] 所有 Exhibit 来源 caption 默认 6pt、最大 7pt，hyperlink run 同步设置小字号
+- [ ] DOCX 图表下方都有居中的 `图表 N：<主题>`
+- [ ] 图表来源写入图表内部，固定 7pt Regular
+- [ ] 图表内部来源固定 7pt Regular；DOCX 图表下方只保留居中的 `图表 N：<主题>`，不再写来源小字
 - [ ] 图表聚焦季度趋势
 - [ ] 图表突出变化（超预期/低于预期、预测调整）
 - [ ] 图表使用专业样式
@@ -189,12 +189,12 @@
 
 ### DOCX 结构与视觉 QA 清单
 
-- [ ] `w:rFonts` 包含中文字体栈，并设置 `eastAsia`、`ascii`、`hAnsi`
+- [ ] `w:rFonts` 的 `eastAsia`、`ascii`、`hAnsi` 都等于 `Source Han Serif CN`
 - [ ] 使用真实 Word numbering definitions，未使用 fake bullets
 - [ ] 文档 XML 中没有裸 URL
 - [ ] Hyperlink relationships 存在且显示文本有意义
 - [ ] 正文、表格、脚注、来源、caption 和超链接显示文本不含固定校验标签
-- [ ] Exhibit 来源 caption 只有一个主来源，且字号不超过 7pt
+- [ ] 图表内部来源只有一个主来源，且字号为 7pt
 - [ ] 如 LibreOffice/`soffice` 可用，已完成 DOCX -> PNG render QA
 - [ ] 如未完成 render QA，最终回复说明具体原因和剩余风险
 
