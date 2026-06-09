@@ -141,7 +141,7 @@ CONTEXT_4: [语境]
 1. 调用 `get_competitors_from_identifiers`，参数 `competitor_来源="all"`。
 2. 选择**最相关的前 5-7 家上市竞争对手**。
 3. 对该公司和所有选定竞争对手，收集：
-   - `get_prices_from_identifiers`，参数 `periodicity="day"`，最近 12 个月。
+   - `get_prices_from_identifiers`，参数 `periodicity="day"`，最近 12-24 个月。
    - `get_financial_line_item_from_identifiers`，用于 `diluted_eps`，参数 `period_type="quarterly"`、`num_periods=8`。
    - `get_capitalization_from_identifiers`，参数 `capitalization="market_cap"`（最新）。
    - `get_consensus_estimates_from_identifiers`，参数 `period_type="quarterly"`、`num_periods_forward=4`；它会返回未来 4 个季度的一致预期平均 EPS，用于汇总计算 NTM EPS。
@@ -283,7 +283,7 @@ D,Q3 2025,Contracted Energy,297000000,get_segments_from_identifiers(identifier='
 ```
 
 **业绩历史（用于股价图标注）：**
-- `get_earnings_from_identifiers` — 收集 12 个月价格窗口内的过往业绩日期。
+- `get_earnings_from_identifiers` — 收集 12-24 个月价格窗口内的过往业绩日期。
 - **立即写入** `/tmp/earnings-preview/earnings-dates.csv`：
 ```
 ticker,earnings_date,call_name,来源
@@ -436,6 +436,7 @@ HTML 报告中必须包含以下免责声明文本。这不是可选项；没有
 - **AI 免责声明横幅**（黄色、居中；见 AI 免责声明规则）。
 - **页眉**：公司名称（TICKER）| 行业 | 报告日期。
 - **标题**：贴合本季度的主题化标题（例如“沃尔玛 (WMT) 2026 财年第 4 季度业绩预览：节日季收成，Furner 首份成绩单能否确认 1 万亿美元逻辑？”）。
+- **首页股价图**：标题和必要公司元数据下方必须放置该股票 12-24 个月原始股价图；不做归一化，不重设起点为 100，并标注最新价格、52 周区间、数据日期和来源。
 - **执行层投资逻辑**（最多 2-3 个短段落，并配要点）：
   - 用 1-2 句话说明我们对本次业绩的预期。
   - 4-6 条要点覆盖：我们的 EPS 估计 vs 一致预期、指引预期、需关注的关键指标、什么会推动股价、关键争议。
@@ -477,8 +478,8 @@ HTML 报告中必须包含以下免责声明文本。这不是可选项；没有
 - **图 2：利润率趋势（毛利率与营业利润率）** — 双线图，8 个季度。
 - **图 3：收入同比增速 %** — 柱状图，绿色/红色条件着色。**只纳入当前期和上一年同期数据都存在的季度**（通常为抓取的 8 个季度中的最近 4 个）。不要纳入无法计算 y/y 的季度；图表应有 4 个柱，而不是 8 个。
 - **图 4：业务分部收入** — 表格：分部 | 最近季度收入（百万美元） | 占总收入比例 | 同比变化。
-- **图 5：过去 1 年股价及业绩日期** — 价格折线，业绩日期用垂直标注线，标记季度和业绩后 1 日股价变化。
-- **图 6：股价表现与可比公司对比（指数化至 100）** — 多线图，主体公司为加粗实线，竞争对手为较细虚线。
+- **图 5：过去 12-24 个月原始股价及业绩日期** — 价格折线，业绩日期用垂直标注线，标记季度和业绩后 1 日股价变化；标注最新价格、52 周区间、数据日期和来源。
+- **图 6：同业 1 年回报对比** — 柱状图，主体公司高亮；不得把股价重设起点为 100。
 - **图 7：LTM P/E 与可比公司对比** — 横向条形图，主体公司用海军蓝高亮。
 - **图 8：可比公司对比表** — 股票代码 | 公司 | 市值 | LTM P/E | NTM P/E | YTD % | 1 年 %。
 
