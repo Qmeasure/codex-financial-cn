@@ -354,6 +354,15 @@
 
   <h1 class="report-title">[公司名称] ([TICKER]) [Q# FY####] 业绩预览：[主题副标题]</h1>
 
+  <div class="chart-row">
+    <div class="chart-container chart-full">
+      <h4 class="figure-title">首页股价图：[TICKER] 12–24 个月原始股价走势</h4>
+      <canvas id="chart-home-price" style="max-height: 260px;"></canvas>
+      <div class="source">最新价格：[价格]；52 周区间：[低点]–[高点]；数据日期：[YYYY-MM-DD]</div>
+      <div class="source">来源：S&P Capital IQ；图内标注最新价格、52 周区间、数据日期和来源</div>
+    </div>
+  </div>
+
   <div class="executive-summary">
     <!-- 核心观点：2-3 个短段落 + 要点列表。
          写清我们的预期、EPS 预测与一致预期对比、指引预期、
@@ -497,19 +506,20 @@
   <!-- 股票与可比公司图表分页 -->
   <div class="page-break">
 
-    <!-- 图 5：过去 1 年股价及业绩发布日期 -->
+    <!-- 图 5：过去 12–24 个月原始股价及业绩发布日期 -->
     <div class="chart-row">
       <div class="chart-container chart-full">
-        <h4 class="figure-title">图 5：过去 1 年股价及业绩发布日期</h4>
+        <h4 class="figure-title">图 5：过去 12–24 个月原始股价及业绩发布日期</h4>
         <canvas id="chart-price-annotated" style="max-height: 300px;"></canvas>
+        <div class="source">最新价格：[价格]；52 周区间：[低点]–[高点]；数据日期：[YYYY-MM-DD]</div>
         <div class="source">来源：S&P Capital IQ</div>
       </div>
     </div>
 
-    <!-- 图 6：股价表现与可比公司对比（指数化至 100） -->
+    <!-- 图 6：同业 1 年回报对比 -->
     <div class="chart-row">
       <div class="chart-container chart-full">
-        <h4 class="figure-title">图 6：股价表现与可比公司对比 — 1 年（指数化至 100）</h4>
+        <h4 class="figure-title">图 6：同业 1 年回报对比</h4>
         <canvas id="chart-comp-perf" style="max-height: 300px;"></canvas>
         <div class="source">来源：S&P Capital IQ</div>
       </div>
@@ -934,36 +944,31 @@ function createAnnotatedPriceChart(canvasId, labels, prices, earningsDates, tick
   });
 }
 
-// ── 辅助函数：可比公司指数化表现图 ──
-// datasets: [{ label: 'TICKER', data: [price1, price2, ...], color: '#xxx', isSubject: true/false }, ...]
+// ── 辅助函数：同业回报对比图 ──
+// datasets: [{ label: 'TICKER', returnPct: 12.3, color: '#xxx', isSubject: true/false }, ...]
 function createCompPerfChart(canvasId, labels, datasets) {
   const ctx = document.getElementById(canvasId);
   if (!ctx) return;
-  const chartDatasets = datasets.map((ds, i) => {
-    const base = ds.data[0] || 1;
-    return {
-      label: ds.label,
-      data: ds.data.map(v => (v / base) * 100),
-      borderColor: ds.color || COMP_COLORS[i % COMP_COLORS.length],
-      backgroundColor: 'transparent',
-      borderWidth: ds.isSubject ? 3 : 1.5,
-      borderDash: ds.isSubject ? [] : [4, 2],
-      pointRadius: 0,
-      tension: 0.2
-    };
-  });
+  const barColors = datasets.map((ds, i) => ds.color || (ds.isSubject ? '#1a1a4e' : COMP_COLORS[i % COMP_COLORS.length]));
   new Chart(ctx, {
-    type: 'line',
-    data: { labels: labels, datasets: chartDatasets },
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: '1 年回报',
+        data: datasets.map(ds => ds.returnPct),
+        backgroundColor: barColors
+      }]
+    },
     options: {
       responsive: true,
-      interaction: { mode: 'index', intersect: false },
       scales: {
-        y: { title: { display: true, text: '指数化（起点=100）', font: { size: 11 } }, grid: { color: '#eee' } },
+        y: { title: { display: true, text: '1 年回报（%）', font: { size: 11 } }, grid: { color: '#eee' } },
         x: { ticks: { maxTicksLimit: 12 } }
       },
       plugins: {
-        tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + ctx.raw.toFixed(1) } }
+        tooltip: { callbacks: { label: ctx => ctx.raw.toFixed(1) + '%' } },
+        legend: { display: false }
       }
     }
   });
@@ -1023,6 +1028,18 @@ function createPEChart(canvasId, companies) {
 <!-- 强制要求：使用上方辅助函数，不要写自定义代码。             -->
 <!-- ═══════════════════════════════════════════════════════════ -->
 
+<!-- 首页股价图：12–24 个月原始股价 -->
+<script>
+try {
+  createAnnotatedPriceChart('chart-home-price',
+    ['2025-02-18','2025-02-19'],  // ……12–24 个月日度日期标签
+    [170.5, 171.2],               // ……日度收盘价，不做归一化
+    [],
+    'WMT'
+  );
+} catch(e) { console.error('首页股价图错误：', e); }
+</script>
+
 <!-- 图 1：收入与 EPS -->
 <script>
 try {
@@ -1071,15 +1088,15 @@ try {
 } catch(e) { console.error('图 5 错误：', e); }
 </script>
 
-<!-- 图 6：可比公司指数化表现 -->
+<!-- 图 6：同业 1 年回报对比 -->
 <script>
 try {
   createCompPerfChart('chart-comp-perf',
-    ['2025-02-18','2025-03-18'],  // ……日期标签
+    ['WMT', 'COST', 'TGT'],
     [
-      { label: 'WMT', data: [170.5, 172.3], isSubject: true },
-      { label: 'COST', data: [580.2, 595.1], isSubject: false },
-      { label: 'TGT', data: [142.0, 138.5], isSubject: false }
+      { label: 'WMT', returnPct: 12.4, isSubject: true },
+      { label: 'COST', returnPct: 8.2, isSubject: false },
+      { label: 'TGT', returnPct: -4.7, isSubject: false }
     ]
   );
 } catch(e) { console.error('图 6 错误：', e); }
@@ -1127,20 +1144,21 @@ try {
 - 列：分部 | 最近季度收入（百万美元） | 占总收入比例 | 同比变化
 - 同比变化单元格使用 `pos` / `neg` class 做颜色标记
 
-### 图 5：带业绩日期标注的股价图
+### 图 5：带业绩日期标注的原始股价图
 - **类型**：折线图，使用 annotation 插件添加竖线
-- **数据**：过去 1 年日度收盘价
+- **数据**：过去 12-24 个月日度收盘价，不做归一化，不重设起点为 100
+- **标注**：最新价格、52 周区间、数据日期和来源
 - **标注**：每个业绩发布日期放置一条竖向虚线
 - **标签**：季度名称 + 业绩发布后 1 个交易日股价变动
 - **颜色**：正向反应用绿色，负向反应用红色
 - **1 日变动计算**：比较业绩发布日期收盘价与下一交易日收盘价
 - **关键**：创建图表前必须注册 annotation 插件：`Chart.register(window['chartjs-plugin-annotation'])`。模板脚本块中已包含该逻辑。
 
-### 图 6：可比公司指数化表现图
-- **类型**：多折线图，统一重设起点为 100
-- **标的公司**：较粗实线（`borderWidth: 3`）
-- **可比公司**：较细虚线（`borderWidth: 1.5`、`borderDash`）
-- 这种视觉层级可以让标的公司一眼可辨
+### 图 6：同业 1 年回报对比图
+- **类型**：柱状图，展示主体公司和可比公司的 1 年回报
+- **标的公司**：使用海军蓝高亮
+- **可比公司**：使用浅蓝色或灰色
+- 不得把股价重设起点为 100，也不得用归一化股价替代首页原始股价图
 
 ### 图 7：LTM P/E 对比图
 - **类型**：横向柱状图
