@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -40,13 +41,13 @@ def rel(path: Path) -> str:
 
 
 def parse_semver(value: str) -> tuple[int, int, int] | None:
-    parts = (value or "").split(".")
-    if len(parts) != 3:
+    match = re.fullmatch(
+        r"(\d+)\.(\d+)\.(\d+)(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?",
+        value or "",
+    )
+    if match is None:
         return None
-    try:
-        return tuple(int(part) for part in parts)  # type: ignore[return-value]
-    except ValueError:
-        return None
+    return tuple(int(part) for part in match.groups())  # type: ignore[return-value]
 
 
 def patch_bump(value: str) -> str:

@@ -5,9 +5,9 @@
 ## 1. 仓库身份
 
 - 插件名称固定为 `financial-services-cn`。
-- 根级结构固定包含 `.codex-plugin/plugin.json`、`OPTIONAL_MCP_SERVERS.json`、`skills/`、`README.md`、`DATA_SOURCES_CN.md`、`DATA_QUERY_ORDER_CN.md` 和 `CN_OUTPUT_FORMATTING.md`；根目录不得放置 `.mcp.json`，避免 Codex 自动加载可选数据源。
+- 根级结构固定包含 `.codex-plugin/plugin.json`、`.claude-plugin/plugin.json`、`.claude-plugin/marketplace.json`、`OPTIONAL_MCP_SERVERS.json`、`skills/`、`README.md`、`DATA_SOURCES_CN.md`、`DATA_QUERY_ORDER_CN.md` 和 `CN_OUTPUT_FORMATTING.md`；根目录不得放置 `.mcp.json`，避免 Codex 或 Claude Code 自动加载可选数据源。
 - `skills/` 是唯一的 source skills 目录，采用全扁平结构；每个技能目录必须包含 `SKILL.md`。
-- 仓库内不得重新引入旧多插件包装层、旧平台入口、代理包、托管代理模板或其他旧架构残留。
+- 仓库内不得重新引入旧多插件包装层、旧平台入口、代理包、托管代理模板或其他旧架构残留；`.claude-plugin/` 只用于 Claude Code 插件 manifest 和 marketplace catalog。
 - `.codex-plugin/plugin.json` 只能声明真实存在的能力；没有 `.app.json` 时不得声明 `apps`。
 
 ## 2. 默认金融语境
@@ -62,7 +62,10 @@
 - `.codex-plugin/plugin.json` 的 `name` 必须固定为 `financial-services-cn`。
 - `plugin.json` 的 `skills` 必须固定指向 `./skills/`。
 - `plugin.json` 默认不得声明 `mcpServers`；否则 Codex 安装后会主动初始化所有 MCP，导致未登录、未授权或本地服务未启动时弹出启动告警。
-- `OPTIONAL_MCP_SERVERS.json` 必须保持 Codex MCP 配置形态，不得硬编码 token。
+- `.claude-plugin/plugin.json` 的 `name` 必须固定为 `financial-services-cn`，`skills` 必须固定指向 `./skills/`，不得声明 MCP、hooks、agents 或 commands。
+- `.claude-plugin/marketplace.json` 的 `name` 必须固定为 `financial-services-cn`，且其中 `financial-services-cn` 插件的 `source` 必须固定为 `./`，表示 Claude Code 从同一仓库根目录安装本插件。
+- Codex manifest、Claude Code manifest 和 Claude Code marketplace 的 `name`、`version`、`repository`、`homepage`、`license` 和 `skills` 口径必须保持一致；修改版本或仓库元数据时必须同步三处。
+- `OPTIONAL_MCP_SERVERS.json` 必须保持 Codex MCP 配置形态，不得硬编码 token；它是可选模板清单，不要求保留所有潜在 MCP，也不代表安装插件时会启用或安装 MCP。
 - A 股、港股或机构数据相关 MCP 配置只能作为可选模板保留；无法确认本地服务、依赖、账号或授权时，技能只能记录为未覆盖数据项。
 - 不修改已有技能目录名、schema key、环境变量名、MCP server 名称或既有 URL，除非用户明确要求并说明迁移方案。
 
@@ -74,6 +77,7 @@
 - 如果用户给出明确模板、接口、参数、命令或既有 adapter，必须 1:1 沿用，不自创替代实现。
 - 新增或改写技能时，必须包含“中文版执行契约”，并引用 `DATA_SOURCES_CN.md`、`DATA_QUERY_ORDER_CN.md` 和 `CN_OUTPUT_FORMATTING.md`。
 - 修改根级规则时，同步检查 `README.md`、`DATA_SOURCES_CN.md`、`DATA_QUERY_ORDER_CN.md`、`CN_OUTPUT_FORMATTING.md`、`.codex-plugin/plugin.json` 和相关脚本是否产生矛盾。
+- 修改插件安装或元数据规则时，同步检查 `.codex-plugin/plugin.json`、`.claude-plugin/plugin.json`、`.claude-plugin/marketplace.json`、`README.md` 和相关脚本是否产生矛盾。
 - 修改 formatting 规则时，同步检查对应根级合同、README、样例产物、门禁脚本和安装 cache；不得留下源仓库与安装快照不一致。
 - 修改服务代码时必须自动重启受影响服务；本仓库通常是插件和技能集合，若没有运行服务，不要虚构重启步骤。
 
@@ -96,6 +100,7 @@ python3 scripts/check.py
 python3 scripts/check_cn_localization.py
 python3 scripts/check_cn_artifact_samples.py
 python3 /Users/lesterbot/.codex/skills/.system/plugin-creator/scripts/validate_plugin.py .
+claude plugin validate .
 ```
 
 如果某个校验因本机依赖、外部服务或授权缺失无法执行，必须在最终说明中写清楚具体命令、失败原因和剩余风险。

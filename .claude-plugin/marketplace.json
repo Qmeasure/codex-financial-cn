@@ -1,0 +1,37 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "financial-services-cn",
+  "description": "面向中国大陆投资者和机构金融工作流的中文金融服务插件目录。",
+  "owner": {
+    "name": "Financial Services CN"
+  },
+  "plugins": [
+    {
+      "name": "financial-services-cn",
+      "displayName": "中文金融服务",
+      "description": "面向中国大陆投资者和机构金融工作流的中文金融服务插件，A 股优先，兼容港股和美股，默认只加载技能。",
+      "version": "0.2.14",
+      "author": {
+        "name": "Financial Services CN"
+      },
+      "homepage": "https://github.com/Qmeasure/codex-financial-cn",
+      "repository": "https://github.com/Qmeasure/codex-financial-cn",
+      "license": "MIT",
+      "category": "finance",
+      "keywords": [
+        "finance",
+        "financial-services",
+        "china-market",
+        "a-shares",
+        "hong-kong",
+        "us-stocks",
+        "valuation",
+        "investment-banking",
+        "equity-research",
+        "private-equity",
+        "wealth-management"
+      ],
+      "source": "./"
+    }
+  ]
+}

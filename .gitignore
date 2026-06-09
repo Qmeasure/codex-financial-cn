@@ -44,4 +44,5 @@ coverage/
 # Personal files
 TASKS.md
 MEMORY.md
+.codex/
 .claude/worktrees/

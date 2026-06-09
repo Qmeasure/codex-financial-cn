@@ -48,6 +48,12 @@ def validate_contract_path(data: dict, key: str, expected: str) -> None:
         err(f"plugin.json 的 {key} 指向不存在的路径")
 
 
+def validate_optional_contract_path(data: dict, key: str, expected: str) -> None:
+    if key not in data:
+        return
+    validate_contract_path(data, key, expected)
+
+
 def main() -> int:
     data = load_json(MANIFEST)
     if not data:
@@ -73,15 +79,18 @@ def main() -> int:
 
     if data.get("name") != "financial-services-cn":
         err("plugin.json 的 name 必须是 financial-services-cn")
-    if not isinstance(data.get("version"), str) or not re.fullmatch(r"\d+\.\d+\.\d+", data["version"]):
-        err("plugin.json 的 version 必须是 x.y.z")
+    if not isinstance(data.get("version"), str) or not re.fullmatch(
+        r"\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?",
+        data["version"],
+    ):
+        err("plugin.json 的 version 必须是 semver，可包含 pre-release 或 build metadata")
     if not data.get("description"):
         err("plugin.json 的 description 不能为空")
     if not isinstance(data.get("author"), dict) or not data["author"].get("name"):
         err("plugin.json 的 author.name 不能为空")
 
     validate_contract_path(data, "skills", "skills")
-    validate_contract_path(data, "mcpServers", ".mcp.json")
+    validate_optional_contract_path(data, "mcpServers", ".mcp.json")
     if "apps" in data and not (ROOT / ".app.json").is_file():
         err("没有 .app.json 时不得声明 apps")
 
