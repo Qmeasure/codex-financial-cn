@@ -1,6 +1,7 @@
 > Reference 链路：执行本文件前，先读取插件根目录 `../../../DATA_QUERY_ORDER_CN.md`，并读取插件根目录 `../../../CN_OUTPUT_FORMATTING.md`、`../../../CN_MARKDOWN_OUTPUT_CONTRACT.md`、`../../../CN_DOCX_OUTPUT_CONTRACT.md`、`../../../CN_XLSX_OUTPUT_CONTRACT.md`、`../../../CN_CHART_OUTPUT_CONTRACT.md`；本文件只描述业务 workflow 或参考口径，不承载新增中文格式正文。
 
 > 图表样式 Gate：生成或审查图表前必须遵守插件根目录 `CN_CHART_OUTPUT_CONTRACT.md` 及对应产物合同；柱状图、堆叠柱状图、分组柱状图默认关闭纵坐标横向网格线，除非用户明确要求或图表类型必须依赖网格线，否则不得显示 major/minor gridlines。DOCX、PPTX、PNG/JPG 图表都必须在 QA 中检查该项。
+> 图表导出 Gate：同时检查来源位置、左右白边和文字完整性。来源不得突出到绘图区外；导出后左右白边差不得超过画布宽度 2%；`bbox_inches='tight'` 不能替代视觉 QA。轴外文字优先使用 `ax.text(..., transform=ax.transAxes)`；如用 `annotate`，必须显式设置 `xycoords/textcoords`。
 
 # 任务 4：图表生成 - 详细工作流
 
@@ -805,7 +806,7 @@ chart_28_dcf_sensitivity_heatmap.png
 
 ### 问题 2：文字被截断
 **问题**：标签或标题在边缘被截断
-**解决方案**：在 `plt.savefig()` 中使用 `bbox_inches='tight'`
+**解决方案**：先修正文字坐标和画布边距，再用渲染结果检查。`bbox_inches='tight'` 只负责裁剪外接框，不能修复放错坐标的文字；若使用 `annotate`，必须显式设置 `xycoords/textcoords`，轴外固定位置优先用 `ax.text(..., transform=ax.transAxes)`。
 
 ### 问题 3：颜色不专业
 **问题**：颜色看起来不专业
@@ -817,7 +818,11 @@ chart_28_dcf_sensitivity_heatmap.png
 
 ### 问题 5：空白太多
 **问题**：图表周围留白过多
-**解决方案**：保存前使用 `plt.tight_layout()`
+**解决方案**：保存前使用 `plt.tight_layout()`，导出后检查左右白边差是否超过画布宽度 2%。如果来源、脚注或图例造成单侧突出，先调整到绘图区范围内，必要时导出后左右补齐等量白边。
+
+### 问题 6：图表看起来向右偏移
+**问题**：DOCX 中图片段落已经居中，但图内可见内容仍偏右
+**解决方案**：检查来源文字是否放在 figure 左下角或突出到绘图区外；来源推荐底部居中或与绘图区左缘对齐。不要只靠段落 `center` 判断图片内部内容居中。
 
 ---
 
@@ -834,6 +839,7 @@ chart_28_dcf_sensitivity_heatmap.png
 4. 所有图表风格一致且专业
 5. 高分辨率（300 DPI），适合打印
 6. 每张图都有清晰标签、图例和标题
+7. 每张图文字完整、无裁切、无重叠，来源位置不造成单侧突出，左右白边差不超过画布宽度 2%
 7. 包含正确图号和来源引用
 8. 可立即嵌入 Word
 9. 覆盖全部关键财务指标和分析

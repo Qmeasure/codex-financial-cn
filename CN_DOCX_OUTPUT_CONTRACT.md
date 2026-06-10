@@ -25,6 +25,7 @@ tables:
   width: fixed
   header: {size: 8.5pt, weight: Bold, line_spacing: 1.15, fill: "#1F4E5F", font_color: "#FFFFFF"}
   body: {size: 8.5pt, weight: Regular, line_spacing: 1.15}
+  alignment: {header: center, first_column: left, other_columns: center}
   cell_margins_dxa: {top: 80, bottom: 80, start: 120, end: 120}
 charts:
   internal_source: {size: 7pt, weight: Regular, color: "#666666"}
@@ -64,11 +65,15 @@ charts:
 
 - 表格必须使用真实 Word 表格，禁止用空格、制表符或截图伪造表格。
 - 表格必须固定宽度，禁止依赖 Word 默认 autofit。
-- OOXML 必须包含 `tblGrid`、每列 `gridCol` 和每个单元格 `tcW`；`tblW`、`tblGrid` 和 `tcW` 必须一致。
+- OOXML 必须包含 `tblGrid`、每列 `gridCol` 和每个单元格 `tcW`；`tblW`、`tblGrid` 和 `tcW` 必须一致。每张表的 `tblPr` 内 `<w:tblW>` 必须唯一且 `type=dxa`，不得存在 `type=auto`。
+- python-docx 实现提示：应用内置表样式（例如 `Table Grid`）可能先注入 `<w:tblW w:type="auto" w:w="0"/>`。必须先清除已有 `tblW` 再设置固定宽度；或不用内置样式，改为显式设置 `tblBorders`、`tblGrid`、`tcW` 和 cell margin。
 - 必须设置 cell margin，默认 `top=80`、`bottom=80`、`start=120`、`end=120` DXA。
 - 表格标题默认 9pt Bold，行距 1.15，段前 6pt，段后 3pt。
 - 表头默认 8.5pt Bold，行距 1.15，底色 `#1F4E5F`，字体白色，水平居中。
-- 表体默认 8.5pt Regular，行距 1.15，段前 0pt，段后 0pt；数值右对齐，文本左对齐。
+- 表体默认 8.5pt Regular，行距 1.15，段前 0pt，段后 0pt。
+- 表格按列位置统一对齐，不按单元格内容类型逐格判断：表头行全部水平居中；首列（行标题/科目列）左对齐；首列之外的所有列（数值列与文本列一律）居中对齐。
+- 首列之外的列不得右对齐或左对齐，必须居中；同一列对齐方式必须统一。数字保留小数位、负数括号等格式照旧，不因居中而改变。
+- 上述对齐规则适用于数据表、内容表和财务表。无边框布局表（例如页眉 key-value 布局）允许例外，但必须在 skill 中明示为布局用途，不得用作数据表。
 - 表格必须标注币种、单位、期间和来源。预测、估算或未经审计数据必须明确标识。
 
 ## 6. 列表
@@ -90,6 +95,9 @@ charts:
 - 每张图表必须在图表内部标注来源和数据日期；图表内部来源固定为 7pt Regular、`#666666`。
 - DOCX 中每张图表下方必须居中写明 `图表 N：<主题>`，其中 N 使用真实连续编号，主题必须能概括图表内容。
 - `图表 N：<主题>` 默认 9pt Bold，行距 1.15，段前 3pt，段后 6pt。
+- 嵌入的图片/图表必须水平居中。内联图片（`wp:inline`）加承载图片段落 `w:jc=center` 是 Word 与 LibreOffice 通用的居中方式。
+- 注意：DOCX 段落居中只居中图片矩形；图片内部可见内容是否居中由图表导出阶段保证，必须同时遵守 `CN_CHART_OUTPUT_CONTRACT.md` 的来源位置、白边和裁切规则。
+- 默认图表显示宽度建议约为正文宽度的 85%。接近满宽的图表会让对称边距不明显，叠加左侧 Y 轴标签时容易产生视觉右偏；必要时应在图内平衡左右边距。
 - 图表下方不得再另写来源小字、来源超链接或多来源清单。完整来源清单放入“数据来源与口径说明”或“参考资料”。
 - DOCX 正文、表格单元格、脚注、来源、caption 和超链接显示文本不得出现固定校验标签；正式表格缺失值使用 `—`。
 - Exhibit 与 caption 必须保持视觉配对，不能跨页断开后无法判断对应关系。
@@ -103,19 +111,20 @@ charts:
 - 文件存在且路径可访问。
 - DOCX zip 结构可打开，核心 XML 可解析。
 - `word/styles.xml` 或 `word/document.xml` 中能找到 `w:rFonts`，且 `w:eastAsia`、`w:ascii`、`w:hAnsi` 都等于 `Source Han Serif CN`。
-- 表格存在时，`tblGrid`、`tcW` 和 cell margin 存在。
+- 表格存在时，`tblGrid`、`tcW` 和 cell margin 存在；每张表只有一个 `tblW type=dxa`，没有 `tblW type=auto`。
+- 表格存在时，结构或渲染检查必须确认表头行全部居中、首列左对齐、首列之外的所有列居中。
 - 列表存在时，`word/numbering.xml` 存在且使用真实 numbering。
 - 超链接存在时，`word/_rels/document.xml.rels` 中有 hyperlink relationship。
 - 文档 XML 中没有裸 URL。
 - 每个图表下方存在 `图表 N：<主题>`，且图表下方不存在来源小字。
-- 若 LibreOffice/`soffice` 可用，必须执行 DOCX -> PNG render QA 并逐页检查中文、表格、图表、页眉页脚和图表编号。
-- Render QA 必须检查柱状图是否错误显示纵坐标横向网格线，同时检查图例挤压、坐标轴标签、中文字体和图表内部来源。
+- 必须执行 DOCX -> PDF/逐页 PNG render QA 并逐页检查中文、表格、图表、页眉页脚和图表编号。Render QA 必须检查柱状图是否错误显示纵坐标横向网格线，同时检查图例挤压、坐标轴标签、中文字体、图表内部来源、表格是否满宽且边框与正文对齐、表头/数据列是否按列位置对齐、图表文字是否裁切或重叠、图片/图表是否水平居中。
+- QuickLook 缩略图、python-docx 结构检查和 XML grep 都不是 Word 的可信渲染代理，不得替代 LibreOffice、Word 或等价方式的渲染验收；结构校验只能证明 OOXML 片段存在，不能证明视觉正确。
 
-如果本机缺少 LibreOffice/`soffice`，允许交付结构校验通过的 DOCX，但最终回复必须写明：
+如果本机缺少或无法运行 LibreOffice/`soffice`，必须先尝试安装或运行 LibreOffice/`soffice`（例如 `brew install --cask libreoffice` 或当前系统等价方式）。只有安装或运行失败后才允许降级为结构校验交付，且最终回复必须写明具体命令、错误和剩余风险：
 
 ```text
-未完成 DOCX 视觉渲染 QA：本机缺少 LibreOffice/soffice。
+未完成 DOCX 视觉渲染 QA：LibreOffice/soffice 安装或运行失败。
 已完成结构校验，但结构校验不能替代视觉验收。
 ```
 
-不得把 zip/docx 结构校验说成视觉 QA 通过。
+不得把 zip/docx 结构校验说成视觉 QA 通过。降级交付后仍必须建议在 Word 或 LibreOffice 中人工打开审阅，并保留渲染 PDF/PNG 作为后续验收证据。

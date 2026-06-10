@@ -159,7 +159,7 @@ THIRD_PARTY_NOTICES.md         第三方许可说明
 | 数据来源规则 | 约束来源优先级、授权判断和缺失依据时的数据缺口处理 | `DATA_SOURCES_CN.md` |
 | 数据查询顺序 | 约束外部数据任务先生成数据源发现记录；Gate 通过前不得网页搜索、官网抓取、SEC/交易所抓取或生成正式交付物 | `DATA_QUERY_ORDER_CN.md` |
 | 中文产物规则 | 约束 `Source Han Serif CN`、日期、币种、单位、表格、图表、免责声明和摘要 | `CN_OUTPUT_FORMATTING.md` |
-| DOCX 交付契约 | 约束中文 Word 的 preset、OOXML 字体、表格几何、真实编号、超链接和 render QA 降级说明 | `CN_DOCX_OUTPUT_CONTRACT.md` |
+| DOCX 交付契约 | 约束中文 Word 的 preset、OOXML 字体、表格几何、表格对齐、真实编号、超链接、render QA 与有证据降级 | `CN_DOCX_OUTPUT_CONTRACT.md` |
 | XLSX 交付契约 | 约束中文工作簿、公式优先、颜色约定、来源/假设/检查区和结构校验 | `CN_XLSX_OUTPUT_CONTRACT.md` |
 | PPTX 交付契约 | 约束中文幻灯片标题、字体、图表、来源脚注、无溢出和视觉 QA | `CN_PPTX_OUTPUT_CONTRACT.md` |
 | Markdown 交付契约 | 约束中文标题层级、表格、来源、链接、免责声明和聊天输出边界 | `CN_MARKDOWN_OUTPUT_CONTRACT.md` |
@@ -186,7 +186,7 @@ Codex 安装插件时会把仓库复制成插件快照。为保持插件简洁�
 |---|---|
 | `DATA_QUERY_ORDER_CN.md` | 外部数据查询 Gate：先生成数据源发现记录，Gate 通过前不得网页搜索或生成正式交付物 |
 | `CN_OUTPUT_FORMATTING.md` | 全格式中文金融产物总合同 |
-| `CN_DOCX_OUTPUT_CONTRACT.md` | 中文 Word 页面、`Source Han Serif CN`、OOXML、表格、编号、超链接和 render QA |
+| `CN_DOCX_OUTPUT_CONTRACT.md` | 中文 Word 页面、`Source Han Serif CN`、OOXML、表格几何与对齐、编号、超链接和 render QA |
 | `CN_XLSX_OUTPUT_CONTRACT.md` | 中文 Excel sheet、公式、颜色、来源、假设、检查区和结构校验 |
 | `CN_PPTX_OUTPUT_CONTRACT.md` | 中文 PowerPoint 标题、字体、图表、来源、无溢出和视觉 QA |
 | `CN_MARKDOWN_OUTPUT_CONTRACT.md` | 中文 Markdown、聊天摘要、表格、来源、免责声明和最终交付说明 |
@@ -389,6 +389,7 @@ python3 /Users/lesterbot/.codex/skills/.system/plugin-creator/scripts/validate_p
 - 66 个 skill 的根级 `DATA_QUERY_ORDER_CN.md` 引用。
 - 66 个 skill 的 `SKILL.md` 是否明确数据源发现记录和网页搜索前 Gate。
 - DOCX、XLSX、PPTX、HTML、独立图表/ZIP skill 的根级格式合同引用和最终交付门槛。
+- DOCX 表格几何、唯一 `tblW type=dxa`、无 `tblW type=auto`、表头居中、首列左对齐、首列之外列居中的样例门禁。
 - 根级 DOCX/PPTX/图表合同是否包含柱状图网格线规则；PPTX 样例会检查 chart XML 中没有可见 `majorGridlines` / `minorGridlines`。
 - 旧 workflow/reference 文件是否只指向根级格式合同，而不是承载新增格式正文。
 - Codex manifest、Claude Code manifest 和 Claude Code marketplace 是否保持同一插件身份。

@@ -275,17 +275,18 @@ document_xml = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
         <w:gridCol w:w="3000"/>
       </w:tblGrid>
       <w:tr>
-        <w:tc><w:tcPr><w:tcW w:w="3000" w:type="dxa"/></w:tcPr><w:p><w:r><w:rPr><w:rFonts w:eastAsia="Source Han Serif CN" w:ascii="Source Han Serif CN" w:hAnsi="Source Han Serif CN"/></w:rPr><w:t>指标</w:t></w:r></w:p></w:tc>
-        <w:tc><w:tcPr><w:tcW w:w="3000" w:type="dxa"/></w:tcPr><w:p><w:r><w:rPr><w:rFonts w:eastAsia="Source Han Serif CN" w:ascii="Source Han Serif CN" w:hAnsi="Source Han Serif CN"/></w:rPr><w:t>本期</w:t></w:r></w:p></w:tc>
-        <w:tc><w:tcPr><w:tcW w:w="3000" w:type="dxa"/></w:tcPr><w:p><w:r><w:rPr><w:rFonts w:eastAsia="Source Han Serif CN" w:ascii="Source Han Serif CN" w:hAnsi="Source Han Serif CN"/></w:rPr><w:t>来源</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:tcW w:w="3000" w:type="dxa"/></w:tcPr><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:rFonts w:eastAsia="Source Han Serif CN" w:ascii="Source Han Serif CN" w:hAnsi="Source Han Serif CN"/></w:rPr><w:t>指标</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:tcW w:w="3000" w:type="dxa"/></w:tcPr><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:rFonts w:eastAsia="Source Han Serif CN" w:ascii="Source Han Serif CN" w:hAnsi="Source Han Serif CN"/></w:rPr><w:t>本期</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:tcW w:w="3000" w:type="dxa"/></w:tcPr><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:rFonts w:eastAsia="Source Han Serif CN" w:ascii="Source Han Serif CN" w:hAnsi="Source Han Serif CN"/></w:rPr><w:t>来源</w:t></w:r></w:p></w:tc>
       </w:tr>
       <w:tr>
-        <w:tc><w:tcPr><w:tcW w:w="3000" w:type="dxa"/></w:tcPr><w:p><w:r><w:rPr><w:rFonts w:eastAsia="Source Han Serif CN" w:ascii="Source Han Serif CN" w:hAnsi="Source Han Serif CN"/></w:rPr><w:t>收入（人民币亿元）</w:t></w:r></w:p></w:tc>
-        <w:tc><w:tcPr><w:tcW w:w="3000" w:type="dxa"/></w:tcPr><w:p><w:r><w:rPr><w:rFonts w:eastAsia="Source Han Serif CN" w:ascii="Source Han Serif CN" w:hAnsi="Source Han Serif CN"/></w:rPr><w:t>125.4</w:t></w:r></w:p></w:tc>
-        <w:tc><w:tcPr><w:tcW w:w="3000" w:type="dxa"/></w:tcPr><w:p><w:r><w:rPr><w:rFonts w:eastAsia="Source Han Serif CN" w:ascii="Source Han Serif CN" w:hAnsi="Source Han Serif CN"/></w:rPr><w:t>数据来源：交易所公告</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:tcW w:w="3000" w:type="dxa"/></w:tcPr><w:p><w:pPr><w:jc w:val="left"/></w:pPr><w:r><w:rPr><w:rFonts w:eastAsia="Source Han Serif CN" w:ascii="Source Han Serif CN" w:hAnsi="Source Han Serif CN"/></w:rPr><w:t>收入（人民币亿元）</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:tcW w:w="3000" w:type="dxa"/></w:tcPr><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:rFonts w:eastAsia="Source Han Serif CN" w:ascii="Source Han Serif CN" w:hAnsi="Source Han Serif CN"/></w:rPr><w:t>125.4</w:t></w:r></w:p></w:tc>
+        <w:tc><w:tcPr><w:tcW w:w="3000" w:type="dxa"/></w:tcPr><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:rFonts w:eastAsia="Source Han Serif CN" w:ascii="Source Han Serif CN" w:hAnsi="Source Han Serif CN"/></w:rPr><w:t>数据来源：交易所公告</w:t></w:r></w:p></w:tc>
       </w:tr>
     </w:tbl>
     <w:p>
+      <w:pPr><w:jc w:val="center"/></w:pPr>
       <w:r>
         <w:rPr><w:rFonts w:eastAsia="Source Han Serif CN" w:ascii="Source Han Serif CN" w:hAnsi="Source Han Serif CN"/><w:b/><w:sz w:val="18"/></w:rPr>
         <w:t>图表 1：收入与估值摘要</w:t>
@@ -361,6 +362,44 @@ if 'Target="https://example.com/announcement"' not in rel_xml or 'TargetMode="Ex
     fail("docx hyperlink target missing or not external")
 w_ns = {"w": "http://schemas.openxmlformats.org/wordprocessingml/2006/main"}
 doc_root = ET.fromstring(doc_xml)
+for table in doc_root.findall(".//w:tbl", w_ns):
+    tbl_pr = table.find("w:tblPr", w_ns)
+    if tbl_pr is None:
+        fail("docx table missing tblPr")
+    tbl_widths = tbl_pr.findall("w:tblW", w_ns)
+    if len(tbl_widths) != 1:
+        fail("docx table must contain exactly one tblW")
+    tbl_width = tbl_widths[0]
+    if tbl_width.attrib.get(f"{{{w_ns['w']}}}type") != "dxa":
+        fail("docx table tblW must use type=dxa")
+    if 'w:type="auto"' in ET.tostring(tbl_pr, encoding="unicode"):
+        fail("docx table tblPr must not contain tblW type=auto")
+
+def paragraph_alignment(paragraph: ET.Element) -> str | None:
+    jc = paragraph.find("w:pPr/w:jc", w_ns)
+    if jc is None:
+        return None
+    return jc.attrib.get(f"{{{w_ns['w']}}}val")
+
+tables = doc_root.findall(".//w:tbl", w_ns)
+if not tables:
+    fail("docx sample table missing")
+for table in tables:
+    rows = table.findall("w:tr", w_ns)
+    if len(rows) < 2:
+        fail("docx sample table must contain header and body rows")
+    header_cells = rows[0].findall("w:tc", w_ns)
+    for cell in header_cells:
+        paragraphs = cell.findall("w:p", w_ns)
+        if not paragraphs or any(paragraph_alignment(p) != "center" for p in paragraphs):
+            fail("docx table header cells must be centered")
+    for row in rows[1:]:
+        cells = row.findall("w:tc", w_ns)
+        for col_idx, cell in enumerate(cells):
+            expected = "left" if col_idx == 0 else "center"
+            paragraphs = cell.findall("w:p", w_ns)
+            if not paragraphs or any(paragraph_alignment(p) != expected for p in paragraphs):
+                fail("docx table body cells must align by column position")
 if "<w:pageBreakBefore" in doc_xml or 'w:type="page"' in doc_xml:
     fail("docx sample must not contain explicit page break settings")
 page_break_runs = [
@@ -386,6 +425,8 @@ if source_paragraphs:
     fail("docx must not place a source paragraph below charts")
 if len(figure_paragraphs) != 1 or "图表 1：收入与估值摘要" not in "".join(figure_paragraphs[0].itertext()):
     fail("docx chart caption must use centered 图表 N：<主题> text")
+if paragraph_alignment(figure_paragraphs[0]) != "center":
+    fail("docx chart caption paragraph must be centered")
 figure_sizes = figure_paragraphs[0].findall(".//w:sz", w_ns)
 if not figure_sizes or any(size.attrib.get(f"{{{w_ns['w']}}}val") != "18" for size in figure_sizes):
     fail("docx chart caption font must be exactly 9pt")

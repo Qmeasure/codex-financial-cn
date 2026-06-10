@@ -81,7 +81,7 @@ description: "通过 Kensho LLM-ready API MCP server 使用 S&P Capital IQ 数�
 - 正文行：白色 / 表格交替行填充色（#F2F2F2）交替。
 - 边框：表格边框色（#CCCCCC），细线（BorderStyle.SINGLE，size 1）。
 - 单元格内边距：上/下 40 DXA，左/右 80 DXA。
-- 所有数字列右对齐。
+- 数据表按列位置统一对齐：表头行居中，首列左对齐，首列之外所有列居中。页眉下方的无边框两列 key-value 表是布局表例外，仍按页眉布局规则处理。
 - 始终使用 ShadingType.CLEAR（绝不要使用 SOLID；SOLID 会导致黑色背景）。
 
 **布局：**
@@ -226,12 +226,6 @@ function createTable(headers, rows, options = {}) {
 
   const cellMargins = { top: 40, bottom: 40, left: 80, right: 80 };
 
-  function isNumeric(val) {
-    if (typeof val !== "string") return false;
-    const cleaned = val.replace(/[,$%()]/g, "").trim();
-    return cleaned !== "" && !isNaN(cleaned);
-  }
-
   // 表头行
   const headerRow = new TableRow({
     children: headers.map(
@@ -248,6 +242,7 @@ function createTable(headers, rows, options = {}) {
                   font: FONT,
                 }),
               ],
+              alignment: AlignmentType.CENTER,
             }),
           ],
           shading: { type: ShadingType.CLEAR, color: "auto", fill: headerFill },
@@ -262,9 +257,7 @@ function createTable(headers, rows, options = {}) {
     const fill = rowIdx % 2 === 1 ? COLORS.TABLE_ALT_ROW : "FFFFFF";
     return new TableRow({
       children: row.map((cell, colIdx) => {
-        const align = colIdx > 0 && isNumeric(cell)
-          ? AlignmentType.RIGHT
-          : AlignmentType.LEFT;
+        const align = colIdx === 0 ? AlignmentType.LEFT : AlignmentType.CENTER;
         return new TableCell({
           children: [
             new Paragraph({
@@ -347,7 +340,7 @@ function createFooter(date) {
 1. 将上方全部函数和常量复制到生成的 Node.js 脚本中。
 2. 调用 `createHeaderBanner(...)`，不要手动构建横幅段落和表格。
 3. 每个章节标题都调用 `create章节Header(...)`，绝不要手动设置段落边框。
-4. 所有表格数据都调用 `createTable(...)`，包括财务摘要、交易可比公司、M&A 活动、关系表、融资历史等。IB/M&A 模板中的 M&A 活动表传入 `{ accentHeader: true }`。对非数字表格（例如关系、所有权），该函数也能正常工作；它只会将包含数字值的单元格右对齐。
+4. 所有表格数据都调用 `createTable(...)`，包括财务摘要、交易可比公司、M&A 活动、关系表、融资历史等。IB/M&A 模板中的 M&A 活动表传入 `{ accentHeader: true }`。该函数按列位置统一对齐：表头居中、首列左、其余列居中。
 5. 对业绩亮点、战略契合、整合考虑和谈话切入点调用 `createBulletList(items, "synthesis")`。
 6. 对关系条目调用 `createBulletList(items, "informational")`。
 7. 将 `createFooter(date)` 传给 Document 构造函数的 `footers.默认` 属性。

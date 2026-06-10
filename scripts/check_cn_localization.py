@@ -221,6 +221,36 @@ ROOT_CHART_STYLE_CONTRACTS = {
     ),
 }
 
+ROOT_DOCX_TABLE_CONTRACT_NEEDLES = (
+    "表格按列位置统一对齐",
+    "不按单元格内容类型逐格判断",
+    "表头行全部水平居中",
+    "首列（行标题/科目列）左对齐",
+    "首列之外的所有列（数值列与文本列一律）居中对齐",
+    "不得存在 `type=auto`",
+)
+
+ROOT_DOCX_RENDER_QA_NEEDLES = (
+    "QuickLook 缩略图、python-docx 结构检查和 XML grep 都不是 Word 的可信渲染代理",
+    "必须先尝试安装或运行 LibreOffice/`soffice`",
+    "失败后才允许降级为结构校验交付",
+    "逐页 PNG",
+)
+
+ROOT_CHART_CENTERING_NEEDLES = (
+    "来源文字的水平范围不得超出绘图区（axes）左右边界",
+    "禁止把来源放在 figure 左下角绝对坐标",
+    "左右白边之差不得超过画布宽度的 2%",
+    "ax.text(..., transform=ax.transAxes)",
+    "xycoords/textcoords",
+)
+
+FORBIDDEN_DOCX_TABLE_WORDING = (
+    "数值右对齐，文本左对齐",
+    "所有数字列右对齐",
+    "只会将包含数字值的单元格右对齐",
+)
+
 DOCX_PAGINATION_CONTRACT_NEEDLES = (
     "DOCX 章节默认连续排版",
     "只允许 Word 自然分页",
@@ -595,6 +625,34 @@ def check_chart_style_contracts() -> None:
                 err(f"{item} 缺少图表 workflow Gate `{needle}`")
 
 
+def check_docx_visual_and_table_contracts() -> None:
+    root_docx = ROOT / "CN_DOCX_OUTPUT_CONTRACT.md"
+    docx_text = root_docx.read_text(encoding="utf-8")
+    for needle in ROOT_DOCX_TABLE_CONTRACT_NEEDLES:
+        if needle not in docx_text:
+            err(f"{rel(root_docx)} 缺少 DOCX 表格硬规则 `{needle}`")
+    for needle in ROOT_DOCX_RENDER_QA_NEEDLES:
+        if needle not in docx_text:
+            err(f"{rel(root_docx)} 缺少 DOCX 渲染 QA 规则 `{needle}`")
+
+    root_chart = ROOT / "CN_CHART_OUTPUT_CONTRACT.md"
+    chart_text = root_chart.read_text(encoding="utf-8")
+    for needle in ROOT_CHART_CENTERING_NEEDLES:
+        if needle not in chart_text:
+            err(f"{rel(root_chart)} 缺少图表居中/裁切硬规则 `{needle}`")
+
+    checked_paths = [root_docx, ROOT / "skills" / "tear-sheet" / "SKILL.md"]
+    for skill_name in sorted(DOCX_SKILLS):
+        checked_paths.append(ROOT / "skills" / skill_name / "SKILL.md")
+    for path in sorted(set(checked_paths)):
+        if not path.exists():
+            continue
+        text = path.read_text(encoding="utf-8")
+        for forbidden in FORBIDDEN_DOCX_TABLE_WORDING:
+            if forbidden in text:
+                err(f"{rel(path)} 出现旧 DOCX 表格对齐口径 `{forbidden}`")
+
+
 def check_docx_pagination_contracts() -> None:
     root_docx = ROOT / "CN_DOCX_OUTPUT_CONTRACT.md"
     text = root_docx.read_text(encoding="utf-8")
@@ -694,6 +752,7 @@ def main() -> int:
     check_skills()
     check_artifact_rules()
     check_chart_style_contracts()
+    check_docx_visual_and_table_contracts()
     check_docx_pagination_contracts()
     check_data_gate_wording()
     check_reference_linkage()
